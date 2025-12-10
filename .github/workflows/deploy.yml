@@ -29,4 +29,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
           # 如果你的仓库名是 username.github.io，这里默认即可
-          publish_branch: gh-pages # 如果是私有仓库，需要设置 
+          # 如果是私有仓库，需要设置 publish_branch: gh-pages
