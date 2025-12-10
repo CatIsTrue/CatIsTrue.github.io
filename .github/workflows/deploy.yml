@@ -1,0 +1,32 @@
+name: Deploy Blog
+
+on:
+  push:
+    branches:
+      - main # 监听 main 分支的改动
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Hexo
+        run: npx hexo generate
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          # 如果你的仓库名是 username.github.io，这里默认即可
+          publish_branch: gh-pages # 如果是私有仓库，需要设置 
