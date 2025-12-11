@@ -1,0 +1,29 @@
+# ---------------------------------------------------------------
+# Scheme Settings
+# ---------------------------------------------------------------
+
+# Schemes
+# scheme: Muse
+# scheme: Mist
+# scheme: Pisces
+scheme: Gemini
+
+# 侧边栏头像设置
+avatar:
+  url: /images/avatar.jpg
+  # 如果你想让头像变圆，就把这个设为 true
+  rounded: true
+  # 如果你想让头像旋转（鼠标放上去时），设为 true
+  rotated: false
+
+custom_file_path:
+  # head: source/_data/head.swig
+  # header: source/_data/header.swig
+  # sidebar: source/_data/sidebar.swig
+  # postMeta: source/_data/post-meta.swig
+  # postBody: source/_data/post-body.swig
+  # footer: source/_data/footer.swig
+  # bodyEnd: source/_data/body-end.swig
+  
+  # 👇 解开这一行！
+  style: source/_data/styles.styl
