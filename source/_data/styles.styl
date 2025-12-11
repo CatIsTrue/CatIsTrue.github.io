@@ -1,16 +1,41 @@
-//设置背景图片
+// 1. 设置全屏背景图
 body {
-    background: url(/images/bg.jpg); // 对应你source/images下的文件名
+    background: url(/images/bg.jpg); // 确保图片路径对
     background-repeat: no-repeat;
-    background-attachment: fixed; // 让背景固定不动，很有质感
+    background-attachment: fixed;
     background-position: 50% 50%;
-    background-size: cover;      // 让图片铺满屏幕
+    background-size: cover;
 }
 
-// 稍微调一下透明度，不然背景太花看不清字（可选）
-.main-inner {
-    opacity: 0.9; 
+// 2. 仅调整【内容区域】的透明度，不改变位置
+// .main-inner 是右侧文章主体
+.main-inner { 
+    background: rgba(255, 255, 255, 0.9); // 使用 rgba 来控制背景色和透明度，比 opacity 更安全
 }
+
+// 3. 仅调整【侧边栏】的透明度
+// .header-inner 是左侧菜单那一块
 .header-inner {
-    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.9); // 同样使用 rgba
+    z-index: 10; // 强制提升它的层级，确保它在最上面！
+}
+
+// 4. (可选) 如果你觉得左侧菜单还是有点挤，可以微调一下宽度
+// .header { width: 240px; } 
+// .container .main-inner { width: calc(100% - 240px); }
+
+
+// 修改侧边栏顶部品牌区域（Seeker.Log 那一块）的背景
+.site-brand-container {
+    background: #20232e;
+    /* 如果你想用图片做背景，解开下面这行 */
+    /* background: url(/images/你的图片.jpg) no-repeat center/cover; */
+}
+
+// 如果你觉得颜色改浅了，字看不清，可以顺便改一下字色
+.site-title {
+    color: white; /* 大标题颜色 */
+}
+.site-subtitle {
+    color: #ddd;  /* 小标题颜色 */
 }

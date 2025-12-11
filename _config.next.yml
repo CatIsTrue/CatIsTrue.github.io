@@ -25,5 +25,11 @@ custom_file_path:
   # footer: source/_data/footer.swig
   # bodyEnd: source/_data/body-end.swig
   
-  # 👇 解开这一行！
   style: source/_data/styles.styl
+
+menu:
+  home: / || fa fa-home
+  #about: /about/ || fa fa-user
+  tags: /tags/ || fa fa-tags  
+  categories: /categories/ || fa fa-th 
+  archives: /archives/ || fa fa-archive
