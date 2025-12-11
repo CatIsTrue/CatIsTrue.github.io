@@ -136,10 +136,10 @@ jobs:
 
 去 GitHub 仓库的 `Actions` 标签页，查看是否构建成功。
 
-![如果构建失败](image-1.png)
+![如果构建失败](/images/image-1.png)
 
 为了看更详细的失败原因，可以去 GitHub 仓库的 Actions 标签页，点击那个红色的失败任务，点击左侧的 build。
-![查看详细失败原因](image-2.png)
+![查看详细失败原因](/images/image-2.png)
 
 网上查了一下这个报错 `sh: 1: hexo: Permission denied` 结合 `Exit code 127`，发现是因为**把 Windows 下生成的 `node_modules` 文件夹上传到 GitHub 了。**
 
@@ -341,7 +341,7 @@ git push
 回到 Vercel 这个界面，等待几分钟（有时候秒级生效，有时候要等10分钟）。
 
 那个红色的 **Invalid Configuration** 会自动变成蓝色的 **Valid** 或者对勾。
-![配置完成](image-3.png)
+![配置完成](/images/image-3.png)
 
 
 ##### 第四步：给 Hexo 本地加个保险（可选但推荐）
