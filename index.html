@@ -133,8 +133,8 @@
 
 <p><strong>提交这个文件并 Push。</strong></p>
 <p>去 GitHub 仓库的 <code>Actions</code> 标签页，查看是否构建成功。</p>
-<p><img src="/image-1.png" alt="如果构建失败"></p>
-<p>为了看更详细的失败原因，可以去 GitHub 仓库的 Actions 标签页，点击那个红色的失败任务，点击左侧的 build。<br><img src="/image-2.png" alt="查看详细失败原因"></p>
+<p><img src="/images/image-1.png" alt="如果构建失败"></p>
+<p>为了看更详细的失败原因，可以去 GitHub 仓库的 Actions 标签页，点击那个红色的失败任务，点击左侧的 build。<br><img src="/images/image-2.png" alt="查看详细失败原因"></p>
 <p>网上查了一下这个报错 <code>sh: 1: hexo: Permission denied</code> 结合 <code>Exit code 127</code>，发现是因为<strong>把 Windows 下生成的 <code>node_modules</code> 文件夹上传到 GitHub 了。</strong></p>
 <h5 id="研究了一下为什么会报错？"><a href="#研究了一下为什么会报错？" class="headerlink" title="研究了一下为什么会报错？"></a>研究了一下为什么会报错？</h5><ol>
 <li>我在本地（Windows 或 Docker 挂载的 Windows 目录）生成了 <code>node_modules</code>。</li>
@@ -286,7 +286,7 @@
 </ul>
 <hr>
 <p>操作完毕后<br>回到 Vercel 这个界面，等待几分钟（有时候秒级生效，有时候要等10分钟）。</p>
-<p>那个红色的 <strong>Invalid Configuration</strong> 会自动变成蓝色的 <strong>Valid</strong> 或者对勾。<br><img src="/image-3.png" alt="配置完成"></p>
+<p>那个红色的 <strong>Invalid Configuration</strong> 会自动变成蓝色的 <strong>Valid</strong> 或者对勾。<br><img src="/images/image-3.png" alt="配置完成"></p>
 <h5 id="第四步：给-Hexo-本地加个保险（可选但推荐）"><a href="#第四步：给-Hexo-本地加个保险（可选但推荐）" class="headerlink" title="第四步：给 Hexo 本地加个保险（可选但推荐）"></a>第四步：给 Hexo 本地加个保险（可选但推荐）</h5><p>为了防止 Hexo 在生成的时候不知道自己的域名变了，建议修改你本地博客的配置文件。</p>
 <ol>
 <li>打开你电脑上博客根目录下的 <code>_config.yml</code> 文件。</li>
@@ -321,7 +321,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://catistrue.com/2025/12/10/hexo-blog-setup-guide/" data-id="cmj19240x0000nx3k998d36s8" data-title="从零开始：使用 Docker + Hexo + Vercel + 腾讯云域名搭建个人博客" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://catistrue.com/2025/12/10/hexo-blog-setup-guide/" data-id="cmj1erdbc0000o95nbp0v8dm1" data-title="从零开始：使用 Docker + Hexo + Vercel + 腾讯云域名搭建个人博客" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
