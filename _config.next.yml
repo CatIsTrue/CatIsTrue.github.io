@@ -61,3 +61,44 @@ busuanzi_count:
   # 统计单篇文章阅读量 (在文章标题下面显示)
   post_views: true
   post_views_icon: fa fa-eye
+
+social:
+  # 格式：名字: 链接 || 图标代码
+  GitHub: https://github.com/CatIsTrue || fab fa-github
+  Zhihu: https://www.zhihu.com/people/dan-gao-gong-zhu || fab fa-zhihu
+
+
+social_icons:
+  enable: true
+  icons_only: false       # 是否只显示图标，不显示文字
+  transition: false       # 是否开启悬停动画
+
+# Reward (Donate)
+reward_settings:
+  # 如果设为 true，默认每篇文章都会显示打赏按钮
+  enable: true
+  animation: false
+  # 按钮上的文字
+  comment: 江湖卖艺，有钱的捧个钱场，有人的捧个人场：P
+
+reward:
+  # 格式：名字: 图片链接
+  wechatpay: /images/wechatpay.png
+  # alipay: /images/alipay.png
+  # paypal: /images/paypal.png
+
+# next 不支持 waline
+# 1. 确保评论系统激活
+# comments:
+#   active: waline
+#   # ...其他保持默认
+
+# # 2. 填入你的 Vercel 地址
+# waline:
+#   enable: true
+#   serverURL: https://waline-comment-blond-rho.vercel.app  # <--- 这里填你刚才拿到的地址
+#   placeholder: 请文明评论，留下你的足迹~
+#   avatar: mm # 默认头像风格
+#   pageSize: 10
+#   visitor: true # 阅读量统计
+#   comment_count: true # 评论数统计
