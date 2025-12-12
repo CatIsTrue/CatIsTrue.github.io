@@ -11,7 +11,25 @@
   </url>
   
   <url>
-    <loc>https://catistrue.com/2019/02/07/visualStudio-skill/</loc>
+    <loc>https://catistrue.com/posts/e09a1826.html</loc>
+    
+    <lastmod>2025-12-12</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://catistrue.com/posts/47478614.html</loc>
+    
+    <lastmod>2025-12-12</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://catistrue.com/posts/d085138b.html</loc>
     
     <lastmod>2025-12-12</lastmod>
     
@@ -29,25 +47,7 @@
   </url>
   
   <url>
-    <loc>https://catistrue.com/2025/12/10/hexo-blog-setup-guide/</loc>
-    
-    <lastmod>2025-12-12</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://catistrue.com/2025/12/12/config-google-search-console/</loc>
-    
-    <lastmod>2025-12-12</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://catistrue.com/1970/01/01/hello-world/</loc>
+    <loc>https://catistrue.com/posts/undefined.html</loc>
     
     <lastmod>2025-12-10</lastmod>
     

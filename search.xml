@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Hello World</title>
+    <url>/posts/undefined.html</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>从零开始：使用 Docker + Hexo + Vercel + 腾讯云域名搭建个人博客</title>
+    <url>/posts/e09a1826.html</url>
+    <content><![CDATA[<p>终于拥有了自己的独立域名博客！🎉</p>
+<p>这篇博客记录了我从零开始搭建 <code>catistrue.com</code> 的全过程。</p>
+<p>在这场折腾中，我本来想直接用<strong>Hexo+GitHub Page</strong>方案。但是考虑到我有多台电脑，有时候会随机打开某一台开始工作，难道我要每一台都配置<strong>Node.js</strong>等等各种环境？<br>经过我的研究，对于我这种情况，最完美的方案是采用 “本地 Docker 预览 + GitHub Actions 自动构建 + 阿里云加速镜像” 的架构。</p>
+<p><strong>这个时候，我的核心思路：CI&#x2F;CD 自动化流</strong></p>
+<p>不要在任何一台电脑上执行 hexo d（部署命令）。所有的部署工作都交给云端自动化完成。<br>    多台电脑：只负责写 Markdown 文章，然后 git push。<br>    GitHub：负责存储源码，并通过 GitHub Actions 自动生成静态页面。<br>    阿里云：作为国内访问的“加速节点”或“镜像站”。</p>
+<p>为了保证我在任何一台电脑上都能无缝切换，同时利用阿里云加速，我开始按照 <strong>“本地环境 -&gt; 代码仓库 -&gt; 自动化构建 -&gt; 双路部署”</strong> 的顺序来搭建。</p>
+<hr>
+<h3 id="第一阶段：初始化项目与本地环境"><a href="#第一阶段：初始化项目与本地环境" class="headerlink" title="第一阶段：初始化项目与本地环境"></a>第一阶段：初始化项目与本地环境</h3><p><strong>目标：</strong> 在我顺手打开的这台电脑上，用 Docker 初始化 Hexo，并建立 Git 仓库。</p>
+<h4 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1. 准备工作"></a>1. 准备工作</h4><p>我的电脑上已经安装了：</p>
+<ul>
+<li><strong>Docker Desktop</strong>（最好配置Docker镜像加速器，否则非常慢）</li>
+<li><strong>Git</strong></li>
+<li>拥有一个 GitHub 账号</li>
+</ul>
+<h4 id="2-初始化-Hexo-文件（使用-Docker）"><a href="#2-初始化-Hexo-文件（使用-Docker）" class="headerlink" title="2. 初始化 Hexo 文件（使用 Docker）"></a>2. 初始化 Hexo 文件（使用 Docker）</h4><p>打开终端（Windows 下建议用 PowerShell 或 Git Bash），进入我想存放博客的目录：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 创建博客目录</span></span><br><span class="line"><span class="built_in">mkdir</span> my-blog</span><br><span class="line"><span class="built_in">cd</span> my-blog</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 使用临时 Docker 容器初始化 Hexo (无需本地安装 Node)</span></span><br><span class="line"><span class="comment"># 注意：这一步会下载 node 镜像并安装 hexo，可能需要一点时间</span></span><br><span class="line"><span class="comment"># 最好预先配置一下 Docker 镜像加速器</span></span><br><span class="line">docker run --<span class="built_in">rm</span> -v <span class="string">&quot;<span class="subst">$(pwd)</span>:/app&quot;</span> -w /app node:18-alpine sh -c <span class="string">&quot;npm install hexo-cli -g &amp;&amp; hexo init .&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 补充安装 npm 依赖</span></span><br><span class="line">docker run --<span class="built_in">rm</span> -v <span class="string">&quot;<span class="subst">$(pwd)</span>:/app&quot;</span> -w /app node:18-alpine npm install</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-创建本地环境配置"><a href="#3-创建本地环境配置" class="headerlink" title="3. 创建本地环境配置"></a>3. 创建本地环境配置</h4><p>在 <code>my-blog</code> 根目录下创建一个 <code>docker-compose.yml</code> 文件。这是你<strong>多台电脑同步</strong>的核心：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">hexo:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">node:18-alpine</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">hexo-dev</span></span><br><span class="line">    <span class="attr">working_dir:</span> <span class="string">/app</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./:/app</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;4000:4000&quot;</span></span><br><span class="line">    <span class="comment"># 启动时自动安装新依赖，并开启预览服务器</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">sh</span> <span class="string">-c</span> <span class="string">&quot;npm install &amp;&amp; npx hexo server -p 4000 -i 0.0.0.0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-测试本地运行"><a href="#4-测试本地运行" class="headerlink" title="4. 测试本地运行"></a>4. 测试本地运行</h4><p>在终端运行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker-compose up</span><br></pre></td></tr></table></figure>
+<p>访问 <code>http://localhost:4000</code>。如果看到 Hexo 的默认页面，说明本地环境搭建成功。按 <code>Ctrl+C</code> 停止。</p>
+<hr>
+<h3 id="第二阶段：推送到-GitHub-并配置自动化"><a href="#第二阶段：推送到-GitHub-并配置自动化" class="headerlink" title="第二阶段：推送到 GitHub 并配置自动化"></a>第二阶段：推送到 GitHub 并配置自动化</h3><p><strong>目标：</strong> 将源码上传，并让 GitHub Actions 接管构建任务。</p>
+<h4 id="1-创建-GitHub-仓库"><a href="#1-创建-GitHub-仓库" class="headerlink" title="1. 创建 GitHub 仓库"></a>1. 创建 GitHub 仓库</h4><ul>
+<li>在 GitHub 创建一个新仓库，命名为 <code>你的用户名.github.io</code> (要设置为<code>Public</code>，我一开始设置为私有仓库，结果发现免费账号无法直接在私有仓库中使用 GitHub Pages)。</li>
+</ul>
+<h4 id="2-提交代码"><a href="#2-提交代码" class="headerlink" title="2. 提交代码"></a>2. 提交代码</h4><p>在 <code>my-blog</code> 目录下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 生成 .gitignore (Hexo 初始化时通常已有，确认包含 node_modules, public, db.json)</span></span><br><span class="line">git init</span><br><span class="line">git branch -M main</span><br><span class="line">git remote add origin &lt;你的仓库SSH地址&gt;</span><br><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;Initialize blog&quot;</span></span><br><span class="line">git push -u origin main</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-配置-GitHub-Pages-部署流程"><a href="#3-配置-GitHub-Pages-部署流程" class="headerlink" title="3. 配置 GitHub Pages 部署流程"></a>3. 配置 GitHub Pages 部署流程</h4><p>在项目根目录创建路径 <code>.github/workflows/deploy.yml</code>，填入以下内容。<br><em>注意：此时我们先只配置 GitHub Pages，确保跑通后再加阿里云&#x2F;腾讯云。</em></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">Deploy</span> <span class="string">Blog</span></span><br><span class="line"></span><br><span class="line"><span class="attr">on:</span></span><br><span class="line">  <span class="attr">push:</span></span><br><span class="line">    <span class="attr">branches:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">main</span> <span class="comment"># 监听 main 分支的改动</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">build:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Checkout</span> <span class="string">source</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">actions/checkout@v3</span></span><br><span class="line"></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Setup</span> <span class="string">Node.js</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">actions/setup-node@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">node-version:</span> <span class="string">&#x27;18&#x27;</span></span><br><span class="line"></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Install</span> <span class="string">Dependencies</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">npm</span> <span class="string">install</span></span><br><span class="line"></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Build</span> <span class="string">Hexo</span></span><br><span class="line">        <span class="attr">run:</span> <span class="string">npx</span> <span class="string">hexo</span> <span class="string">generate</span></span><br><span class="line"></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Deploy</span> <span class="string">to</span> <span class="string">GitHub</span> <span class="string">Pages</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">peaceiris/actions-gh-pages@v3</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">github_token:</span> <span class="string">$&#123;&#123;</span> <span class="string">secrets.GITHUB_TOKEN</span> <span class="string">&#125;&#125;</span></span><br><span class="line">          <span class="attr">publish_dir:</span> <span class="string">./public</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>提交这个文件并 Push。</strong></p>
+<p>去 GitHub 仓库的 <code>Actions</code> 标签页，查看是否构建成功。</p>
+<p><img src="/images/image-1.png" alt="如果构建失败"></p>
+<p>为了看更详细的失败原因，可以去 GitHub 仓库的 Actions 标签页，点击那个红色的失败任务，点击左侧的 build。<br><img src="/images/image-2.png" alt="查看详细失败原因"></p>
+<p>网上查了一下这个报错 <code>sh: 1: hexo: Permission denied</code> 结合 <code>Exit code 127</code>，发现是因为<strong>把 Windows 下生成的 <code>node_modules</code> 文件夹上传到 GitHub 了。</strong></p>
+<h5 id="研究了一下为什么会报错？"><a href="#研究了一下为什么会报错？" class="headerlink" title="研究了一下为什么会报错？"></a>研究了一下为什么会报错？</h5><ol>
+<li>我在本地（Windows 或 Docker 挂载的 Windows 目录）生成了 <code>node_modules</code>。</li>
+<li>Windows 下的可执行文件权限和 Linux（GitHub Actions 运行环境）是不兼容的。</li>
+<li>当我把这些文件推送到 GitHub，Actions 在 Linux 环境下尝试运行 <code>node_modules</code> 里的 <code>hexo</code> 命令时，发现文件权限不对，或者格式不对，于是报“拒绝访问”。</li>
+</ol>
+<h5 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h5><p>如果你也遇到了一样的问题，解决方法也很简单，只需要<strong>从 Git 仓库中删除 <code>node_modules</code>，并让 GitHub Actions 自己重新下载安装。</strong></p>
+<p>打开<strong>本地电脑</strong>的终端，进入博客目录，依次执行以下命令：</p>
+<p>（1）第一步：修改 .gitignore<br>确保你的目录里有一个 <code>.gitignore</code> 文件。<br>如果没有，新建一个；如果有，确保里面包含 <code>node_modules</code>。<br>可以使用命令追加：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Windows PowerShell 下追加内容（如果文件不存在会自动创建）</span></span><br><span class="line"><span class="built_in">Add-Content</span> .gitignore <span class="string">&quot;node_modules/&quot;</span></span><br><span class="line"><span class="built_in">Add-Content</span> .gitignore <span class="string">&quot;public/&quot;</span></span><br><span class="line"><span class="built_in">Add-Content</span> .gitignore <span class="string">&quot;db.json&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>（2）第二步：从 Git 记录中删除这些文件<br>这一步很重要，<strong>不要直接在文件管理器删文件夹</strong>，我们要的是从“Git 的追踪记录”里删除，但保留你本地的文件。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 从 Git 暂存区删除 node_modules (不会删除你本地的实体文件)</span></span><br><span class="line">git <span class="built_in">rm</span> -r --cached node_modules</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 顺便把生成的 public 也删了，源码库不需要存生成后的网页</span></span><br><span class="line">git <span class="built_in">rm</span> -r --cached public</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 提交更改</span></span><br><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;Fix: remove node_modules from git tracking&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+<p>（3）第三步：去 GitHub Actions 查看<br>当你执行完 <code>git push</code> 后，GitHub Actions 会自动触发一次新的构建。<br>这次，它在 <code>Install Dependencies</code> 这一步会下载全新的、适配 Linux 环境的依赖包，<code>hexo generate</code> 就不会报错了。</p>
+<hr>
+<p>成功后，可以去仓库 <code>Settings -&gt; Pages</code>，将 source 改为 <code>gh-pages</code> 分支。<br>此时我的博客已经可以通过 <code>https://catistrue.github.io/</code> 访问了。</p>
+<hr>
+<h3 id="第三阶段：抉择时刻：阿里云or腾讯云"><a href="#第三阶段：抉择时刻：阿里云or腾讯云" class="headerlink" title="第三阶段：抉择时刻：阿里云or腾讯云"></a>第三阶段：抉择时刻：阿里云or腾讯云</h3><p>鉴于我的具体需求: “个人博客 + Docker 部署 + 需要国内访问加速” ，到底是选择腾讯云还是阿里云，我纠结了一下。经过我翻看各大网友的建议，作为个人博主，我最后决定选择腾讯云，它够轻量也够用了，省下来的钱和带宽，对个人博客来说才是实打实的。</p>
+<p>而且，我可以通过 腾讯云 DNS + Vercel ，个人版够用。</p>
+<p>于是，我现在的架构是 “基于 Serverless 的现代化博客架构：本地 Hexo + Git 版本控制 + Vercel 边缘网络自动部署 + 腾讯云 DNS 解析” （据说是全球最流行的 JAMstack 架构，在技术圈里是非常时髦的！）（这个说法我还没有考证过，欢迎各位小伙伴解答。）</p>
+<hr>
+<h3 id="第四阶段：腾讯云购买域名的保姆级教程"><a href="#第四阶段：腾讯云购买域名的保姆级教程" class="headerlink" title="第四阶段：腾讯云购买域名的保姆级教程"></a>第四阶段：腾讯云购买域名的保姆级教程</h3><p>整个过程大概需要 <strong>15-20 分钟</strong>，主要时间花在“实名认证”的审核上。</p>
+<h4 id="（1）-准备工作"><a href="#（1）-准备工作" class="headerlink" title="（1） 准备工作"></a>（1） 准备工作</h4><ol>
+<li><strong>账号准备</strong>：注册并登录腾讯云账号（可以用微信直接扫码登录，最方便）。</li>
+<li><strong>身份认证</strong>：这是国家规定必须做的。<ul>
+<li>登录后，系统通常会提示你进行 <strong>“实名认证”</strong>。</li>
+<li>做个人博客，所以我选择 <strong>“个人认证”</strong> </li>
+<li><em>注意：这一步是绑定你的身份信息，为了合规。</em></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="（2）挑选并购买域名"><a href="#（2）挑选并购买域名" class="headerlink" title="（2）挑选并购买域名"></a>（2）挑选并购买域名</h4><ol>
+<li><p><strong>进入域名注册页面</strong>：</p>
+<ul>
+<li>在腾讯云官网首页搜索栏输入 <strong>“域名注册”</strong>，点击进入。</li>
+<li>或者直接访问：<code>https://dnspod.cloud.tencent.com/</code></li>
+</ul>
+</li>
+<li><p><strong>搜索心仪的域名</strong>：</p>
+<ul>
+<li>在搜索框输入你想好的名字（比如 <code>CatIsTrue</code>）。</li>
+<li>点击查询，系统会列出哪些后缀（.com &#x2F; .cn &#x2F; .net）还能买，以及价格。</li>
+</ul>
+</li>
+<li><p><strong>选择与购买</strong>：</p>
+<ul>
+<li><strong>强烈建议</strong>：首选 **<code>.com</code>**（最通用、看着专业），如果为了便宜也可以选 <code>.cn</code>（必须实名且有些限制），或者 <code>.net</code>。</li>
+<li>看到“未注册”字样，点击右侧的 <strong>“加入购物车”</strong> -&gt; <strong>“立即购买”</strong>。</li>
+<li>对于个人博客网站来说，只买<code>.com</code>就够了，不用看它绑定的一堆组合（省杯咖啡钱）</li>
+</ul>
+</li>
+<li><p><strong>填写域名信息模板（关键步骤）</strong>：</p>
+<ul>
+<li>购买界面会让你选择 <strong>“域名信息模板”</strong>。如果像我一样是第一次买，还需要点击 <strong>“创建新模板”</strong>。</li>
+<li><strong>填写信息</strong>：填写真实的姓名、邮箱、地址、手机号。</li>
+<li><strong>实名核验</strong>：这里需要再次上传你的<strong>身份证正面照片</strong>（只正面就行了）。</li>
+<li>提交后，腾讯云会审核这个模板（通常 1-10 分钟内完成）。</li>
+<li><em>审核通过后，回到购买页面，勾选这个模板。</em></li>
+<li><em>注意：如果是还在审核中，是不能购买下单的，等它审核结束就行。差不多3-5分钟就完成了，审核很快</em></li>
+</ul>
+</li>
+<li><p><strong>隐私保护（重要！）</strong>：</p>
+<ul>
+<li>在结算页面，留意有没有 <strong>“域名隐私保护”</strong> 或者 <strong>“开启隐私保护”</strong> 的勾选框。</li>
+<li>腾讯云现在大部分后缀是默认免费赠送并开启的，确认一下即可。这能防止你的手机号被公开查到。</li>
+</ul>
+</li>
+<li><p><strong>支付</strong>：</p>
+<ul>
+<li>确认金额（我买的时候 .com 首年 83 元左右），然后直接使用微信支付即可。</li>
+</ul>
+</li>
+<li><p><strong>验证隐私保护设置是否开启成功（保护隐私比较重要）</strong></p>
+<ul>
+<li>购买成功后，可以打开 whois.cloud.tencent.com (或者直接百度搜 “whois查询”)。</li>
+<li>输入你的域名。</li>
+<li>看查询结果里的 “注册人&#x2F;Registrant”。</li>
+<li>如果显示的是你的真名 -&gt; 没开成功。</li>
+<li>如果显示的是 “通过表单联系域名所有者” 这种乱七八糟的代码 -&gt; 开成功了。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="（3）配置解析（让域名指向你的博客）"><a href="#（3）配置解析（让域名指向你的博客）" class="headerlink" title="（3）配置解析（让域名指向你的博客）"></a>（3）配置解析（让域名指向你的博客）</h4><p>搞定域名后告一段落！<br>但如果现在要访问 <a href="http://catistrue.com/">http://catistrue.com/</a> 会发现还是打不开。</p>
+<p>这是完全正常的！别慌。</p>
+<p>买完域名到能正常访问，中间缺了最关键的<strong>搭桥</strong>环节。</p>
+<p>我们在腾讯云买了 <code>catistrue.com</code>，这就像刚领了个<strong>车牌号</strong>。但是：</p>
+<ol>
+<li>你还没把这个车牌号挂在你的<strong>车子</strong>（Vercel 或 GitHub）上。</li>
+<li>即使挂上了，送信的邮递员（DNS服务器）还没来得及更新地图。</li>
+</ol>
+<p>现在的空白，说明这个域名<strong>还不知道该去哪里</strong>。</p>
+<p>在解决这个问题前，先插播一段：我需要配置<code>Vercel</code></p>
+<p>因为我不想在接下来换电脑的时候反复配环境，我的预期是新的电脑只写文章 (CI&#x2F;CD 自动化)利用 GitHub Actions，把“生成网页”这个苦力活交给 GitHub 的服务器去做。并且希望 <strong>国内外都能访问</strong>，所以我最后采用 <strong>“GitHub 存储代码 + Vercel 自动构建&#x2F;托管”</strong> 的组合。</p>
+<p><strong>为什么要这样组合？</strong></p>
+<ul>
+<li><strong>GitHub Pages</strong>：在国内访问经常抽风，有时候慢到打不开。</li>
+<li><strong>Vercel</strong>：它自带了全球 CDN（包括针对大陆地区的优化线路），速度比 GitHub Pages 快得多，而且极其稳定。</li>
+<li><strong>自动化</strong>：Vercel 会自动监听你的 GitHub 仓库。你只要往 GitHub 传了 <code>.md</code> 文件，Vercel 就会立刻感知到，自动在云端帮你执行 <code>hexo g</code> 生成网页并发布。<strong>你连 GitHub Actions 脚本都不用写！</strong></li>
+</ul>
+<hr>
+<p>下面是全流程的操作步骤</p>
+<h5 id="第一步：在-Vercel-上“认领”你的代码"><a href="#第一步：在-Vercel-上“认领”你的代码" class="headerlink" title="第一步：在 Vercel 上“认领”你的代码"></a>第一步：在 Vercel 上“认领”你的代码</h5><ol>
+<li>去 <a href="https://vercel.com/">Vercel 官网</a> 注册一个账号（直接用 GitHub 账号登录）。</li>
+<li>登录后，点击 <strong>“Add New…”</strong> -&gt; **”Project”**。</li>
+<li>它会列出你 GitHub 里的仓库，找到你的 <strong>Hexo 博客仓库</strong>，点击 <strong>Import</strong>。</li>
+<li><strong>关键配置（Vercel 足够聪明，通常会自动填好）：</strong><ul>
+<li><strong>Framework Preset</strong>: 选 <code>Hexo</code>。</li>
+<li><strong>Build Command</strong>: <code>hexo generate</code> (或者 <code>hexo g</code>)。</li>
+<li><strong>Output Directory</strong>: <code>public</code>。</li>
+<li>点击 <strong>Deploy</strong>。</li>
+</ul>
+</li>
+</ol>
+<p>等几十秒，你会看到满屏庆祝的彩带，说明 Vercel 已经成功把你的博客在云端构建出来了！</p>
+<h5 id="第二步：在-Vercel-端设置（让国内外都能访问）"><a href="#第二步：在-Vercel-端设置（让国内外都能访问）" class="headerlink" title="第二步：在 Vercel 端设置（让国内外都能访问）"></a>第二步：在 Vercel 端设置（让国内外都能访问）</h5><p>这一步就是把刚才我们在腾讯云买的域名，指引到 Vercel 上。</p>
+<ol>
+<li><p><strong>在 Vercel 端设置</strong>：<br>进入你刚才创建的项目 -&gt; <strong>Settings</strong> -&gt; <strong>Domains</strong>。</p>
+</li>
+<li><p><strong>输入框</strong>：<br>填好 <code>catistrue.com</code> （刚才在腾讯云注册的域名）</p>
+</li>
+<li><p>**Redirect catistrue.com to <a href="http://www.catistrue.com/">www.catistrue.com</a> (Recommended)**：<br><strong>务必勾选（默认已经勾选了）！</strong></p>
+<ul>
+<li><strong>为什么要勾选？</strong><br>这是 Vercel 的一个最佳实践。它会自动帮你配置两个域名：<code>catistrue.com</code> (根域名) 和 <code>www.catistrue.com</code> (带www的域名)。<br>勾选后，当别人访问 <code>catistrue.com</code> 时，会自动跳转到 <code>www.catistrue.com</code>。这对 SEO（搜索引擎优化）和 CDN 缓存都更友好。如果不勾选，两个域名是独立的，虽然也能访问，但不够规范。</li>
+</ul>
+</li>
+</ol>
+<p><strong>接着直接点击右下角的黑底白字按钮 “Add” (或者 “Save”) 即可！</strong></p>
+<p>点完之后，它会跳回原来的界面，并显示两个红色的或者黄色的提示（Invalid Configuration），这是正常的，因为你还没去腾讯云（DNSPod）那边改解析记录。（戳开这俩提示，可以看到对应的<code>@</code>、<code>www</code>信息，后续要用）</p>
+<h5 id="第三步：在腾讯云（DNSPod）端设置（最关键的一步）"><a href="#第三步：在腾讯云（DNSPod）端设置（最关键的一步）" class="headerlink" title="第三步：在腾讯云（DNSPod）端设置（最关键的一步）"></a>第三步：在腾讯云（DNSPod）端设置（最关键的一步）</h5><p><strong>回到腾讯云</strong></p>
+<ul>
+<li>回到腾讯云控制台 -&gt; <strong>DNS 解析 DNSPod</strong>。</li>
+<li>点击你的域名，添加（或修改）以下两条记录：</li>
+</ul>
+<p>请务必<strong>完全按照</strong> Vercel提供的信息填写，不要自己发挥：</p>
+<p><strong>第一条记录：给根域名 <code>catistrue.com</code> 用的</strong></p>
+<ul>
+<li><strong>主机记录</strong>：<code>@</code></li>
+<li><strong>记录类型</strong>：<code>A</code></li>
+<li><strong>记录值</strong>：<code>xx.xx.xx.xx</code> (以 Vercel 显示的为准)</li>
+</ul>
+<p><strong>第二条记录：给 <code>www</code> 子域名用的</strong></p>
+<ul>
+<li><strong>主机记录</strong>：<code>www</code></li>
+<li><strong>记录类型</strong>：<code>CNAME</code></li>
+<li><strong>记录值</strong>：<code>xxx.com</code> (以 Vercel 显示的为准)</li>
+</ul>
+<hr>
+<p>操作完毕后<br>回到 Vercel 这个界面，等待几分钟（有时候秒级生效，有时候要等10分钟）。</p>
+<p>那个红色的 <strong>Invalid Configuration</strong> 会自动变成蓝色的 <strong>Valid</strong> 或者对勾。<br><img src="/images/image-3.png" alt="配置完成"></p>
+<h5 id="第四步：给-Hexo-本地加个保险（可选但推荐）"><a href="#第四步：给-Hexo-本地加个保险（可选但推荐）" class="headerlink" title="第四步：给 Hexo 本地加个保险（可选但推荐）"></a>第四步：给 Hexo 本地加个保险（可选但推荐）</h5><p>为了防止 Hexo 在生成的时候不知道自己的域名变了，建议修改你本地博客的配置文件。</p>
+<ol>
+<li>打开你电脑上博客根目录下的 <code>_config.yml</code> 文件。</li>
+<li>找到 <code>url:</code> 这一行。</li>
+<li>改成：<code>url: https://catistrue.com</code></li>
+<li>把这个修改推送到 GitHub。</li>
+</ol>
+<hr>
+<p>激动人心的时刻来了，现在，打开电脑，除了可以访问<code>https://catistrue.github.io/</code> ,还可以访问<code>https://catistrue.com</code> , <code>https://www.catistrue.com</code>。<br>个人博客网站可以打开啦！（太棒了！🎉 恭喜我们！）</p>
+<p><strong>ps</strong><br>如果到这一步还是能打开个人网站，不用担心，现在打不开，只剩下一个原因：SSL 证书还没颁发好，或者本地 DNS 缓存没更新。可以再等一会儿，或者在终端输入<code>ipconfig /flushdns</code>刷新一下DNS解析缓存看看。</p>
+<hr>
+<h3 id="第五阶段：日常使用流程"><a href="#第五阶段：日常使用流程" class="headerlink" title="第五阶段：日常使用流程"></a>第五阶段：日常使用流程</h3><p>恭喜！我们已经完成全部的搭建过程了。</p>
+<ol>
+<li><p><strong>以后的工作流</strong>：</p>
+<ul>
+<li>在任何电脑上写好 <code>xxx.md</code> 文章。</li>
+<li>扔进 <code>source/_posts</code> 文件夹。</li>
+<li>通过 Git 推送到 GitHub。</li>
+<li><strong>结束！</strong> Vercel 会自动构建，两分钟后我的域名 <code>catistrue.com</code> 上就有新文章了。</li>
+</ul>
+</li>
+<li><p><strong>访问体验</strong>：</p>
+<ul>
+<li><strong>国外用户</strong>：飞快，直接连 Vercel 的海外节点。</li>
+<li><strong>国内用户</strong>：比较快，走 Vercel 优化的亚洲节点（通常是香港或新加坡），比直连 GitHub 快10倍以上。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>如果你也想拥有一个酷炫的独立博客，希望这篇教程能帮到你。</p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>博客搭建</tag>
+        <tag>教程</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>为什么谷歌搜不到我的个人博客？（附 Hexo + GSC 完整收录指南）</title>
+    <url>/posts/47478614.html</url>
+    <content><![CDATA[<p>刚搭好 Hexo 博客，兴冲冲地在 Google 搜索栏输入 <code>site:catistrue.com</code>，结果却是“找不到任何与此相关的内容或信息”。</p>
+<p><img src="/images/gsc/image.png" alt="找不到"></p>
+<p>那种心情，大概就像是新开了一家店，装修得漂漂亮亮，结果门口连个路牌都没有，谁也找不到。</p>
+<p>今天记录一下我为了让 Google 收录我的博客，踩过的坑和最终的解决方案。<br>如果你也像我之前一样发出新手疑问，这篇文章应该能帮到你。</p>
+<span id="more"></span>
+
+<h2 id="核心误区：建好站-能被搜到？"><a href="#核心误区：建好站-能被搜到？" class="headerlink" title="核心误区：建好站 &#x3D; 能被搜到？"></a>核心误区：建好站 &#x3D; 能被搜到？</h2><p>这是最大的误区。<strong>网站上线 ≠ 被收录。</strong></p>
+<p>互联网就像一个巨大的图书馆，Google 是图书管理员。我们建好博客，只是把书写好了放在自家书房里。如果不主动去“登记”，图书管理员是不知道你这本书存在的。</p>
+<p>所以，我们需要做两件事：</p>
+<ol>
+<li><strong>验明正身</strong>：告诉 Google 这个域名是我的（GSC 验证）。</li>
+<li><strong>提交目录</strong>：把书的目录交给 Google（提交 Sitemap）。</li>
+</ol>
+<h2 id="第一步：注册-Google-Search-Console-GSC-："><a href="#第一步：注册-Google-Search-Console-GSC-：" class="headerlink" title="第一步：注册 Google Search Console (GSC)："></a>第一步：注册 Google Search Console (GSC)：</h2><p>Google Search Console (GSC) 是 Google 官方的站长工具。验证所有权最推荐的方法是 <strong>DNS 验证</strong>。</p>
+<p>访问 <a href="https://search.google.com/search-console">Google Search Console</a></p>
+<p>(1) 输入你的域名 catistrue.com (选左边的“网域”&#x2F;Domain)。</p>
+<p>(2) 验证所有权：它会给你一段 TXT 代码。(复制下来就行)</p>
+<p>(3) 去你的服务商（比如我是去 腾讯云 DNSPod），添加一条 TXT 记录，把代码贴进去。</p>
+<h2 id="第二步：GSC-验证"><a href="#第二步：GSC-验证" class="headerlink" title="第二步：GSC 验证"></a>第二步：GSC 验证</h2><p>Google 只是想验证你拥有 <code>catistrue.com</code> 这个根域名。所以在腾讯云 DNSPod新增这样一个记录：</p>
+<p>主机记录：请写 @ （或者留空不填，但在 DNSPod 里通常填 @ 代表根域名）。</p>
+<p>记录类型：TXT </p>
+<p>记录值：google-site-verification&#x3D;… （刚才复制下来的 TXT 代码）</p>
+<hr>
+<p>这里我遇到了一个新手常犯的犹豫：<strong>我已经有一条 <code>@</code> 的 A 记录指向服务器 IP 了，再加一条 <code>@</code> 的 TXT 记录用来验证，会冲突吗？</strong></p>
+<p><strong>答案是：完全不会。</strong></p>
+<ul>
+<li><strong>A 记录</strong>：负责指路，告诉浏览器网站在哪里。</li>
+<li><strong>TXT 记录</strong>：负责备注，告诉 Google 验证码是什么。</li>
+</ul>
+<p>只要类型不同（一个是 A，一个是 TXT），它们就能和平共处。<br>所以放心添加即可。</p>
+<h2 id="第三步：最关键的-Sitemap"><a href="#第三步：最关键的-Sitemap" class="headerlink" title="第三步：最关键的 Sitemap"></a>第三步：最关键的 Sitemap</h2><p>验证通过只是拿到了“房产证”，想让爬虫快速抓取，必须主动提交 Sitemap（站点地图）。</p>
+<h3 id="1-检查-Hexo-是否有-Sitemap"><a href="#1-检查-Hexo-是否有-Sitemap" class="headerlink" title="1. 检查 Hexo 是否有 Sitemap"></a>1. 检查 Hexo 是否有 Sitemap</h3><p>访问 <code>https://www.catistrue.com/sitemap.xml</code>，如果 404，说明没装插件。</p>
+<p>这里插播一段，如果像我之前一样通过CI&#x2F;CD部署的，就可以感受到它的优势。</p>
+<p>比如一般来说，直接通过安装本地环境搭建Hexo+GitHub的，需要在博客根目录运行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install hexo-generator-sitemap --save</span><br></pre></td></tr></table></figure>
+<p>然后重新 <code>hexo g -d</code> 部署。再次访问，看到一堆密密麻麻的代码（XML 格式），就说明成功了。</p>
+<p>但是，如果走CI&#x2F;CD部署的，即使手边这台电脑没有配置Node.js环境，没有配置docker环境，仍然可以很轻松给项目添加新插件。这是一个非常现实的场景。而且其实<strong>非常简单</strong>，甚至比有 Docker 还简单。</p>
+<p><strong>核心逻辑是：</strong> 你只需要修改“购物清单” (<code>package.json</code>)，然后把清单传给 GitHub。真正负责“买菜做饭” (安装插件、生成页面、部署) 的是 <strong>GitHub Actions</strong>，而不是你的本地电脑。</p>
+<p>你完全<strong>不需要</strong>在本地运行 <code>npm install</code> 或 <code>hexo g -d</code>。</p>
+<hr>
+<h4 id="操作步骤-如果已经安装过hexo-generator-sitemap插件可跳过这段"><a href="#操作步骤-如果已经安装过hexo-generator-sitemap插件可跳过这段" class="headerlink" title="操作步骤 (如果已经安装过hexo-generator-sitemap插件可跳过这段)"></a>操作步骤 (如果已经安装过<code>hexo-generator-sitemap</code>插件可跳过这段)</h4><p>对于我们这种CI&#x2F;CD部署的场景，你只需要直接编辑文件即可：</p>
+<h5 id="（1）手动修改-package-json"><a href="#（1）手动修改-package-json" class="headerlink" title="（1）手动修改 package.json"></a>（1）手动修改 <code>package.json</code></h5><p>在你的项目根目录下，找到 <code>package.json</code> 文件。这是 Node.js 项目的依赖清单。</p>
+<p>找到 <code>&quot;dependencies&quot;</code> 部分，手动添加一行：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="attr">&quot;dependencies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;hexo&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^7.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-archive&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-category&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-index&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-tag&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-ejs&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-marked&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^6.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-stylus&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-server&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-theme-landscape&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^1.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 👇 在这里手动加上这一行即可，版本号写 * 或者去 npm搜个大概版本都行</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-sitemap&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.1&quot;</span> </span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><em>(注意：上一行的末尾别忘了加逗号 <code>,</code>，json 格式很严格)</em></p>
+<h5 id="（2）配置-config-yml-如果需要"><a href="#（2）配置-config-yml-如果需要" class="headerlink" title="（2）配置 _config.yml (如果需要)"></a>（2）配置 <code>_config.yml</code> (如果需要)</h5><p>通常 sitemap 插件安装后会自动生效，但为了稳妥，我们可以在 <code>_config.yml</code> 里开启它。<br>打开根目录的 <code>_config.yml</code>，在末尾添加：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Sitemap</span></span><br><span class="line"><span class="attr">sitemap:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">sitemap.xml</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="（3）提交代码"><a href="#（3）提交代码" class="headerlink" title="（3）提交代码"></a>（3）提交代码</h5><p>这就是最后一步了。我只需要把这两个文件的修改 Push 到 GitHub。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git add package.json _config.yml</span><br><span class="line">git commit -m <span class="string">&quot;Add sitemap plugin&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+<h5 id="（4）见证奇迹"><a href="#（4）见证奇迹" class="headerlink" title="（4）见证奇迹"></a>（4）见证奇迹</h5><ol>
+<li>代码推送到 GitHub 后，<strong>GitHub Actions 会自动触发</strong>。</li>
+<li>Action 在云端运行时的逻辑是：<code>npm install</code>。</li>
+<li>这时候，它会读取我刚才修改过的 <code>package.json</code>，发现：“咦，多了一个 <code>hexo-generator-sitemap</code>！”</li>
+<li>于是它会自动下载安装这个插件。</li>
+<li>接着执行 <code>hexo generate</code> 时，插件就会生效，生成 <code>sitemap.xml</code>。</li>
+<li>最后部署上线。</li>
+</ol>
+<hr>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>你<strong>不需要</strong>在本地安装 Node.js，也<strong>不需要</strong>运行 npm 命令。<br><strong>只要修改 <code>package.json</code> 这个纯文本文件，你就相当于指挥了云端的服务器帮你安装了插件。</strong></p>
+<p>这就是 CI&#x2F;CD (持续集成&#x2F;持续部署) 的最大优势！</p>
+<h3 id="2-提交给-GSC"><a href="#2-提交给-GSC" class="headerlink" title="2. 提交给 GSC"></a>2. 提交给 GSC</h3><p>在 GSC 后台找到“站点地图”，输入 <code>https://www.catistrue.com/sitemap.xml</code> 提交。</p>
+<p><img src="/images/gsc/image-1.png" alt="提交站点地图"></p>
+<p>到这一步提交之后，就是等待啦。</p>
+<h2 id="第三步：等待"><a href="#第三步：等待" class="headerlink" title="第三步：等待"></a>第三步：等待</h2><p>提交完 Sitemap，最搞心态的一幕出现了：状态栏显示红色的 **“无法抓取” (Couldn’t fetch)**。</p>
+<p>当时我也慌了，以为是 Sitemap 格式错了，或者是 Vercel 屏蔽了爬虫。</p>
+<p><strong>真相是：这是 Google 的服务器延迟&#x2F;抽风。</strong><br><strong>千万别慌，不用做任何修改。</strong></p>
+<p>如果你的 <code>https://www.catistrue.com/sitemap.xml</code> 能用浏览器打开，那就绝对没问题。</p>
+<p>恭喜你，<strong>操作步骤已经全部完成！</strong></p>
+<hr>
+<h3 id="为什么会显示“无法抓取”？"><a href="#为什么会显示“无法抓取”？" class="headerlink" title="为什么会显示“无法抓取”？"></a>为什么会显示“无法抓取”？</h3><ol>
+<li><strong>Pending 状态</strong>：虽然它说“无法抓取”，但实际上 Google 内部的意思往往是“pending（排队中）”。你的请求已经提交上去了，但服务器还没来得及去真的访问。</li>
+<li><strong>CDN 延迟</strong>：你的网站在 Vercel 上，DNS 解析有时候会有微小的延迟，导致 Google 爬虫第一下没连上。</li>
+</ol>
+<h3 id="现在我们该做什么？"><a href="#现在我们该做什么？" class="headerlink" title="现在我们该做什么？"></a>现在我们该做什么？</h3><p><strong>什么都不用做，关掉页面去睡觉：P</strong></p>
+<p>真的，这是解决这个红字最好的办法。</p>
+<ul>
+<li><strong>不要</strong> 删除它重新提交（这会让排队重置）。</li>
+<li><strong>不要</strong> 怀疑你的 sitemap 有问题（只要你能用浏览器打开，它就是没问题的）。</li>
+</ul>
+<p>大概过了1个多小时，我再回来刷新这个页面，这个红色的“无法抓取”就会神奇地变成绿色的“成功”，或者显示出“已发现的网址数”。</p>
+<p><img src="/images/gsc/image-2.png" alt="像这样"></p>
+<h3 id="成功了以后，为什么我在google上搜索site-catistrue-com还是没有内容呢"><a href="#成功了以后，为什么我在google上搜索site-catistrue-com还是没有内容呢" class="headerlink" title="成功了以后，为什么我在google上搜索site:catistrue.com还是没有内容呢"></a>成功了以后，为什么我在google上搜索site:catistrue.com还是没有内容呢</h3><p><strong>这是非常正常的，千万别焦虑！</strong></p>
+<p>你现在的状态就像是：<strong>刚刚把店铺的传单（Sitemap）发给了路过的推销员（Google），但他还没来得及把你的店名印到黄页（搜索结果）上。</strong></p>
+<p>从“提交成功”到“搜得到”，中间还有一段 <strong>“收录期”</strong>，通常需要 <strong>数天到两周</strong> 的时间。</p>
+<h3 id="为什么会这样？Google-正在后台忙这三件事："><a href="#为什么会这样？Google-正在后台忙这三件事：" class="headerlink" title="为什么会这样？Google 正在后台忙这三件事："></a>为什么会这样？Google 正在后台忙这三件事：</h3><ol>
+<li><strong>发现（Discovery）</strong>：你刚提交了 Sitemap，Google 知道了“哦，这里有个新网站 <code>catistrue.com</code>”。</li>
+<li><strong>抓取（Crawling）</strong>：Google 会派出爬虫（Googlebot）顺着你的 Sitemap 链接，真正地去访问你的每一个网页，下载内容。</li>
+<li><strong>索引（Indexing）</strong>：爬虫把内容带回去，Google 的算法要分析你的文章质量、关键词，确定没有违规内容后，才会把它放进巨大的数据库里。</li>
+</ol>
+<p><strong>只有完成了第 3 步，你在 Google 搜 <code>site:catistrue.com</code> 才会出现结果。</strong></p>
+<hr>
+<h3 id="你现在怎么确认-Google-到底在干活没？"><a href="#你现在怎么确认-Google-到底在干活没？" class="headerlink" title="你现在怎么确认 Google 到底在干活没？"></a>你现在怎么确认 Google 到底在干活没？</h3><p>虽然搜不到，但你可以用 <strong>Google Search Console</strong> 里的一个强力工具来查看进度：</p>
+<ol>
+<li>在 Search Console 顶部，有一个长长的搜索框（写着“检查 catistrue.com 中的任何网址”）。</li>
+<li>把你的首页地址 <code>https://catistrue.com/</code> 粘贴进去，回车。</li>
+<li>系统会跑一会儿，然后给你一个报告：<ul>
+<li>如果显示 <strong>“网址不在 Google 服务中”</strong>：说明爬虫还没来，或者还没处理完。（正常，继续等）</li>
+<li>你可以点击灰色的按钮 <strong>“请求编入索引”</strong>。这相当于给爬虫插个队，告诉它：“哥们，这里我很急，优先来看一下。”</li>
+</ul>
+</li>
+</ol>
+<p><img src="/images/gsc/image-3.png" alt="收录成功"></p>
+<p>当出现收录成功后，现在的状态：<br>你的网站已经“拿到户口本”了！<br>现在你可以放一百个心，不需要再做任何 SEO 的技术配置了。你现在唯一的任务就是：写好博客，发布出去！</p>
+<h2 id="总结：从提交到收录的等待期"><a href="#总结：从提交到收录的等待期" class="headerlink" title="总结：从提交到收录的等待期"></a>总结：从提交到收录的等待期</h2><ul>
+<li><strong>不要慌</strong>：新站通常需要 <strong>3天 - 1周</strong> 才能在搜索结果里冒头。</li>
+<li><strong>不要改</strong>：确保你的配置是正确的，千万别因为搜不到就去乱改 DNS 或 Sitemap。</li>
+<li><strong>去写文章</strong>：趁这段时间多写一两篇高质量文章，Google 爬虫第一次来如果发现内容很丰富，会对你的网站印象更好，以后收录会更快！</li>
+</ul>
+<p>在此期间，我们可以使用 GSC 顶部的搜索框“检查网址”，手动点击 <strong>“请求编入索引”</strong> 来给爬虫插个队。</p>
+<p>剩下的，就是保持更新，静待花开。希望大家的博客都能早日出现在搜索结果的第一位！</p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>建站</tag>
+        <tag>SEO</tag>
+        <tag>Google Search Console</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>visual studio断点调试之逐过程-逐语句-跳出</title>
+    <url>/posts/d085138b.html</url>
+    <content><![CDATA[<p>工欲善其事，必先利其器。</p>
+<p>关于visual studio的断点调试，一直没弄清楚那3个选项:逐过程，逐语句，跳出这3个都分别是什么含义！每次都是凭感觉来回试。。。现在终于研究明白了！</p>
+<h2 id="调试的核心三剑客"><a href="#调试的核心三剑客" class="headerlink" title="调试的核心三剑客"></a>调试的核心三剑客</h2><p>这三个功能是调试的<strong>核心三剑客</strong>，就像看电影时的“快进”、“慢放”和“跳过”。</p>
+<p>一定要记住它们的<strong>快捷键（F10, F11, Shift+F11）</strong>，使用的时候效率会提高十倍！</p>
+<h2 id="举个例子来说"><a href="#举个例子来说" class="headerlink" title="举个例子来说"></a>举个例子来说</h2><p>我们假设有这样一段代码，此时断点停在 <code>Calculate()</code> 这一行：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">MyFunction</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line">    <span class="type">int</span> result = <span class="built_in">Calculate</span>(a, b);  <span class="comment">// &lt;--- 断点停在这里（黄色箭头）</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Result: %d&quot;</span>, result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="1-逐语句-Step-Into"><a href="#1-逐语句-Step-Into" class="headerlink" title="1. 逐语句 (Step Into)"></a>1. 逐语句 (Step Into)</h3><ul>
+<li><strong>快捷键</strong>：<strong>F11</strong></li>
+<li><strong>含义</strong>：<strong>遇到函数，这就进去。</strong></li>
+<li><strong>动作</strong>：如果当前行包含一个函数调用（比如上面的 <code>Calculate</code>），调试器会<strong>进入</strong>该函数的内部，停在函数的第一行。如果不包含函数，就只走下一行。</li>
+<li><strong>使用场景</strong>：<ul>
+<li>一般当你怀疑 <code>Calculate</code> 函数<strong>内部</strong>有 Bug。</li>
+<li>你想看清楚这个函数具体是怎么一步步运算的。</li>
+<li><strong>注意</strong>：如果你不小心对 <code>printf</code> 这种系统函数用了 F11，可能会跳进系统库的源码里（看不懂且没必要），这时候就需要用下面的“跳出”了。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-逐过程-Step-Over"><a href="#2-逐过程-Step-Over" class="headerlink" title="2. 逐过程 (Step Over)"></a>2. 逐过程 (Step Over)</h3><ul>
+<li><strong>快捷键</strong>：<strong>F10</strong></li>
+<li><strong>含义</strong>：<strong>遇到函数，直接跨过去（但会执行它）。</strong></li>
+<li><strong>动作</strong>：把整个函数调用当作<strong>一步</strong>。VS 会瞬间把 <code>Calculate</code> 函数跑完，然后黄色箭头停在下一行 <code>printf</code> 上。</li>
+<li><strong>使用场景</strong>：<ul>
+<li>一般当你确信 <code>Calculate</code> 函数是没问题的（比如是系统自带的）。</li>
+<li>你只关心 <code>Calculate</code> 算出来的<strong>返回值</strong>对不对，不想看它里面怎么算的。</li>
+<li>用来快速浏览主流程逻辑。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-跳出-Step-Out"><a href="#3-跳出-Step-Out" class="headerlink" title="3. 跳出 (Step Out)"></a>3. 跳出 (Step Out)</h3><ul>
+<li><strong>快捷键</strong>：<strong>Shift + F11</strong></li>
+<li><strong>含义</strong>：<strong>在这个函数里呆腻了，赶紧跑完回去。</strong></li>
+<li><strong>动作</strong>：瞬间执行完<strong>当前函数剩余的所有代码</strong>，然后返回到<strong>调用这个函数的地方</strong>（也就是父函数）。</li>
+<li><strong>使用场景</strong>：<ul>
+<li>如果你不小心按 F11 进到了一个枯燥的函数（比如构造函数，或者标准库函数），想赶紧出来。</li>
+<li>或者你已经看出了当前函数的逻辑没问题，不想再一行行按了，想直接回到上一层继续调试。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="总结对比"><a href="#总结对比" class="headerlink" title="总结对比"></a>总结对比</h2><table>
+<thead>
+<tr>
+<th align="left">名称</th>
+<th align="left">快捷键</th>
+<th align="left">动作逻辑</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>逐语句 (Into)</strong></td>
+<td align="left"><strong>F11</strong></td>
+<td align="left"><strong>最细颗粒度</strong>。遇函数就进，查个底朝天。</td>
+</tr>
+<tr>
+<td align="left"><strong>逐过程 (Over)</strong></td>
+<td align="left"><strong>F10</strong></td>
+<td align="left"><strong>主流程优先</strong>。遇函数不进，直接拿结果。</td>
+</tr>
+<tr>
+<td align="left"><strong>跳出 (Out)</strong></td>
+<td align="left"><strong>Shift+F11</strong></td>
+<td align="left"><strong>立即结束当前层</strong>。跑完当前函数，回到上一层。</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="还从网上学了一个超好用的神技：运行到光标处-Run-to-Cursor"><a href="#还从网上学了一个超好用的神技：运行到光标处-Run-to-Cursor" class="headerlink" title="还从网上学了一个超好用的神技：运行到光标处 (Run to Cursor)"></a>还从网上学了一个超好用的神技：运行到光标处 (Run to Cursor)</h2><ul>
+<li><strong>快捷键</strong>：<strong>Ctrl + F10</strong> （或者鼠标右键 -&gt; 运行到光标处）</li>
+<li><strong>场景</strong>：<br>你现在在第 10 行，你想看第 50 行的状态。<ul>
+<li>如果一直按 F10，手都按酸了。</li>
+<li>你可以直接把鼠标点在第 50 行，按 <strong>Ctrl + F10</strong>。</li>
+<li>程序会自动全速运行，直到撞上第 50 行才停下（相当于临时加了个断点并运行）。</li>
+<li>而且它完全支持跨方法、跨类、跨文件。只要程序的执行流在逻辑上能走到那一行，它就能在那停下来。</li>
+<li>另外：如果是鼠标流，Visual Studio 新版本引入了一个更直观的功能：当你把鼠标悬停在代码行号左侧时，会出现一个小小的绿色三角形图标（有时候叫 “Run to here” 图标）。点击这个绿色小箭头，效果和 Ctrl + F10 是一模一样的。这对于不喜欢记快捷键的人来说也很方便。</li>
+</ul>
+</li>
+</ul>
+<p>参考资料：<br><a href="https://www.cnblogs.com/weizhixiang/p/6123211.html">https://www.cnblogs.com/weizhixiang/p/6123211.html</a></p>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>visual studio</tag>
+        <tag>技巧</tag>
+      </tags>
+  </entry>
+</search>
