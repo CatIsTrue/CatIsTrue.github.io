@@ -1,8 +1,13 @@
 ---
 title: 为什么谷歌搜不到我的个人博客？（附 Hexo + GSC 完整收录指南）
-date: 2025-12-12 15:30:00
-tags: [Hexo, 建站, SEO, Google Search Console]
+tags:
+  - Hexo
+  - 建站
+  - SEO
+  - Google Search Console
 categories: 技术折腾
+abbrlink: '47478614'
+date: 2025-12-12 15:30:00
 ---
 
 刚搭好 Hexo 博客，兴冲冲地在 Google 搜索栏输入 `site:catistrue.com`，结果却是“找不到任何与此相关的内容或信息”。

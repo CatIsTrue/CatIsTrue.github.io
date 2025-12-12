@@ -1,8 +1,11 @@
 ---
 title: C++ explicit关键字什么时候用？
-date: 2019-06-05 17:18:00
-tags: [C++, Modern C++]
+tags:
+  - C++
+  - Modern C++
 categories: C++
+abbrlink: e7024663
+date: 2019-06-05 17:18:00
 ---
 
 看到项目代码里的构造函数，有时候用`explicit`,有时候不用，引发了我的思考，到底这个关键字什么时候用呢？
