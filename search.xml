@@ -1,8 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>C++ explicit关键字什么时候用？</title>
+    <url>/posts/e7024663.html</url>
+    <content><![CDATA[<p>看到项目代码里的构造函数，有时候用<code>explicit</code>,有时候不用，引发了我的思考，到底这个关键字什么时候用呢？</p>
+<p>带着这个问题，我查看了一些资料。</p>
+<p>比较官方的解释是：</p>
+<p><code>explicit</code>关键字用于<strong>禁止构造函数的隐式类型转换</strong>。</p>
+<p>当构造函数被标记为<code>explicit</code>时，编译器不会自动使用该构造函数进行隐式转换。</p>
+<hr>
+<p>听得似懂非懂。</p>
+<p>还是找些具体的例子看看来说吧。</p>
+<h2 id="没有explicit导致的重载决议歧义错误"><a href="#没有explicit导致的重载决议歧义错误" class="headerlink" title="没有explicit导致的重载决议歧义错误"></a>没有explicit导致的重载决议歧义错误</h2><p>C++ 有一个默认特性：如果一个构造函数只接受一个参数，编译器会默认认为它定义了一种“隐式转换路径”。</p>
+<p>在这个例子里，由于单参数构造函数没有explicit，所以没有禁止隐式转换，导致重载决议歧义错误，出现编译错误。<br>代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// errDemo.cc</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Cents</span> &#123;</span><br><span class="line">    <span class="type">int</span> cents_;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Cents</span>(<span class="type">int</span> c) : <span class="built_in">cents_</span>(c) &#123; std::cout &lt;&lt; <span class="string">&quot;Cents: &quot;</span> &lt;&lt; c &lt;&lt; <span class="string">&quot;\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Dollar</span> &#123;</span><br><span class="line">    <span class="type">int</span> dollar_;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Dollar</span>(<span class="type">int</span> c) : <span class="built_in">dollar_</span>(c) &#123; std::cout &lt;&lt; <span class="string">&quot;Dollar: &quot;</span> &lt;&lt; c &lt;&lt; <span class="string">&quot;\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">payBill</span><span class="params">(Cents amount)</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Paying with cents\n&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">payBill</span><span class="params">(Dollar amount)</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Paying with dollars\n&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">payBill</span>(<span class="number">500</span>);   <span class="comment">// ❌ 编译错误：ambiguous call</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于两个函数的匹配程度完全相同，都需要一次用户定义的隐式转换， 编译器无法确定选择哪一个，导致编译错误<br><img src="/images/image-17.png" alt="重载决议歧义错误"></p>
+<p>这时，我们通过使用 explicit，要求必须明确意图的进行调用，于是修改上面的代码</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 构造函数前加explicit关键字</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Cents</span><span class="params">(<span class="type">int</span> c)</span> : cents_(c) &#123;</span> std::cout &lt;&lt; <span class="string">&quot;Cents: &quot;</span> &lt;&lt; c &lt;&lt; <span class="string">&quot;\n&quot;</span>; &#125;  <span class="comment">// 禁止隐式转换</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Dollar</span><span class="params">(<span class="type">int</span> c)</span> : dollar_(c) &#123;</span> std::cout &lt;&lt; <span class="string">&quot;Dollar: &quot;</span> &lt;&lt; c &lt;&lt; <span class="string">&quot;\n&quot;</span>; &#125;  <span class="comment">// 禁止隐式转换</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2.明确调用意图</span></span><br><span class="line"><span class="comment">// payBill(500);           // ❌ 此时会报编译错误：没有匹配的重载</span></span><br><span class="line">                           <span class="comment">//  error: no matching function for call to ‘payBill(int)</span></span><br><span class="line"><span class="built_in">payBill</span>(<span class="built_in">Cents</span>(<span class="number">500</span>));    <span class="comment">// ✅ 必须显式转换， 明确意图</span></span><br><span class="line"><span class="built_in">payBill</span>(<span class="built_in">Dollar</span>(<span class="number">500</span>));   <span class="comment">// ✅ 必须显式转换， 明确意图</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/image-18.png" alt="明确意图，显式转换"></p>
+<hr>
+<h2 id="没有explicit导致的性能陷阱"><a href="#没有explicit导致的性能陷阱" class="headerlink" title="没有explicit导致的性能陷阱"></a>没有explicit导致的性能陷阱</h2><p>在性能关键、资源敏感的软件开发中，没有使用<code>explicit</code>，超出预期的隐式转换，可能无意间消耗内存资源。<br>代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Matrix</span> &#123;</span><br><span class="line">    <span class="type">double</span>* data;</span><br><span class="line">    <span class="type">size_t</span> size_;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Matrix</span>(<span class="type">size_t</span> size) : <span class="built_in">size_</span>(size) &#123;</span><br><span class="line">        data = <span class="keyword">new</span> <span class="type">double</span>[size * size];  <span class="comment">// 昂贵的内存分配！</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">compute</span><span class="params">(<span class="type">const</span> Matrix&amp; m)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 性能陷阱</span></span><br><span class="line"><span class="built_in">compute</span>(<span class="number">1000</span>);  <span class="comment">// 意外创建了1000x1000的矩阵！</span></span><br></pre></td></tr></table></figure>
+
+<p>这时，通过使用 explicit，要求必须明确意图的进行调用，修改上面的代码</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 构造函数前加explicit关键字</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Matrix</span><span class="params">(<span class="type">size_t</span> size)</span> : size_(size) &#123;</span></span><br><span class="line">    data = <span class="keyword">new</span> <span class="type">double</span>[size * size]; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2.明确调用意图</span></span><br><span class="line"><span class="comment">// compute(1000);           // ❌ 编译错误</span></span><br><span class="line"><span class="built_in">compute</span>(<span class="built_in">Matrix</span>(<span class="number">4</span>));   <span class="comment">// ✅ 明确知道在创建矩阵</span></span><br></pre></td></tr></table></figure>
+
+<p>这种场景，主要防止的是，有可能开发人员根本没有意识到会触发内存分配，或者误在性能敏感的代码中意外创建大对象。<br>当然，如果的确需要创建，就显式构造，开发知道自己在干什么，可以对自己的行为负责。</p>
+<h2 id="加上explicit对列表初始化的影响"><a href="#加上explicit对列表初始化的影响" class="headerlink" title="加上explicit对列表初始化的影响"></a>加上explicit对列表初始化的影响</h2><p>分析完单参数构造函数非必要最好加上<code>explicit</code>关键字之后，我们再看看，如果多参数构造函数加上<code>explicit</code>，又会有什么影响呢？</p>
+<p>官方的说法是：当<code>explicit</code>构造函数接受<code>std::initializer_list</code>时，会失去所有数量的初值的隐式转换能力。<br>（说起来有点绕口，直接看例子就清晰了。）</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Container</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 非explicit版本</span></span><br><span class="line">    <span class="built_in">Container</span>(std::initializer_list&lt;<span class="type">int</span>&gt; values);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SafeContainer</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// explicit版本</span></span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">SafeContainer</span><span class="params">(std::initializer_list&lt;<span class="type">int</span>&gt; values)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对比效果</span></span><br><span class="line">Container c1 = &#123;&#125;;           <span class="comment">// ✅ 0个初值 隐式转换</span></span><br><span class="line">Container c2 = &#123;<span class="number">42</span>&#125;;         <span class="comment">// ✅ 1个初值 隐式转换</span></span><br><span class="line">Container c3 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;    <span class="comment">// ✅ 多个初值 隐式转换</span></span><br><span class="line"></span><br><span class="line">SafeContainer sc1 = &#123;&#125;;      <span class="comment">// ❌ 失去0个初值的隐式转换</span></span><br><span class="line">SafeContainer sc2 = &#123;<span class="number">42</span>&#125;;    <span class="comment">// ❌ 失去1个初值的隐式转换</span></span><br><span class="line">SafeContainer sc3 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// ❌ 失去多个初值的隐式转换</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 必须使用直接初始化</span></span><br><span class="line">SafeContainer sc4&#123;&#125;;         <span class="comment">// ✅ 0个初值</span></span><br><span class="line">SafeContainer sc5&#123;<span class="number">42</span>&#125;;       <span class="comment">// ✅ 1个初值</span></span><br><span class="line">SafeContainer sc6&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;  <span class="comment">// ✅ 多个初值</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="加上explicit对多参数构造函数的影响"><a href="#加上explicit对多参数构造函数的影响" class="headerlink" title="加上explicit对多参数构造函数的影响"></a>加上explicit对多参数构造函数的影响</h2><p>如果是普通的多参数构造函数加上<code>explicit</code>，又会有什么影响呢？<br>先说答案：直接初始化仍然不受影响，但拷贝初始化会受到影响。</p>
+<p>代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">P</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">P</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> c)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">P obj1&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;        <span class="comment">// ✅ 直接初始化，总是可以</span></span><br><span class="line"><span class="function">P <span class="title">obj2</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span></span>;        <span class="comment">// ✅ 直接初始化，总是可以</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">P obj3 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;     <span class="comment">// ❌ 拷贝初始化，explicit会阻止</span></span><br><span class="line">P obj4 = P&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;    <span class="comment">// ✅ 显式构造后拷贝，可以</span></span><br></pre></td></tr></table></figure>
+
+<p>为什么加<code>explicit</code>会影响拷贝初始化呢？<br>分析下来是因为拷贝初始化需要两步：</p>
+<ol>
+<li>用<code>&#123;1, 2, 3&#125;</code>创建临时对象（需要隐式调用构造函数）</li>
+<li>将临时对象拷贝给目标变量<br>而<code>explicit</code>阻止了第一步的隐式调用。</li>
+</ol>
+<hr>
+<p>有些场景需要加，但是有些场景我们又不应该使用explicit</p>
+<h2 id="拷贝和移动构造函数绝对不要加explicit"><a href="#拷贝和移动构造函数绝对不要加explicit" class="headerlink" title="拷贝和移动构造函数绝对不要加explicit"></a>拷贝和移动构造函数绝对不要加<code>explicit</code></h2><p>虽然 C++ 语法上允许你给拷贝&#x2F;移动构造函数加上 explicit，但在工程实践中，这样做基本等于“自杀”，或者说是给使用者（包括你自己）制造巨大的麻烦。</p>
+<p>如果说拷贝和移动构造函数加了<code>explicit</code>，这会发生什么？<br>答案是：会破坏基本语义，破坏函数传递，破坏容器使用，破坏返回值语义。<br>品一品，是不是这么回事。<br>上代码细看。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 永远不要这样做</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">MyClass</span><span class="params">(<span class="type">const</span> MyClass&amp; other)</span></span>;  <span class="comment">// ❌</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">MyClass</span><span class="params">(MyClass&amp;&amp; other)</span></span>;       <span class="comment">// ❌</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1.破坏基本语义</span></span><br><span class="line">MyClass obj1;</span><br><span class="line"><span class="function">MyClass <span class="title">obj2</span><span class="params">(obj1)</span></span>; <span class="comment">// ✅ 允许：直接调用（像函数调用一样）</span></span><br><span class="line">MyClass obj3 = obj1;  <span class="comment">// ❌ 如果拷贝构造是explicit，这会编译错误！因为等号 &quot;=&quot; 语义上要求隐式转换。</span></span><br><span class="line">                      <span class="comment">// 这意味着你无法再使用最自然的 = 进行赋值初始化了。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2.破坏函数传递</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">process</span><span class="params">(MyClass obj)</span></span>;  <span class="comment">// 按值传递</span></span><br><span class="line">MyClass original;</span><br><span class="line"><span class="built_in">process</span>(original);  <span class="comment">// ❌ 如果拷贝构造是explicit，无法传递参数！这是因为为了把 original 传进函数，需要构造一个临时对象。这是一次隐式动作，被 explicit 拦截了。</span></span><br><span class="line"><span class="comment">// 你被迫要写成这样这种恶心的代码：</span></span><br><span class="line"><span class="built_in">process</span>(<span class="built_in">MyClass</span>(original)); <span class="comment">// ✅ 显式强转</span></span><br><span class="line">                        <span class="comment">// 如果所有的类都这样写，C++ 的函数调用简直没法看了。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3.破坏容器使用</span></span><br><span class="line">std::vector&lt;MyClass&gt; vec;</span><br><span class="line">MyClass obj;</span><br><span class="line">vec.<span class="built_in">push_back</span>(obj);  <span class="comment">// ❌ 容器无法工作！</span></span><br><span class="line"><span class="comment">// 标准库容器依赖于拷贝/移动语义 </span></span><br><span class="line"><span class="comment">// 很多 STL 操作内部逻辑是：在内存中放置新对象时，使用了 = 语义或者隐式构造语义。</span></span><br><span class="line"><span class="comment">// 如果拷贝/移动构造函数是 explicit 的，你的类基本上就告别 STL 标准库了，除非你用非常小心翼翼的 emplace 操作，但也很容易踩雷。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4.破坏返回值语义</span></span><br><span class="line"><span class="function">MyClass <span class="title">createObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    MyClass obj;</span><br><span class="line">    <span class="keyword">return</span> obj;  <span class="comment">// ❌ 无法返回对象！</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 在语义检查阶段，return 语句被视为一种“隐式构造”</span></span><br></pre></td></tr></table></figure>
+
+
+<p>关于拷贝&#x2F;移动构造函数加<code>explicit</code>会破坏返回值语义，有些小伙伴可能像我一样，在这里会有一个疑问：“C++ 不是有 RVO&#x2F;NRVO (返回值优化) 吗？编译器不是会把拷贝直接消除掉吗？既然消除了，为什么还要检查构造函数？”</p>
+<p>这是因为这里有两步：</p>
+<p>语义检查 (Semantic Check)：编译器的第一步是检查“如果你要拷贝，代码写得对不对”。这一步要求拷贝&#x2F;移动构造函数必须是可访问的且非 explicit 的。</p>
+<p>代码生成与优化 (Code Generation &amp; Optimization)：只有通过了语义检查，编译器才会进行第二步优化（RVO），在运行时消除这次拷贝。</p>
+<p>所以，结论就是：即使 RVO 会在运行时消除拷贝，<code>explicit</code> 依然会在编译时导致报错，因为它阻断了语义检查阶段的合法性。</p>
+<hr>
+<p>正确的做法</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// ✅ 正常的拷贝和移动构造函数</span></span><br><span class="line">    <span class="built_in">MyClass</span>(<span class="type">const</span> MyClass&amp; other) = <span class="keyword">default</span>;</span><br><span class="line">    <span class="built_in">MyClass</span>(MyClass&amp;&amp; other) = <span class="keyword">default</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 或者如果不需要拷贝，就删除它们</span></span><br><span class="line">    <span class="built_in">MyClass</span>(<span class="type">const</span> MyClass&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">    <span class="built_in">MyClass</span>(MyClass&amp;&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>explicit</code> 的核心目的是防止意外的类型转换（比如把 int 变成 String）。</p>
+<p>但是，拷贝和移动本身就是同一种类型的传递，它们在 C++ 语言层面被设计为一种“自然流动”的操作。阻断这种流动（加上 explicit），就会导致这个类在 C++ 的生态系统中寸步难行。</p>
+<p>参考 Google C++ 编程规范的建议,我的使用原则目前是：</p>
+<p>（1）原则上，所有的单参数构造函数都应该加上 <code>explicit</code>。<br>  <em>除非你真的希望用户使用这种隐式转换带来便利。（例如模拟基础数据类型）</em></p>
+<p>（2）多参数构造函数（C++11 之前通常不需要，但 C++11 引入了列表初始化 {}）按具体场景决定加不加<code>explicit</code>：<br>  <em>如果构造函数支持列表初始化，且你不想让 {1, 2} 隐式变成你的对象，也要加 explicit。</em></p>
+<p>（3）拷贝&#x2F;移动构造函数，绝对不要加 <code>explicit</code>。</p>
+<p>(大家有什么使用习惯吗？欢迎评论区交流)</p>
+]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>Modern C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>为什么谷歌搜不到我的个人博客？（附 Hexo + GSC 完整收录指南）</title>
+    <url>/posts/47478614.html</url>
+    <content><![CDATA[<p>刚搭好 Hexo 博客，兴冲冲地在 Google 搜索栏输入 <code>site:catistrue.com</code>，结果却是“找不到任何与此相关的内容或信息”。</p>
+<p><img src="/images/gsc/image.png" alt="找不到"></p>
+<p>那种心情，大概就像是新开了一家店，装修得漂漂亮亮，结果门口连个路牌都没有，谁也找不到。</p>
+<p>今天记录一下我为了让 Google 收录我的博客，踩过的坑和最终的解决方案。<br>如果你也像我之前一样发出新手疑问，这篇文章应该能帮到你。</p>
+<span id="more"></span>
+
+<h2 id="核心误区：建好站-能被搜到？"><a href="#核心误区：建好站-能被搜到？" class="headerlink" title="核心误区：建好站 &#x3D; 能被搜到？"></a>核心误区：建好站 &#x3D; 能被搜到？</h2><p>这是最大的误区。<strong>网站上线 ≠ 被收录。</strong></p>
+<p>互联网就像一个巨大的图书馆，Google 是图书管理员。我们建好博客，只是把书写好了放在自家书房里。如果不主动去“登记”，图书管理员是不知道你这本书存在的。</p>
+<p>所以，我们需要做两件事：</p>
+<ol>
+<li><strong>验明正身</strong>：告诉 Google 这个域名是我的（GSC 验证）。</li>
+<li><strong>提交目录</strong>：把书的目录交给 Google（提交 Sitemap）。</li>
+</ol>
+<h2 id="第一步：注册-Google-Search-Console-GSC-："><a href="#第一步：注册-Google-Search-Console-GSC-：" class="headerlink" title="第一步：注册 Google Search Console (GSC)："></a>第一步：注册 Google Search Console (GSC)：</h2><p>Google Search Console (GSC) 是 Google 官方的站长工具。验证所有权最推荐的方法是 <strong>DNS 验证</strong>。</p>
+<p>访问 <a href="https://search.google.com/search-console">Google Search Console</a></p>
+<p>(1) 输入你的域名 catistrue.com (选左边的“网域”&#x2F;Domain)。</p>
+<p>(2) 验证所有权：它会给你一段 TXT 代码。(复制下来就行)</p>
+<p>(3) 去你的服务商（比如我是去 腾讯云 DNSPod），添加一条 TXT 记录，把代码贴进去。</p>
+<h2 id="第二步：GSC-验证"><a href="#第二步：GSC-验证" class="headerlink" title="第二步：GSC 验证"></a>第二步：GSC 验证</h2><p>Google 只是想验证你拥有 <code>catistrue.com</code> 这个根域名。所以在腾讯云 DNSPod新增这样一个记录：</p>
+<p>主机记录：请写 @ （或者留空不填，但在 DNSPod 里通常填 @ 代表根域名）。</p>
+<p>记录类型：TXT </p>
+<p>记录值：google-site-verification&#x3D;… （刚才复制下来的 TXT 代码）</p>
+<hr>
+<p>这里我遇到了一个新手常犯的犹豫：<strong>我已经有一条 <code>@</code> 的 A 记录指向服务器 IP 了，再加一条 <code>@</code> 的 TXT 记录用来验证，会冲突吗？</strong></p>
+<p><strong>答案是：完全不会。</strong></p>
+<ul>
+<li><strong>A 记录</strong>：负责指路，告诉浏览器网站在哪里。</li>
+<li><strong>TXT 记录</strong>：负责备注，告诉 Google 验证码是什么。</li>
+</ul>
+<p>只要类型不同（一个是 A，一个是 TXT），它们就能和平共处。<br>所以放心添加即可。</p>
+<h2 id="第三步：最关键的-Sitemap"><a href="#第三步：最关键的-Sitemap" class="headerlink" title="第三步：最关键的 Sitemap"></a>第三步：最关键的 Sitemap</h2><p>验证通过只是拿到了“房产证”，想让爬虫快速抓取，必须主动提交 Sitemap（站点地图）。</p>
+<h3 id="1-检查-Hexo-是否有-Sitemap"><a href="#1-检查-Hexo-是否有-Sitemap" class="headerlink" title="1. 检查 Hexo 是否有 Sitemap"></a>1. 检查 Hexo 是否有 Sitemap</h3><p>访问 <code>https://www.catistrue.com/sitemap.xml</code>，如果 404，说明没装插件。</p>
+<p>这里插播一段，如果像我之前一样通过CI&#x2F;CD部署的，就可以感受到它的优势。</p>
+<p>比如一般来说，直接通过安装本地环境搭建Hexo+GitHub的，需要在博客根目录运行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install hexo-generator-sitemap --save</span><br></pre></td></tr></table></figure>
+<p>然后重新 <code>hexo g -d</code> 部署。再次访问，看到一堆密密麻麻的代码（XML 格式），就说明成功了。</p>
+<p>但是，如果走CI&#x2F;CD部署的，即使手边这台电脑没有配置Node.js环境，没有配置docker环境，仍然可以很轻松给项目添加新插件。这是一个非常现实的场景。而且其实<strong>非常简单</strong>，甚至比有 Docker 还简单。</p>
+<p><strong>核心逻辑是：</strong> 你只需要修改“购物清单” (<code>package.json</code>)，然后把清单传给 GitHub。真正负责“买菜做饭” (安装插件、生成页面、部署) 的是 <strong>GitHub Actions</strong>，而不是你的本地电脑。</p>
+<p>你完全<strong>不需要</strong>在本地运行 <code>npm install</code> 或 <code>hexo g -d</code>。</p>
+<hr>
+<h4 id="操作步骤-如果已经安装过hexo-generator-sitemap插件可跳过这段"><a href="#操作步骤-如果已经安装过hexo-generator-sitemap插件可跳过这段" class="headerlink" title="操作步骤 (如果已经安装过hexo-generator-sitemap插件可跳过这段)"></a>操作步骤 (如果已经安装过<code>hexo-generator-sitemap</code>插件可跳过这段)</h4><p>对于我们这种CI&#x2F;CD部署的场景，你只需要直接编辑文件即可：</p>
+<h5 id="（1）手动修改-package-json"><a href="#（1）手动修改-package-json" class="headerlink" title="（1）手动修改 package.json"></a>（1）手动修改 <code>package.json</code></h5><p>在你的项目根目录下，找到 <code>package.json</code> 文件。这是 Node.js 项目的依赖清单。</p>
+<p>找到 <code>&quot;dependencies&quot;</code> 部分，手动添加一行：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="attr">&quot;dependencies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;hexo&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^7.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-archive&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-category&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-index&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-tag&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-ejs&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-marked&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^6.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-stylus&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-server&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-theme-landscape&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^1.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 👇 在这里手动加上这一行即可，版本号写 * 或者去 npm搜个大概版本都行</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-sitemap&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.1&quot;</span> </span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><em>(注意：上一行的末尾别忘了加逗号 <code>,</code>，json 格式很严格)</em></p>
+<h5 id="（2）配置-config-yml-如果需要"><a href="#（2）配置-config-yml-如果需要" class="headerlink" title="（2）配置 _config.yml (如果需要)"></a>（2）配置 <code>_config.yml</code> (如果需要)</h5><p>通常 sitemap 插件安装后会自动生效，但为了稳妥，我们可以在 <code>_config.yml</code> 里开启它。<br>打开根目录的 <code>_config.yml</code>，在末尾添加：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Sitemap</span></span><br><span class="line"><span class="attr">sitemap:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">sitemap.xml</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="（3）提交代码"><a href="#（3）提交代码" class="headerlink" title="（3）提交代码"></a>（3）提交代码</h5><p>这就是最后一步了。我只需要把这两个文件的修改 Push 到 GitHub。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git add package.json _config.yml</span><br><span class="line">git commit -m <span class="string">&quot;Add sitemap plugin&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+
+<h5 id="（4）见证奇迹"><a href="#（4）见证奇迹" class="headerlink" title="（4）见证奇迹"></a>（4）见证奇迹</h5><ol>
+<li>代码推送到 GitHub 后，<strong>GitHub Actions 会自动触发</strong>。</li>
+<li>Action 在云端运行时的逻辑是：<code>npm install</code>。</li>
+<li>这时候，它会读取我刚才修改过的 <code>package.json</code>，发现：“咦，多了一个 <code>hexo-generator-sitemap</code>！”</li>
+<li>于是它会自动下载安装这个插件。</li>
+<li>接着执行 <code>hexo generate</code> 时，插件就会生效，生成 <code>sitemap.xml</code>。</li>
+<li>最后部署上线。</li>
+</ol>
+<hr>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>你<strong>不需要</strong>在本地安装 Node.js，也<strong>不需要</strong>运行 npm 命令。<br><strong>只要修改 <code>package.json</code> 这个纯文本文件，你就相当于指挥了云端的服务器帮你安装了插件。</strong></p>
+<p>这就是 CI&#x2F;CD (持续集成&#x2F;持续部署) 的最大优势！</p>
+<h3 id="2-提交给-GSC"><a href="#2-提交给-GSC" class="headerlink" title="2. 提交给 GSC"></a>2. 提交给 GSC</h3><p>在 GSC 后台找到“站点地图”，输入 <code>https://www.catistrue.com/sitemap.xml</code> 提交。</p>
+<p><img src="/images/gsc/image-1.png" alt="提交站点地图"></p>
+<p>到这一步提交之后，就是等待啦。</p>
+<h2 id="第三步：等待"><a href="#第三步：等待" class="headerlink" title="第三步：等待"></a>第三步：等待</h2><p>提交完 Sitemap，最搞心态的一幕出现了：状态栏显示红色的 **“无法抓取” (Couldn’t fetch)**。</p>
+<p>当时我也慌了，以为是 Sitemap 格式错了，或者是 Vercel 屏蔽了爬虫。</p>
+<p><strong>真相是：这是 Google 的服务器延迟&#x2F;抽风。</strong><br><strong>千万别慌，不用做任何修改。</strong></p>
+<p>如果你的 <code>https://www.catistrue.com/sitemap.xml</code> 能用浏览器打开，那就绝对没问题。</p>
+<p>恭喜你，<strong>操作步骤已经全部完成！</strong></p>
+<hr>
+<h3 id="为什么会显示“无法抓取”？"><a href="#为什么会显示“无法抓取”？" class="headerlink" title="为什么会显示“无法抓取”？"></a>为什么会显示“无法抓取”？</h3><ol>
+<li><strong>Pending 状态</strong>：虽然它说“无法抓取”，但实际上 Google 内部的意思往往是“pending（排队中）”。你的请求已经提交上去了，但服务器还没来得及去真的访问。</li>
+<li><strong>CDN 延迟</strong>：你的网站在 Vercel 上，DNS 解析有时候会有微小的延迟，导致 Google 爬虫第一下没连上。</li>
+</ol>
+<h3 id="现在我们该做什么？"><a href="#现在我们该做什么？" class="headerlink" title="现在我们该做什么？"></a>现在我们该做什么？</h3><p><strong>什么都不用做，关掉页面去睡觉：P</strong></p>
+<p>真的，这是解决这个红字最好的办法。</p>
+<ul>
+<li><strong>不要</strong> 删除它重新提交（这会让排队重置）。</li>
+<li><strong>不要</strong> 怀疑你的 sitemap 有问题（只要你能用浏览器打开，它就是没问题的）。</li>
+</ul>
+<p>大概过了1个多小时，我再回来刷新这个页面，这个红色的“无法抓取”就会神奇地变成绿色的“成功”，或者显示出“已发现的网址数”。</p>
+<p><img src="/images/gsc/image-2.png" alt="像这样"></p>
+<h3 id="成功了以后，为什么我在google上搜索site-catistrue-com还是没有内容呢"><a href="#成功了以后，为什么我在google上搜索site-catistrue-com还是没有内容呢" class="headerlink" title="成功了以后，为什么我在google上搜索site:catistrue.com还是没有内容呢"></a>成功了以后，为什么我在google上搜索site:catistrue.com还是没有内容呢</h3><p><strong>这是非常正常的，千万别焦虑！</strong></p>
+<p>你现在的状态就像是：<strong>刚刚把店铺的传单（Sitemap）发给了路过的推销员（Google），但他还没来得及把你的店名印到黄页（搜索结果）上。</strong></p>
+<p>从“提交成功”到“搜得到”，中间还有一段 <strong>“收录期”</strong>，通常需要 <strong>数天到两周</strong> 的时间。</p>
+<h3 id="为什么会这样？Google-正在后台忙这三件事："><a href="#为什么会这样？Google-正在后台忙这三件事：" class="headerlink" title="为什么会这样？Google 正在后台忙这三件事："></a>为什么会这样？Google 正在后台忙这三件事：</h3><ol>
+<li><strong>发现（Discovery）</strong>：你刚提交了 Sitemap，Google 知道了“哦，这里有个新网站 <code>catistrue.com</code>”。</li>
+<li><strong>抓取（Crawling）</strong>：Google 会派出爬虫（Googlebot）顺着你的 Sitemap 链接，真正地去访问你的每一个网页，下载内容。</li>
+<li><strong>索引（Indexing）</strong>：爬虫把内容带回去，Google 的算法要分析你的文章质量、关键词，确定没有违规内容后，才会把它放进巨大的数据库里。</li>
+</ol>
+<p><strong>只有完成了第 3 步，你在 Google 搜 <code>site:catistrue.com</code> 才会出现结果。</strong></p>
+<hr>
+<h3 id="你现在怎么确认-Google-到底在干活没？"><a href="#你现在怎么确认-Google-到底在干活没？" class="headerlink" title="你现在怎么确认 Google 到底在干活没？"></a>你现在怎么确认 Google 到底在干活没？</h3><p>虽然搜不到，但你可以用 <strong>Google Search Console</strong> 里的一个强力工具来查看进度：</p>
+<ol>
+<li>在 Search Console 顶部，有一个长长的搜索框（写着“检查 catistrue.com 中的任何网址”）。</li>
+<li>把你的首页地址 <code>https://catistrue.com/</code> 粘贴进去，回车。</li>
+<li>系统会跑一会儿，然后给你一个报告：<ul>
+<li>如果显示 <strong>“网址不在 Google 服务中”</strong>：说明爬虫还没来，或者还没处理完。（正常，继续等）</li>
+<li>你可以点击灰色的按钮 <strong>“请求编入索引”</strong>。这相当于给爬虫插个队，告诉它：“哥们，这里我很急，优先来看一下。”</li>
+</ul>
+</li>
+</ol>
+<p><img src="/images/gsc/image-3.png" alt="收录成功"></p>
+<p>当出现收录成功后，现在的状态：<br>你的网站已经“拿到户口本”了！<br>现在你可以放一百个心，不需要再做任何 SEO 的技术配置了。你现在唯一的任务就是：写好博客，发布出去！</p>
+<h2 id="总结：从提交到收录的等待期"><a href="#总结：从提交到收录的等待期" class="headerlink" title="总结：从提交到收录的等待期"></a>总结：从提交到收录的等待期</h2><ul>
+<li><strong>不要慌</strong>：新站通常需要 <strong>3天 - 1周</strong> 才能在搜索结果里冒头。</li>
+<li><strong>不要改</strong>：确保你的配置是正确的，千万别因为搜不到就去乱改 DNS 或 Sitemap。</li>
+<li><strong>去写文章</strong>：趁这段时间多写一两篇高质量文章，Google 爬虫第一次来如果发现内容很丰富，会对你的网站印象更好，以后收录会更快！</li>
+</ul>
+<p>在此期间，我们可以使用 GSC 顶部的搜索框“检查网址”，手动点击 <strong>“请求编入索引”</strong> 来给爬虫插个队。</p>
+<p>剩下的，就是保持更新，静待花开。希望大家的博客都能早日出现在搜索结果的第一位！</p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>建站</tag>
+        <tag>SEO</tag>
+        <tag>Google Search Console</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hello World</title>
-    <url>/posts/undefined.html</url>
+    <url>/posts/4a17b156.html</url>
     <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
 <h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
 
@@ -250,206 +450,6 @@
         <tag>博客搭建</tag>
         <tag>教程</tag>
         <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C++ explicit关键字什么时候用？</title>
-    <url>/posts/e7024663.html</url>
-    <content><![CDATA[<p>看到项目代码里的构造函数，有时候用<code>explicit</code>,有时候不用，引发了我的思考，到底这个关键字什么时候用呢？</p>
-<p>带着这个问题，我查看了一些资料。</p>
-<p>比较官方的解释是：</p>
-<p><code>explicit</code>关键字用于<strong>禁止构造函数的隐式类型转换</strong>。</p>
-<p>当构造函数被标记为<code>explicit</code>时，编译器不会自动使用该构造函数进行隐式转换。</p>
-<hr>
-<p>听得似懂非懂。</p>
-<p>还是找些具体的例子看看来说吧。</p>
-<h2 id="没有explicit导致的重载决议歧义错误"><a href="#没有explicit导致的重载决议歧义错误" class="headerlink" title="没有explicit导致的重载决议歧义错误"></a>没有explicit导致的重载决议歧义错误</h2><p>C++ 有一个默认特性：如果一个构造函数只接受一个参数，编译器会默认认为它定义了一种“隐式转换路径”。</p>
-<p>在这个例子里，由于单参数构造函数没有explicit，所以没有禁止隐式转换，导致重载决议歧义错误，出现编译错误。<br>代码如下：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// errDemo.cc</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Cents</span> &#123;</span><br><span class="line">    <span class="type">int</span> cents_;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Cents</span>(<span class="type">int</span> c) : <span class="built_in">cents_</span>(c) &#123; std::cout &lt;&lt; <span class="string">&quot;Cents: &quot;</span> &lt;&lt; c &lt;&lt; <span class="string">&quot;\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Dollar</span> &#123;</span><br><span class="line">    <span class="type">int</span> dollar_;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Dollar</span>(<span class="type">int</span> c) : <span class="built_in">dollar_</span>(c) &#123; std::cout &lt;&lt; <span class="string">&quot;Dollar: &quot;</span> &lt;&lt; c &lt;&lt; <span class="string">&quot;\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">payBill</span><span class="params">(Cents amount)</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Paying with cents\n&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">payBill</span><span class="params">(Dollar amount)</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Paying with dollars\n&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">payBill</span>(<span class="number">500</span>);   <span class="comment">// ❌ 编译错误：ambiguous call</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>由于两个函数的匹配程度完全相同，都需要一次用户定义的隐式转换， 编译器无法确定选择哪一个，导致编译错误<br><img src="/images/image-17.png" alt="重载决议歧义错误"></p>
-<p>这时，我们通过使用 explicit，要求必须明确意图的进行调用，于是修改上面的代码</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 构造函数前加explicit关键字</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Cents</span><span class="params">(<span class="type">int</span> c)</span> : cents_(c) &#123;</span> std::cout &lt;&lt; <span class="string">&quot;Cents: &quot;</span> &lt;&lt; c &lt;&lt; <span class="string">&quot;\n&quot;</span>; &#125;  <span class="comment">// 禁止隐式转换</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Dollar</span><span class="params">(<span class="type">int</span> c)</span> : dollar_(c) &#123;</span> std::cout &lt;&lt; <span class="string">&quot;Dollar: &quot;</span> &lt;&lt; c &lt;&lt; <span class="string">&quot;\n&quot;</span>; &#125;  <span class="comment">// 禁止隐式转换</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2.明确调用意图</span></span><br><span class="line"><span class="comment">// payBill(500);           // ❌ 此时会报编译错误：没有匹配的重载</span></span><br><span class="line">                           <span class="comment">//  error: no matching function for call to ‘payBill(int)</span></span><br><span class="line"><span class="built_in">payBill</span>(<span class="built_in">Cents</span>(<span class="number">500</span>));    <span class="comment">// ✅ 必须显式转换， 明确意图</span></span><br><span class="line"><span class="built_in">payBill</span>(<span class="built_in">Dollar</span>(<span class="number">500</span>));   <span class="comment">// ✅ 必须显式转换， 明确意图</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="/images/image-18.png" alt="明确意图，显式转换"></p>
-<hr>
-<h2 id="没有explicit导致的性能陷阱"><a href="#没有explicit导致的性能陷阱" class="headerlink" title="没有explicit导致的性能陷阱"></a>没有explicit导致的性能陷阱</h2><p>在性能关键、资源敏感的软件开发中，没有使用<code>explicit</code>，超出预期的隐式转换，可能无意间消耗内存资源。<br>代码如下：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Matrix</span> &#123;</span><br><span class="line">    <span class="type">double</span>* data;</span><br><span class="line">    <span class="type">size_t</span> size_;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Matrix</span>(<span class="type">size_t</span> size) : <span class="built_in">size_</span>(size) &#123;</span><br><span class="line">        data = <span class="keyword">new</span> <span class="type">double</span>[size * size];  <span class="comment">// 昂贵的内存分配！</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">compute</span><span class="params">(<span class="type">const</span> Matrix&amp; m)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 性能陷阱</span></span><br><span class="line"><span class="built_in">compute</span>(<span class="number">1000</span>);  <span class="comment">// 意外创建了1000x1000的矩阵！</span></span><br></pre></td></tr></table></figure>
-
-<p>这时，通过使用 explicit，要求必须明确意图的进行调用，修改上面的代码</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 构造函数前加explicit关键字</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">Matrix</span><span class="params">(<span class="type">size_t</span> size)</span> : size_(size) &#123;</span></span><br><span class="line">    data = <span class="keyword">new</span> <span class="type">double</span>[size * size]; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2.明确调用意图</span></span><br><span class="line"><span class="comment">// compute(1000);           // ❌ 编译错误</span></span><br><span class="line"><span class="built_in">compute</span>(<span class="built_in">Matrix</span>(<span class="number">4</span>));   <span class="comment">// ✅ 明确知道在创建矩阵</span></span><br></pre></td></tr></table></figure>
-
-<p>这种场景，主要防止的是，有可能开发人员根本没有意识到会触发内存分配，或者误在性能敏感的代码中意外创建大对象。<br>当然，如果的确需要创建，就显式构造，开发知道自己在干什么，可以对自己的行为负责。</p>
-<h2 id="加上explicit对列表初始化的影响"><a href="#加上explicit对列表初始化的影响" class="headerlink" title="加上explicit对列表初始化的影响"></a>加上explicit对列表初始化的影响</h2><p>分析完单参数构造函数非必要最好加上<code>explicit</code>关键字之后，我们再看看，如果多参数构造函数加上<code>explicit</code>，又会有什么影响呢？</p>
-<p>官方的说法是：当<code>explicit</code>构造函数接受<code>std::initializer_list</code>时，会失去所有数量的初值的隐式转换能力。<br>（说起来有点绕口，直接看例子就清晰了。）</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Container</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 非explicit版本</span></span><br><span class="line">    <span class="built_in">Container</span>(std::initializer_list&lt;<span class="type">int</span>&gt; values);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SafeContainer</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// explicit版本</span></span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">SafeContainer</span><span class="params">(std::initializer_list&lt;<span class="type">int</span>&gt; values)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对比效果</span></span><br><span class="line">Container c1 = &#123;&#125;;           <span class="comment">// ✅ 0个初值 隐式转换</span></span><br><span class="line">Container c2 = &#123;<span class="number">42</span>&#125;;         <span class="comment">// ✅ 1个初值 隐式转换</span></span><br><span class="line">Container c3 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;    <span class="comment">// ✅ 多个初值 隐式转换</span></span><br><span class="line"></span><br><span class="line">SafeContainer sc1 = &#123;&#125;;      <span class="comment">// ❌ 失去0个初值的隐式转换</span></span><br><span class="line">SafeContainer sc2 = &#123;<span class="number">42</span>&#125;;    <span class="comment">// ❌ 失去1个初值的隐式转换</span></span><br><span class="line">SafeContainer sc3 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;; <span class="comment">// ❌ 失去多个初值的隐式转换</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 必须使用直接初始化</span></span><br><span class="line">SafeContainer sc4&#123;&#125;;         <span class="comment">// ✅ 0个初值</span></span><br><span class="line">SafeContainer sc5&#123;<span class="number">42</span>&#125;;       <span class="comment">// ✅ 1个初值</span></span><br><span class="line">SafeContainer sc6&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;  <span class="comment">// ✅ 多个初值</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="加上explicit对多参数构造函数的影响"><a href="#加上explicit对多参数构造函数的影响" class="headerlink" title="加上explicit对多参数构造函数的影响"></a>加上explicit对多参数构造函数的影响</h2><p>如果是普通的多参数构造函数加上<code>explicit</code>，又会有什么影响呢？<br>先说答案：直接初始化仍然不受影响，但拷贝初始化会受到影响。</p>
-<p>代码如下：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">P</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">P</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> c)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">P obj1&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;        <span class="comment">// ✅ 直接初始化，总是可以</span></span><br><span class="line"><span class="function">P <span class="title">obj2</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span></span>;        <span class="comment">// ✅ 直接初始化，总是可以</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">P obj3 = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;     <span class="comment">// ❌ 拷贝初始化，explicit会阻止</span></span><br><span class="line">P obj4 = P&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;    <span class="comment">// ✅ 显式构造后拷贝，可以</span></span><br></pre></td></tr></table></figure>
-
-<p>为什么加<code>explicit</code>会影响拷贝初始化呢？<br>分析下来是因为拷贝初始化需要两步：</p>
-<ol>
-<li>用<code>&#123;1, 2, 3&#125;</code>创建临时对象（需要隐式调用构造函数）</li>
-<li>将临时对象拷贝给目标变量<br>而<code>explicit</code>阻止了第一步的隐式调用。</li>
-</ol>
-<hr>
-<p>有些场景需要加，但是有些场景我们又不应该使用explicit</p>
-<h2 id="拷贝和移动构造函数绝对不要加explicit"><a href="#拷贝和移动构造函数绝对不要加explicit" class="headerlink" title="拷贝和移动构造函数绝对不要加explicit"></a>拷贝和移动构造函数绝对不要加<code>explicit</code></h2><p>虽然 C++ 语法上允许你给拷贝&#x2F;移动构造函数加上 explicit，但在工程实践中，这样做基本等于“自杀”，或者说是给使用者（包括你自己）制造巨大的麻烦。</p>
-<p>如果说拷贝和移动构造函数加了<code>explicit</code>，这会发生什么？<br>答案是：会破坏基本语义，破坏函数传递，破坏容器使用，破坏返回值语义。<br>品一品，是不是这么回事。<br>上代码细看。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 永远不要这样做</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">MyClass</span><span class="params">(<span class="type">const</span> MyClass&amp; other)</span></span>;  <span class="comment">// ❌</span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">MyClass</span><span class="params">(MyClass&amp;&amp; other)</span></span>;       <span class="comment">// ❌</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1.破坏基本语义</span></span><br><span class="line">MyClass obj1;</span><br><span class="line"><span class="function">MyClass <span class="title">obj2</span><span class="params">(obj1)</span></span>; <span class="comment">// ✅ 允许：直接调用（像函数调用一样）</span></span><br><span class="line">MyClass obj3 = obj1;  <span class="comment">// ❌ 如果拷贝构造是explicit，这会编译错误！因为等号 &quot;=&quot; 语义上要求隐式转换。</span></span><br><span class="line">                      <span class="comment">// 这意味着你无法再使用最自然的 = 进行赋值初始化了。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2.破坏函数传递</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">process</span><span class="params">(MyClass obj)</span></span>;  <span class="comment">// 按值传递</span></span><br><span class="line">MyClass original;</span><br><span class="line"><span class="built_in">process</span>(original);  <span class="comment">// ❌ 如果拷贝构造是explicit，无法传递参数！这是因为为了把 original 传进函数，需要构造一个临时对象。这是一次隐式动作，被 explicit 拦截了。</span></span><br><span class="line"><span class="comment">// 你被迫要写成这样这种恶心的代码：</span></span><br><span class="line"><span class="built_in">process</span>(<span class="built_in">MyClass</span>(original)); <span class="comment">// ✅ 显式强转</span></span><br><span class="line">                        <span class="comment">// 如果所有的类都这样写，C++ 的函数调用简直没法看了。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3.破坏容器使用</span></span><br><span class="line">std::vector&lt;MyClass&gt; vec;</span><br><span class="line">MyClass obj;</span><br><span class="line">vec.<span class="built_in">push_back</span>(obj);  <span class="comment">// ❌ 容器无法工作！</span></span><br><span class="line"><span class="comment">// 标准库容器依赖于拷贝/移动语义 </span></span><br><span class="line"><span class="comment">// 很多 STL 操作内部逻辑是：在内存中放置新对象时，使用了 = 语义或者隐式构造语义。</span></span><br><span class="line"><span class="comment">// 如果拷贝/移动构造函数是 explicit 的，你的类基本上就告别 STL 标准库了，除非你用非常小心翼翼的 emplace 操作，但也很容易踩雷。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4.破坏返回值语义</span></span><br><span class="line"><span class="function">MyClass <span class="title">createObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    MyClass obj;</span><br><span class="line">    <span class="keyword">return</span> obj;  <span class="comment">// ❌ 无法返回对象！</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 在语义检查阶段，return 语句被视为一种“隐式构造”</span></span><br></pre></td></tr></table></figure>
-
-
-<p>关于拷贝&#x2F;移动构造函数加<code>explicit</code>会破坏返回值语义，有些小伙伴可能像我一样，在这里会有一个疑问：“C++ 不是有 RVO&#x2F;NRVO (返回值优化) 吗？编译器不是会把拷贝直接消除掉吗？既然消除了，为什么还要检查构造函数？”</p>
-<p>这是因为这里有两步：</p>
-<p>语义检查 (Semantic Check)：编译器的第一步是检查“如果你要拷贝，代码写得对不对”。这一步要求拷贝&#x2F;移动构造函数必须是可访问的且非 explicit 的。</p>
-<p>代码生成与优化 (Code Generation &amp; Optimization)：只有通过了语义检查，编译器才会进行第二步优化（RVO），在运行时消除这次拷贝。</p>
-<p>所以，结论就是：即使 RVO 会在运行时消除拷贝，<code>explicit</code> 依然会在编译时导致报错，因为它阻断了语义检查阶段的合法性。</p>
-<hr>
-<p>正确的做法</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// ✅ 正常的拷贝和移动构造函数</span></span><br><span class="line">    <span class="built_in">MyClass</span>(<span class="type">const</span> MyClass&amp; other) = <span class="keyword">default</span>;</span><br><span class="line">    <span class="built_in">MyClass</span>(MyClass&amp;&amp; other) = <span class="keyword">default</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 或者如果不需要拷贝，就删除它们</span></span><br><span class="line">    <span class="built_in">MyClass</span>(<span class="type">const</span> MyClass&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">    <span class="built_in">MyClass</span>(MyClass&amp;&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>explicit</code> 的核心目的是防止意外的类型转换（比如把 int 变成 String）。</p>
-<p>但是，拷贝和移动本身就是同一种类型的传递，它们在 C++ 语言层面被设计为一种“自然流动”的操作。阻断这种流动（加上 explicit），就会导致这个类在 C++ 的生态系统中寸步难行。</p>
-<p>参考 Google C++ 编程规范的建议,我的使用原则目前是：</p>
-<p>（1）原则上，所有的单参数构造函数都应该加上 <code>explicit</code>。<br>  <em>除非你真的希望用户使用这种隐式转换带来便利。（例如模拟基础数据类型）</em></p>
-<p>（2）多参数构造函数（C++11 之前通常不需要，但 C++11 引入了列表初始化 {}）按具体场景决定加不加<code>explicit</code>：<br>  <em>如果构造函数支持列表初始化，且你不想让 {1, 2} 隐式变成你的对象，也要加 explicit。</em></p>
-<p>（3）拷贝&#x2F;移动构造函数，绝对不要加 <code>explicit</code>。</p>
-<p>(大家有什么使用习惯吗？欢迎评论区交流)</p>
-]]></content>
-      <categories>
-        <category>C++</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>Modern C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>为什么谷歌搜不到我的个人博客？（附 Hexo + GSC 完整收录指南）</title>
-    <url>/posts/47478614.html</url>
-    <content><![CDATA[<p>刚搭好 Hexo 博客，兴冲冲地在 Google 搜索栏输入 <code>site:catistrue.com</code>，结果却是“找不到任何与此相关的内容或信息”。</p>
-<p><img src="/images/gsc/image.png" alt="找不到"></p>
-<p>那种心情，大概就像是新开了一家店，装修得漂漂亮亮，结果门口连个路牌都没有，谁也找不到。</p>
-<p>今天记录一下我为了让 Google 收录我的博客，踩过的坑和最终的解决方案。<br>如果你也像我之前一样发出新手疑问，这篇文章应该能帮到你。</p>
-<span id="more"></span>
-
-<h2 id="核心误区：建好站-能被搜到？"><a href="#核心误区：建好站-能被搜到？" class="headerlink" title="核心误区：建好站 &#x3D; 能被搜到？"></a>核心误区：建好站 &#x3D; 能被搜到？</h2><p>这是最大的误区。<strong>网站上线 ≠ 被收录。</strong></p>
-<p>互联网就像一个巨大的图书馆，Google 是图书管理员。我们建好博客，只是把书写好了放在自家书房里。如果不主动去“登记”，图书管理员是不知道你这本书存在的。</p>
-<p>所以，我们需要做两件事：</p>
-<ol>
-<li><strong>验明正身</strong>：告诉 Google 这个域名是我的（GSC 验证）。</li>
-<li><strong>提交目录</strong>：把书的目录交给 Google（提交 Sitemap）。</li>
-</ol>
-<h2 id="第一步：注册-Google-Search-Console-GSC-："><a href="#第一步：注册-Google-Search-Console-GSC-：" class="headerlink" title="第一步：注册 Google Search Console (GSC)："></a>第一步：注册 Google Search Console (GSC)：</h2><p>Google Search Console (GSC) 是 Google 官方的站长工具。验证所有权最推荐的方法是 <strong>DNS 验证</strong>。</p>
-<p>访问 <a href="https://search.google.com/search-console">Google Search Console</a></p>
-<p>(1) 输入你的域名 catistrue.com (选左边的“网域”&#x2F;Domain)。</p>
-<p>(2) 验证所有权：它会给你一段 TXT 代码。(复制下来就行)</p>
-<p>(3) 去你的服务商（比如我是去 腾讯云 DNSPod），添加一条 TXT 记录，把代码贴进去。</p>
-<h2 id="第二步：GSC-验证"><a href="#第二步：GSC-验证" class="headerlink" title="第二步：GSC 验证"></a>第二步：GSC 验证</h2><p>Google 只是想验证你拥有 <code>catistrue.com</code> 这个根域名。所以在腾讯云 DNSPod新增这样一个记录：</p>
-<p>主机记录：请写 @ （或者留空不填，但在 DNSPod 里通常填 @ 代表根域名）。</p>
-<p>记录类型：TXT </p>
-<p>记录值：google-site-verification&#x3D;… （刚才复制下来的 TXT 代码）</p>
-<hr>
-<p>这里我遇到了一个新手常犯的犹豫：<strong>我已经有一条 <code>@</code> 的 A 记录指向服务器 IP 了，再加一条 <code>@</code> 的 TXT 记录用来验证，会冲突吗？</strong></p>
-<p><strong>答案是：完全不会。</strong></p>
-<ul>
-<li><strong>A 记录</strong>：负责指路，告诉浏览器网站在哪里。</li>
-<li><strong>TXT 记录</strong>：负责备注，告诉 Google 验证码是什么。</li>
-</ul>
-<p>只要类型不同（一个是 A，一个是 TXT），它们就能和平共处。<br>所以放心添加即可。</p>
-<h2 id="第三步：最关键的-Sitemap"><a href="#第三步：最关键的-Sitemap" class="headerlink" title="第三步：最关键的 Sitemap"></a>第三步：最关键的 Sitemap</h2><p>验证通过只是拿到了“房产证”，想让爬虫快速抓取，必须主动提交 Sitemap（站点地图）。</p>
-<h3 id="1-检查-Hexo-是否有-Sitemap"><a href="#1-检查-Hexo-是否有-Sitemap" class="headerlink" title="1. 检查 Hexo 是否有 Sitemap"></a>1. 检查 Hexo 是否有 Sitemap</h3><p>访问 <code>https://www.catistrue.com/sitemap.xml</code>，如果 404，说明没装插件。</p>
-<p>这里插播一段，如果像我之前一样通过CI&#x2F;CD部署的，就可以感受到它的优势。</p>
-<p>比如一般来说，直接通过安装本地环境搭建Hexo+GitHub的，需要在博客根目录运行：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install hexo-generator-sitemap --save</span><br></pre></td></tr></table></figure>
-<p>然后重新 <code>hexo g -d</code> 部署。再次访问，看到一堆密密麻麻的代码（XML 格式），就说明成功了。</p>
-<p>但是，如果走CI&#x2F;CD部署的，即使手边这台电脑没有配置Node.js环境，没有配置docker环境，仍然可以很轻松给项目添加新插件。这是一个非常现实的场景。而且其实<strong>非常简单</strong>，甚至比有 Docker 还简单。</p>
-<p><strong>核心逻辑是：</strong> 你只需要修改“购物清单” (<code>package.json</code>)，然后把清单传给 GitHub。真正负责“买菜做饭” (安装插件、生成页面、部署) 的是 <strong>GitHub Actions</strong>，而不是你的本地电脑。</p>
-<p>你完全<strong>不需要</strong>在本地运行 <code>npm install</code> 或 <code>hexo g -d</code>。</p>
-<hr>
-<h4 id="操作步骤-如果已经安装过hexo-generator-sitemap插件可跳过这段"><a href="#操作步骤-如果已经安装过hexo-generator-sitemap插件可跳过这段" class="headerlink" title="操作步骤 (如果已经安装过hexo-generator-sitemap插件可跳过这段)"></a>操作步骤 (如果已经安装过<code>hexo-generator-sitemap</code>插件可跳过这段)</h4><p>对于我们这种CI&#x2F;CD部署的场景，你只需要直接编辑文件即可：</p>
-<h5 id="（1）手动修改-package-json"><a href="#（1）手动修改-package-json" class="headerlink" title="（1）手动修改 package.json"></a>（1）手动修改 <code>package.json</code></h5><p>在你的项目根目录下，找到 <code>package.json</code> 文件。这是 Node.js 项目的依赖清单。</p>
-<p>找到 <code>&quot;dependencies&quot;</code> 部分，手动添加一行：</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="attr">&quot;dependencies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;hexo&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^7.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-archive&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-category&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-index&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-tag&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-ejs&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^2.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-marked&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^6.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-renderer-stylus&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-server&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hexo-theme-landscape&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^1.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 👇 在这里手动加上这一行即可，版本号写 * 或者去 npm搜个大概版本都行</span></span><br><span class="line">  <span class="attr">&quot;hexo-generator-sitemap&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.1&quot;</span> </span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-<p><em>(注意：上一行的末尾别忘了加逗号 <code>,</code>，json 格式很严格)</em></p>
-<h5 id="（2）配置-config-yml-如果需要"><a href="#（2）配置-config-yml-如果需要" class="headerlink" title="（2）配置 _config.yml (如果需要)"></a>（2）配置 <code>_config.yml</code> (如果需要)</h5><p>通常 sitemap 插件安装后会自动生效，但为了稳妥，我们可以在 <code>_config.yml</code> 里开启它。<br>打开根目录的 <code>_config.yml</code>，在末尾添加：</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Sitemap</span></span><br><span class="line"><span class="attr">sitemap:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">sitemap.xml</span></span><br></pre></td></tr></table></figure>
-
-<h5 id="（3）提交代码"><a href="#（3）提交代码" class="headerlink" title="（3）提交代码"></a>（3）提交代码</h5><p>这就是最后一步了。我只需要把这两个文件的修改 Push 到 GitHub。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git add package.json _config.yml</span><br><span class="line">git commit -m <span class="string">&quot;Add sitemap plugin&quot;</span></span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
-
-<h5 id="（4）见证奇迹"><a href="#（4）见证奇迹" class="headerlink" title="（4）见证奇迹"></a>（4）见证奇迹</h5><ol>
-<li>代码推送到 GitHub 后，<strong>GitHub Actions 会自动触发</strong>。</li>
-<li>Action 在云端运行时的逻辑是：<code>npm install</code>。</li>
-<li>这时候，它会读取我刚才修改过的 <code>package.json</code>，发现：“咦，多了一个 <code>hexo-generator-sitemap</code>！”</li>
-<li>于是它会自动下载安装这个插件。</li>
-<li>接着执行 <code>hexo generate</code> 时，插件就会生效，生成 <code>sitemap.xml</code>。</li>
-<li>最后部署上线。</li>
-</ol>
-<hr>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>你<strong>不需要</strong>在本地安装 Node.js，也<strong>不需要</strong>运行 npm 命令。<br><strong>只要修改 <code>package.json</code> 这个纯文本文件，你就相当于指挥了云端的服务器帮你安装了插件。</strong></p>
-<p>这就是 CI&#x2F;CD (持续集成&#x2F;持续部署) 的最大优势！</p>
-<h3 id="2-提交给-GSC"><a href="#2-提交给-GSC" class="headerlink" title="2. 提交给 GSC"></a>2. 提交给 GSC</h3><p>在 GSC 后台找到“站点地图”，输入 <code>https://www.catistrue.com/sitemap.xml</code> 提交。</p>
-<p><img src="/images/gsc/image-1.png" alt="提交站点地图"></p>
-<p>到这一步提交之后，就是等待啦。</p>
-<h2 id="第三步：等待"><a href="#第三步：等待" class="headerlink" title="第三步：等待"></a>第三步：等待</h2><p>提交完 Sitemap，最搞心态的一幕出现了：状态栏显示红色的 **“无法抓取” (Couldn’t fetch)**。</p>
-<p>当时我也慌了，以为是 Sitemap 格式错了，或者是 Vercel 屏蔽了爬虫。</p>
-<p><strong>真相是：这是 Google 的服务器延迟&#x2F;抽风。</strong><br><strong>千万别慌，不用做任何修改。</strong></p>
-<p>如果你的 <code>https://www.catistrue.com/sitemap.xml</code> 能用浏览器打开，那就绝对没问题。</p>
-<p>恭喜你，<strong>操作步骤已经全部完成！</strong></p>
-<hr>
-<h3 id="为什么会显示“无法抓取”？"><a href="#为什么会显示“无法抓取”？" class="headerlink" title="为什么会显示“无法抓取”？"></a>为什么会显示“无法抓取”？</h3><ol>
-<li><strong>Pending 状态</strong>：虽然它说“无法抓取”，但实际上 Google 内部的意思往往是“pending（排队中）”。你的请求已经提交上去了，但服务器还没来得及去真的访问。</li>
-<li><strong>CDN 延迟</strong>：你的网站在 Vercel 上，DNS 解析有时候会有微小的延迟，导致 Google 爬虫第一下没连上。</li>
-</ol>
-<h3 id="现在我们该做什么？"><a href="#现在我们该做什么？" class="headerlink" title="现在我们该做什么？"></a>现在我们该做什么？</h3><p><strong>什么都不用做，关掉页面去睡觉：P</strong></p>
-<p>真的，这是解决这个红字最好的办法。</p>
-<ul>
-<li><strong>不要</strong> 删除它重新提交（这会让排队重置）。</li>
-<li><strong>不要</strong> 怀疑你的 sitemap 有问题（只要你能用浏览器打开，它就是没问题的）。</li>
-</ul>
-<p>大概过了1个多小时，我再回来刷新这个页面，这个红色的“无法抓取”就会神奇地变成绿色的“成功”，或者显示出“已发现的网址数”。</p>
-<p><img src="/images/gsc/image-2.png" alt="像这样"></p>
-<h3 id="成功了以后，为什么我在google上搜索site-catistrue-com还是没有内容呢"><a href="#成功了以后，为什么我在google上搜索site-catistrue-com还是没有内容呢" class="headerlink" title="成功了以后，为什么我在google上搜索site:catistrue.com还是没有内容呢"></a>成功了以后，为什么我在google上搜索site:catistrue.com还是没有内容呢</h3><p><strong>这是非常正常的，千万别焦虑！</strong></p>
-<p>你现在的状态就像是：<strong>刚刚把店铺的传单（Sitemap）发给了路过的推销员（Google），但他还没来得及把你的店名印到黄页（搜索结果）上。</strong></p>
-<p>从“提交成功”到“搜得到”，中间还有一段 <strong>“收录期”</strong>，通常需要 <strong>数天到两周</strong> 的时间。</p>
-<h3 id="为什么会这样？Google-正在后台忙这三件事："><a href="#为什么会这样？Google-正在后台忙这三件事：" class="headerlink" title="为什么会这样？Google 正在后台忙这三件事："></a>为什么会这样？Google 正在后台忙这三件事：</h3><ol>
-<li><strong>发现（Discovery）</strong>：你刚提交了 Sitemap，Google 知道了“哦，这里有个新网站 <code>catistrue.com</code>”。</li>
-<li><strong>抓取（Crawling）</strong>：Google 会派出爬虫（Googlebot）顺着你的 Sitemap 链接，真正地去访问你的每一个网页，下载内容。</li>
-<li><strong>索引（Indexing）</strong>：爬虫把内容带回去，Google 的算法要分析你的文章质量、关键词，确定没有违规内容后，才会把它放进巨大的数据库里。</li>
-</ol>
-<p><strong>只有完成了第 3 步，你在 Google 搜 <code>site:catistrue.com</code> 才会出现结果。</strong></p>
-<hr>
-<h3 id="你现在怎么确认-Google-到底在干活没？"><a href="#你现在怎么确认-Google-到底在干活没？" class="headerlink" title="你现在怎么确认 Google 到底在干活没？"></a>你现在怎么确认 Google 到底在干活没？</h3><p>虽然搜不到，但你可以用 <strong>Google Search Console</strong> 里的一个强力工具来查看进度：</p>
-<ol>
-<li>在 Search Console 顶部，有一个长长的搜索框（写着“检查 catistrue.com 中的任何网址”）。</li>
-<li>把你的首页地址 <code>https://catistrue.com/</code> 粘贴进去，回车。</li>
-<li>系统会跑一会儿，然后给你一个报告：<ul>
-<li>如果显示 <strong>“网址不在 Google 服务中”</strong>：说明爬虫还没来，或者还没处理完。（正常，继续等）</li>
-<li>你可以点击灰色的按钮 <strong>“请求编入索引”</strong>。这相当于给爬虫插个队，告诉它：“哥们，这里我很急，优先来看一下。”</li>
-</ul>
-</li>
-</ol>
-<p><img src="/images/gsc/image-3.png" alt="收录成功"></p>
-<p>当出现收录成功后，现在的状态：<br>你的网站已经“拿到户口本”了！<br>现在你可以放一百个心，不需要再做任何 SEO 的技术配置了。你现在唯一的任务就是：写好博客，发布出去！</p>
-<h2 id="总结：从提交到收录的等待期"><a href="#总结：从提交到收录的等待期" class="headerlink" title="总结：从提交到收录的等待期"></a>总结：从提交到收录的等待期</h2><ul>
-<li><strong>不要慌</strong>：新站通常需要 <strong>3天 - 1周</strong> 才能在搜索结果里冒头。</li>
-<li><strong>不要改</strong>：确保你的配置是正确的，千万别因为搜不到就去乱改 DNS 或 Sitemap。</li>
-<li><strong>去写文章</strong>：趁这段时间多写一两篇高质量文章，Google 爬虫第一次来如果发现内容很丰富，会对你的网站印象更好，以后收录会更快！</li>
-</ul>
-<p>在此期间，我们可以使用 GSC 顶部的搜索框“检查网址”，手动点击 <strong>“请求编入索引”</strong> 来给爬虫插个队。</p>
-<p>剩下的，就是保持更新，静待花开。希望大家的博客都能早日出现在搜索结果的第一位！</p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-        <tag>建站</tag>
-        <tag>SEO</tag>
-        <tag>Google Search Console</tag>
       </tags>
   </entry>
   <entry>
