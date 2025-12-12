@@ -20,6 +20,15 @@
   </url>
   
   <url>
+    <loc>https://catistrue.com/posts/e7024663.html</loc>
+    
+    <lastmod>2025-12-12</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://catistrue.com/posts/47478614.html</loc>
     
     <lastmod>2025-12-12</lastmod>
@@ -107,6 +116,20 @@
   </url>
   
   <url>
+    <loc>https://catistrue.com/tags/C/</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://catistrue.com/tags/Modern-C/</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://catistrue.com/tags/%E5%BB%BA%E7%AB%99/</loc>
     <lastmod>2025-12-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -138,6 +161,13 @@
   
   <url>
     <loc>https://catistrue.com/categories/%E5%B7%A5%E5%85%B7/</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://catistrue.com/categories/C/</loc>
     <lastmod>2025-12-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
