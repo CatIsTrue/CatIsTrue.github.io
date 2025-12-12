@@ -45,3 +45,19 @@ creative_commons:
   license: by-nc-sa
   sidebar: true
   post: true
+
+busuanzi_count:
+  # 开启开关
+  enable: true
+  
+  # 统计全站访客数 (UV) - 也就是有多少人来过
+  total_visitors: true
+  total_visitors_icon: fa fa-user
+  
+  # 统计全站总访问量 (PV) - 也就是页面被刷了多少次
+  total_views: true
+  total_views_icon: fa fa-eye
+  
+  # 统计单篇文章阅读量 (在文章标题下面显示)
+  post_views: true
+  post_views_icon: fa fa-eye
