@@ -294,6 +294,15 @@
 
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>教程</tag>
+        <tag>Hexo</tag>
+        <tag>博客搭建</tag>
+        <tag>Docker</tag>
+      </tags>
   </entry>
   <entry>
     <title>从零开始：使用 Docker + Hexo + Vercel + 腾讯云域名搭建个人博客</title>
