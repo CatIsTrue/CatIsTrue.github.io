@@ -39,7 +39,7 @@ local_search:
   trigger: auto
   top_n_per_article: 1
 
-pjax: true
+# pjax: true
 
 creative_commons:
   license: by-nc-sa
