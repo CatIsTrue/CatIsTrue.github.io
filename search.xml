@@ -75,6 +75,24 @@
       </tags>
   </entry>
   <entry>
+    <title>cjson库版本不一致，导致解析失败</title>
+    <url>/posts/ae350693.html</url>
+    <content><![CDATA[<h1 id="cjson库版本不一致，导致解析失败"><a href="#cjson库版本不一致，导致解析失败" class="headerlink" title="cjson库版本不一致，导致解析失败"></a>cjson库版本不一致，导致解析失败</h1><h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><p>在编译一个程序demo的时候，需要继承一个第三方库libexample.so，第三方库用到了cjson，本身这个程序也用到了cjson，由于两者用的cjson的版本不一致，导致json解析失败……</p>
+<h2 id="旧版本cjson"><a href="#旧版本cjson" class="headerlink" title="旧版本cjson"></a>旧版本cjson</h2><p>第三方库libexample.so使用的旧版本的cjson，cjson-types截图如下：<br><img src="/images/cjson_old_version.jpg" alt="cjson_old_version.jpg"></p>
+<h2 id="新版本cjson"><a href="#新版本cjson" class="headerlink" title="新版本cjson"></a>新版本cjson</h2><p>程序demo使用的是新版本的cjson，cjson-types截图如下：<br><img src="/images/cjson_new_version.jpg" alt="cjson_new_version.jpg"></p>
+<h2 id="具体现象"><a href="#具体现象" class="headerlink" title="具体现象"></a>具体现象</h2><p>用旧版本的cJSON源码编译到自己的代码里，编译出libexample.so库；<br>程序demo已经使用过新版本的cJSON源码，但是又连接了上面编译出来的libexample.so的库，再次进行json解析，会发现libexample.so里面解析cJSON_Number类型的节点的值会失败；<br>然后重新用新版本的cJSON源码编译出libexample.so库，再集成到上面的demo里面，即可解析成功。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>可以从上面两个不同版本的cjson源码截图的cjosn-types看出来：<br>这两个版本的cJSON Types的值不一样，比如cJSON_Number类型节点的值，旧版本的值是3， 新版本的值是8，<br>所以用旧版本编译的libexample.so库，集成到demo里的时候，解析到cJSON_Number节点的时候，错误的使用值8而不是3，所以导致解析失败</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>代码里一定要保持一个版本的cjson；<br>版本混乱很容易造成奇怪的问题，而且这种问题往往还不容易排查！</p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>cjson</tag>
+        <tag>教程</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>centos或mac下使用locate指令时，报错</title>
     <url>/posts/988cb25a.html</url>
     <content><![CDATA[<h1 id="centos或mac下使用locate指令时，报错-var-db-locate-database"><a href="#centos或mac下使用locate指令时，报错-var-db-locate-database" class="headerlink" title="centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)"></a>centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)</h1><p>centos或mac下使用locate指令时，出现报错信息The locate database (&#x2F;var&#x2F;db&#x2F;locate.database)</p>
@@ -101,26 +119,8 @@
         <category>技术折腾</category>
       </categories>
       <tags>
+        <tag>教程</tag>
         <tag>linux</tag>
-        <tag>教程</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>cjson库版本不一致，导致解析失败</title>
-    <url>/posts/ae350693.html</url>
-    <content><![CDATA[<h1 id="cjson库版本不一致，导致解析失败"><a href="#cjson库版本不一致，导致解析失败" class="headerlink" title="cjson库版本不一致，导致解析失败"></a>cjson库版本不一致，导致解析失败</h1><h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><p>在编译一个程序demo的时候，需要继承一个第三方库libexample.so，第三方库用到了cjson，本身这个程序也用到了cjson，由于两者用的cjson的版本不一致，导致json解析失败……</p>
-<h2 id="旧版本cjson"><a href="#旧版本cjson" class="headerlink" title="旧版本cjson"></a>旧版本cjson</h2><p>第三方库libexample.so使用的旧版本的cjson，cjson-types截图如下：<br><img src="/images/cjson_old_version.jpg" alt="cjson_old_version.jpg"></p>
-<h2 id="新版本cjson"><a href="#新版本cjson" class="headerlink" title="新版本cjson"></a>新版本cjson</h2><p>程序demo使用的是新版本的cjson，cjson-types截图如下：<br><img src="/images/cjson_new_version.jpg" alt="cjson_new_version.jpg"></p>
-<h2 id="具体现象"><a href="#具体现象" class="headerlink" title="具体现象"></a>具体现象</h2><p>用旧版本的cJSON源码编译到自己的代码里，编译出libexample.so库；<br>程序demo已经使用过新版本的cJSON源码，但是又连接了上面编译出来的libexample.so的库，再次进行json解析，会发现libexample.so里面解析cJSON_Number类型的节点的值会失败；<br>然后重新用新版本的cJSON源码编译出libexample.so库，再集成到上面的demo里面，即可解析成功。</p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>可以从上面两个不同版本的cjson源码截图的cjosn-types看出来：<br>这两个版本的cJSON Types的值不一样，比如cJSON_Number类型节点的值，旧版本的值是3， 新版本的值是8，<br>所以用旧版本编译的libexample.so库，集成到demo里的时候，解析到cJSON_Number节点的时候，错误的使用值8而不是3，所以导致解析失败</p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>代码里一定要保持一个版本的cjson；<br>版本混乱很容易造成奇怪的问题，而且这种问题往往还不容易排查！</p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>教程</tag>
-        <tag>cjson</tag>
       </tags>
   </entry>
   <entry>
@@ -154,6 +154,34 @@
       <tags>
         <tag>Windows</tag>
         <tag>CMake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>debian10系统原本为64位系统，如何配置32位编译and运行环境</title>
+    <url>/posts/71d17bfd.html</url>
+    <content><![CDATA[<h1 id="debian10系统原本为64位系统，如何配置32位编译and运行环境"><a href="#debian10系统原本为64位系统，如何配置32位编译and运行环境" class="headerlink" title="debian10系统原本为64位系统，如何配置32位编译and运行环境"></a>debian10系统原本为64位系统，如何配置32位编译and运行环境</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原本安装的是debian10的64位系统，但是因为有些第三方程序是32位的，需要在这个系统上编译运行，那么需要配置一下必要的环境</p>
+<h2 id="当32位程序放在debian64位系统里无法编译or运行时，如何判断是因为没有配置32位编译or运行环境"><a href="#当32位程序放在debian64位系统里无法编译or运行时，如何判断是因为没有配置32位编译or运行环境" class="headerlink" title="当32位程序放在debian64位系统里无法编译or运行时，如何判断是因为没有配置32位编译or运行环境"></a>当32位程序放在debian64位系统里无法编译or运行时，如何判断是因为没有配置32位编译or运行环境</h2><p>一般来说，编译32位程序时，如果出现以下报错,可以认为没有配置32位编译or运行环境</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">fatal <span class="attr">error</span>: bits/libc-header-start.<span class="property">h</span>: <span class="title class_">No</span> such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>运行32位程序时，如果出现以下报错，也可以认为没有配置32位编译or运行环境</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//明明有执行程序test（32位的），但是执行./test的时候却报错</span></span><br><span class="line">test： </span><br><span class="line">     no such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>出现以上两种情况的任何一个时，一般可以判断时由于64位debian系统下，没有配置32位程序的编译or运行环境，需要执行以下两个步骤</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="一、执行sudo-apt-get-install-gcc-multilib"><a href="#一、执行sudo-apt-get-install-gcc-multilib" class="headerlink" title="一、执行sudo apt-get install gcc-multilib"></a>一、执行sudo apt-get install gcc-multilib</h3><p>安装gcc-multilib</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//安装gcc-multilib</span></span><br><span class="line">sudo apt-get install gcc-multilib</span><br></pre></td></tr></table></figure>
+
+<h3 id="二、执行sudo-apt-get-install-g-multilib"><a href="#二、执行sudo-apt-get-install-g-multilib" class="headerlink" title="二、执行sudo apt-get install g++-multilib"></a>二、执行sudo apt-get install g++-multilib</h3><p>安装g++-multilib</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//安装g++-multilib</span></span><br><span class="line">sudo apt-get install g++-multilib</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>因为从官网直接下载下来的debian10的64位安装镜像在安装完成后，原始的debian系统是不支持32位程序运行的，所以需要对环境进行配置，所以做个记录，免得下次忘记了</p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>教程</tag>
+        <tag>linux</tag>
+        <tag>debian</tag>
       </tags>
   </entry>
   <entry>
@@ -280,34 +308,6 @@
         <tag>建站</tag>
         <tag>SEO</tag>
         <tag>Google Search Console</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>debian10系统原本为64位系统，如何配置32位编译and运行环境</title>
-    <url>/posts/71d17bfd.html</url>
-    <content><![CDATA[<h1 id="debian10系统原本为64位系统，如何配置32位编译and运行环境"><a href="#debian10系统原本为64位系统，如何配置32位编译and运行环境" class="headerlink" title="debian10系统原本为64位系统，如何配置32位编译and运行环境"></a>debian10系统原本为64位系统，如何配置32位编译and运行环境</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原本安装的是debian10的64位系统，但是因为有些第三方程序是32位的，需要在这个系统上编译运行，那么需要配置一下必要的环境</p>
-<h2 id="当32位程序放在debian64位系统里无法编译or运行时，如何判断是因为没有配置32位编译or运行环境"><a href="#当32位程序放在debian64位系统里无法编译or运行时，如何判断是因为没有配置32位编译or运行环境" class="headerlink" title="当32位程序放在debian64位系统里无法编译or运行时，如何判断是因为没有配置32位编译or运行环境"></a>当32位程序放在debian64位系统里无法编译or运行时，如何判断是因为没有配置32位编译or运行环境</h2><p>一般来说，编译32位程序时，如果出现以下报错,可以认为没有配置32位编译or运行环境</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">fatal <span class="attr">error</span>: bits/libc-header-start.<span class="property">h</span>: <span class="title class_">No</span> such file or directory</span><br></pre></td></tr></table></figure>
-
-<p>运行32位程序时，如果出现以下报错，也可以认为没有配置32位编译or运行环境</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//明明有执行程序test（32位的），但是执行./test的时候却报错</span></span><br><span class="line">test： </span><br><span class="line">     no such file or directory</span><br></pre></td></tr></table></figure>
-
-<p>出现以上两种情况的任何一个时，一般可以判断时由于64位debian系统下，没有配置32位程序的编译or运行环境，需要执行以下两个步骤</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="一、执行sudo-apt-get-install-gcc-multilib"><a href="#一、执行sudo-apt-get-install-gcc-multilib" class="headerlink" title="一、执行sudo apt-get install gcc-multilib"></a>一、执行sudo apt-get install gcc-multilib</h3><p>安装gcc-multilib</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//安装gcc-multilib</span></span><br><span class="line">sudo apt-get install gcc-multilib</span><br></pre></td></tr></table></figure>
-
-<h3 id="二、执行sudo-apt-get-install-g-multilib"><a href="#二、执行sudo-apt-get-install-g-multilib" class="headerlink" title="二、执行sudo apt-get install g++-multilib"></a>二、执行sudo apt-get install g++-multilib</h3><p>安装g++-multilib</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//安装g++-multilib</span></span><br><span class="line">sudo apt-get install g++-multilib</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>因为从官网直接下载下来的debian10的64位安装镜像在安装完成后，原始的debian系统是不支持32位程序运行的，所以需要对环境进行配置，所以做个记录，免得下次忘记了</p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>教程</tag>
-        <tag>debian</tag>
       </tags>
   </entry>
   <entry>
@@ -617,12 +617,51 @@
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.lwlwq.com/post-cryptopp.html">https://www.lwlwq.com/post-cryptopp.html</a></p>
 ]]></content>
       <categories>
-        <category>技术折腾</category>
+        <category>交叉编译</category>
       </categories>
       <tags>
         <tag>linux</tag>
         <tag>交叉编译</tag>
         <tag>libcryptopp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>libcurl交叉编译</title>
+    <url>/posts/ad4da72c.html</url>
+    <content><![CDATA[<h1 id="libcurl交叉编译"><a href="#libcurl交叉编译" class="headerlink" title="libcurl交叉编译"></a>libcurl交叉编译</h1><h1 id="需要源码交叉编译libcurl操作步骤"><a href="#需要源码交叉编译libcurl操作步骤" class="headerlink" title="需要源码交叉编译libcurl操作步骤"></a>需要源码交叉编译libcurl操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要交叉编译libcurl，比如目标机器是32位系统的，但是本地机器是64位系统的，而且由于某些原因，我们无法在32位系统上直接编译，所以需要用到交叉编译</p>
+<h2 id="编译openssl"><a href="#编译openssl" class="headerlink" title="编译openssl"></a>编译openssl</h2><p>libcurl是依赖openssl的，所以先编译openssl的32位库</p>
+<p>完整编译选项配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">setarch i386 ./config -m32 –prefix=/home/muhan/openssl/ –openssldir=/home/muhan/openssl/ -Wl,-rpath,/usr/local/openssl/lib shared</span><br></pre></td></tr></table></figure>
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置-m32 指定编译32位的库</span><br><span class="line">配置–prefix 指定openssl的安装目录</span><br><span class="line">配置–openssldir 指定openssl的头文件目录</span><br><span class="line">配置shared关键字 指定编译时生成动态库（libssl.so/libcrypto.so及其相关软连接）</span><br></pre></td></tr></table></figure>
+
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="编译安装zlib"><a href="#编译安装zlib" class="headerlink" title="编译安装zlib"></a>编译安装zlib</h2><p>有时候有的系统是默认安装了32位zlib库的，那么就可以跳过这一步，但是有的系统需要自己下载编译zlib-32位库</p>
+<p>完整编译选项配置如下：<br>直接修改CMakeLists.txt文件，增加以下两行</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_C_FLAGS “-m32”)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS “-m32”)</span><br></pre></td></tr></table></figure>
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置CMAKE_C_FLAGS 指定编译32位库环境</span><br><span class="line">配置CMAKE_CXX_FLAGS 指定编译32位库环境</span><br></pre></td></tr></table></figure>
+
+<p>然后再mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; make &amp;&amp; make install 即可</p>
+<h2 id="编译安装libcurl"><a href="#编译安装libcurl" class="headerlink" title="编译安装libcurl"></a>编译安装libcurl</h2><p>最后就是编译libcurl</p>
+<p>完整编译选项配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure PKG_CONFIG_PATH=/home/muhan/openssl CFLAGS=”-m32” CPPFLAGS=”-I/home/muhan/openssl/include” LDFLAGS=”-L/home/muhan/openssl/lib”</span><br></pre></td></tr></table></figure>
+
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置PKG_CONFIG_PATH 指定启动openssl选项(启动这个选项，就会默认链接lssl，lcrypto，lz三个库)</span><br><span class="line">配置CFLAGS 指定编译32位库环境</span><br><span class="line">配置CPPFLAGS 指定链接的库的头文件</span><br><span class="line">配置LDFLAGS 指定链接的库的路径</span><br></pre></td></tr></table></figure>
+
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当编译第三方库的时候，如果有CMakeLists.txt，直接用CMakeLists.txt编译就很方便；<br>如果只有configure，那么需要先了解编译选项</p>
+<p>执行.&#x2F;configure –help 来查看当前支持的编译选项<br>然后根据提示配置一下我们需要指定的选项，比如自己指定的openssl的版本的库和头文件路径名，比如CC的版本，比如安装路径等等<br>(当然，如果不需要额外配置这些东西的话，直接走默认配置的话，那么直接执行.&#x2F;config 或者 .&#x2F;configure 就行)</p>
+<p>然后在生成Makefile之后，再make &amp;&amp; make install 即可</p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>交叉编译</tag>
+        <tag>libcurl</tag>
       </tags>
   </entry>
   <entry>
@@ -736,6 +775,96 @@
         <tag>linux</tag>
         <tag>tcpdump</tag>
         <tag>抓包</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>虚拟机安装官方树莓派系统，配置交叉编译链</title>
+    <url>/posts/71c1cc71.html</url>
+    <content><![CDATA[<h1 id="虚拟机安装官方树莓派系统，配置交叉编译链"><a href="#虚拟机安装官方树莓派系统，配置交叉编译链" class="headerlink" title="虚拟机安装官方树莓派系统，配置交叉编译链"></a>虚拟机安装官方树莓派系统，配置交叉编译链</h1><h2 id="1-下载官方镜像"><a href="#1-下载官方镜像" class="headerlink" title="1.下载官方镜像"></a>1.下载官方镜像</h2><p><a href="https://www.raspberrypi.org/software/raspberry-pi-desktop/">https://www.raspberrypi.org/software/raspberry-pi-desktop/</a><br>通过官网，下载raspberry镜像64位系统iso文件之后，可以安装在虚拟机vbox&#x2F;vmware里</p>
+<h2 id="2-下载交叉编译工具链"><a href="#2-下载交叉编译工具链" class="headerlink" title="2.下载交叉编译工具链"></a>2.下载交叉编译工具链</h2><p>通过github下载最新的官方树莓派交叉编译工具链<br>git clone git:&#x2F;&#x2F;github.com&#x2F;raspberrypi&#x2F;tools.git</p>
+<h2 id="3-配置交叉编译工具链"><a href="#3-配置交叉编译工具链" class="headerlink" title="3.配置交叉编译工具链"></a>3.配置交叉编译工具链</h2><p>将arm-bcm2708文件夹拷贝到&#x2F;opt&#x2F;arm-bcm2708下（自定义路径即可）</p>
+<p>将上面到交叉编译工具链的路径配置到~&#x2F;.bashrc文件</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">sudo vim ~/.<span class="property">bashrc</span></span><br><span class="line"><span class="keyword">export</span> <span class="variable constant_">PATH</span>=<span class="attr">$PATH</span>:<span class="regexp">/opt/</span>arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-测试交叉编译工具链是否安装成功"><a href="#4-测试交叉编译工具链是否安装成功" class="headerlink" title="4.测试交叉编译工具链是否安装成功"></a>4.测试交叉编译工具链是否安装成功</h2><p>输入以下指令，如果有打印一些版本信息，那么说明交叉编译环境配置正确<br>arm-linux-gnueabihf-gcc -v<br>如图:<br><img src="/images/4b_succeed.jpg" alt="4b_succeed"></p>
+<h2 id="5-假如第4步的时候有报错没有这个文件或目录，但实际是有这个文件的，可以apt-get安装libc6-dev-i386"><a href="#5-假如第4步的时候有报错没有这个文件或目录，但实际是有这个文件的，可以apt-get安装libc6-dev-i386" class="headerlink" title="5.假如第4步的时候有报错没有这个文件或目录，但实际是有这个文件的，可以apt-get安装libc6-dev-i386"></a>5.假如第4步的时候有报错没有这个文件或目录，但实际是有这个文件的，可以apt-get安装libc6-dev-i386</h2><p>如果报错提醒如下：<br><img src="/images/4b_fail_env.jpg" alt="4b_fail_env"></p>
+<p>可以按照以下的解决方案尝试一下：<br><img src="/images/4b_deal_fail.jpg" alt="4b_deal_fail"></p>
+<p>然后重新输入arm-linux-gnueabihf-gcc -v即可发现打印版本信息</p>
+<h2 id="6-编写测试demo，然后编译生成执行文件"><a href="#6-编写测试demo，然后编译生成执行文件" class="headerlink" title="6.编写测试demo，然后编译生成执行文件"></a>6.编写测试demo，然后编译生成执行文件</h2><p>demo略，编译的指令如下：<br><img src="/images/4b_hello_world.jpg" alt="4b_hello_world"></p>
+<p>需要注意的是，该可运行文件不能在PC机上运行，只能在树莓派arm板子上运行</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到此为止，虚拟机上的树莓派arm的交叉编译工具链搭建完成,这个官方的交叉编译工具链还是很靠谱的</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>下载镜像参考以下网址<br><a href="https://www.jianshu.com/p/1a65cb0b8f58">https://www.jianshu.com/p/1a65cb0b8f58</a><br>下载安装交叉编译链参考以下网址<br><a href="https://www.cnblogs.com/zfyouxi/p/3831769.html">https://www.cnblogs.com/zfyouxi/p/3831769.html</a></p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>交叉编译</tag>
+        <tag>raspberrypi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>树莓派64位系统配置32位运行环境</title>
+    <url>/posts/9b05f215.html</url>
+    <content><![CDATA[<h1 id="树莓派64位系统配置32位运行环境"><a href="#树莓派64位系统配置32位运行环境" class="headerlink" title="树莓派64位系统配置32位运行环境"></a>树莓派64位系统配置32位运行环境</h1><h2 id="配置libc6-armhf"><a href="#配置libc6-armhf" class="headerlink" title="配置libc6:armhf"></a>配置libc6:armhf</h2><p>树莓派本身安装了64位系统的情况下，需要配置32位程序的运行环境，首先安装依赖库，操作步骤如下，以下操作都要在<code>root</code>用户下进行<br><img src="/images/4b_armhf.jpg" alt="4b_armhf"></p>
+<h2 id="配置32位程序的依赖库环境"><a href="#配置32位程序的依赖库环境" class="headerlink" title="配置32位程序的依赖库环境"></a>配置32位程序的依赖库环境</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git://github.com/raspberrypi/tools.git</span><br></pre></td></tr></table></figure>
+
+<p>将<code>arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/</code>路径下的<code>lib</code>库都拷贝到<code>/usr/local/lib32</code>路径下，这个路径可以自己创建，自定义路径名，专门用来存放底层32位依赖库(如libstdc++.so.6)</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实最重要的，就是从官方提供的交叉编译工具链，把32位库给获取到，然后放到树莓派的自定义路径下，之后自己编译的32位执行程序&#x2F;库，都要指定链接这个路径的基础库，否则会报错（找不到依赖库）</p>
+<p>本身64位的树莓派系统是不带32位基础库的，所以必须从官方的交叉编译工具链里获取（目前，无法通过<code>apt-get</code>直接获取到所有的32位依赖库）</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://raspberrypi.club/148.html">https://raspberrypi.club/148.html</a></p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>交叉编译</tag>
+        <tag>raspberrypi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>树莓派交叉编译的三种常见方式</title>
+    <url>/posts/8b97d069.html</url>
+    <content><![CDATA[<h1 id="树莓派交叉编译的三种常见方式"><a href="#树莓派交叉编译的三种常见方式" class="headerlink" title="树莓派交叉编译的三种常见方式"></a>树莓派交叉编译的三种常见方式</h1><p><img src="/assets/blogImg/4b_complie_1.jpg" alt="4b_complie_1.jpg"><br><img src="/assets/blogImg/4b_complie_2.jpg" alt="4b_complie_2.jpg"><br><img src="/assets/blogImg/4b_complie_3.jpg" alt="4b_complie_3.jpg"><br><img src="/assets/blogImg/4b_complie_5.jpg" alt="4b_complie_5.jpg"></p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>交叉编译</tag>
+        <tag>raspberrypi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>树莓派配置基础环境-ssh-root-静态ip</title>
+    <url>/posts/beb88453.html</url>
+    <content><![CDATA[<h1 id="树莓派配置基础环境-ssh-root-静态ip"><a href="#树莓派配置基础环境-ssh-root-静态ip" class="headerlink" title="树莓派配置基础环境-ssh-root-静态ip"></a>树莓派配置基础环境-ssh-root-静态ip</h1><h2 id="配置root用户"><a href="#配置root用户" class="headerlink" title="配置root用户"></a>配置root用户</h2><p>在终端进行如下操作即可：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> passwd root</span><br></pre></td></tr></table></figure>
+<p>然后根据提示输入root用户的密码<br>再重复输入一次刚刚设置的密码</p>
+<p>切换root用户操作如下即可：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">su -</span><br></pre></td></tr></table></figure>
+<p>输入设置的root用户的密码</p>
+<h2 id="配置开启ssh"><a href="#配置开启ssh" class="headerlink" title="配置开启ssh"></a>配置开启ssh</h2><p>操作如下即可：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/ssh/sshd-config</span><br></pre></td></tr></table></figure>
+<p>修改 <code>PermitRootLogin yes</code><br>然后保存修改<br>然后执行<code>sudo systemctl restart ssh</code><br>再通过<code>ss -tnl</code>查看是否开启成功即可</p>
+<h2 id="配置静态ip如下"><a href="#配置静态ip如下" class="headerlink" title="配置静态ip如下"></a>配置静态ip如下</h2><p>在需要无线网络连接的情况下，配置eth0的静态ip如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/network/interfaces</span><br></pre></td></tr></table></figure>
+
+<p>然后再文件里增加以下内容</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line">auto eth0</span><br><span class="line">iface eth0 inet static</span><br><span class="line">address 192.168.0.1 //IP地址</span><br><span class="line">netmask 255.255.255.0 //掩码</span><br></pre></td></tr></table></figure>
+
+<p>然后保存<br>但是此时，如果不设置一下<code>wlan0</code>，那么会发现虽然静态ip设置成功了，但是树莓派却无法联网了<br>所以还要在<code>interfaces</code>文件里追加以下内容</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">auto wlan0</span><br><span class="line">iface wlan0 inet dhcp</span><br><span class="line">wpa_conf /etc/wpa_supplicant/wpa_supplicant.conf</span><br></pre></td></tr></table></figure>
+<p>然后保存<br>退出文件<br>重启树莓派即可</p>
+<h2 id="如图，配置动态IP"><a href="#如图，配置动态IP" class="headerlink" title="如图，配置动态IP"></a>如图，配置动态IP</h2><p><img src="/images/shu_ip_dhcp.jpg" alt="shu_ip_dhpc"></p>
+<h2 id="如图，配置静态IP"><a href="#如图，配置静态IP" class="headerlink" title="如图，配置静态IP"></a>如图，配置静态IP</h2><p><img src="/images/shu_ip_static.jpg" alt="shu_ip_static"></p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>交叉编译</tag>
+        <tag>raspberrypi</tag>
       </tags>
   </entry>
   <entry>
