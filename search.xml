@@ -75,6 +75,108 @@
       </tags>
   </entry>
   <entry>
+    <title>Windows 会话 ID (Session ID) 与 Session 0 隔离穿透指南</title>
+    <url>/posts/f5974992.html</url>
+    <content><![CDATA[<h2 id="1-背景：开机自启动程序无法弹出界面？"><a href="#1-背景：开机自启动程序无法弹出界面？" class="headerlink" title="1. 背景：开机自启动程序无法弹出界面？"></a>1. 背景：开机自启动程序无法弹出界面？</h2><p>在开发 Windows 后台服务（Service）或开机自启程序时，经常遇到一个棘手的问题：</p>
+<p><strong>场景描述：</strong><br>有一个 GUI 程序 <code>getCode.exe</code> 需要开机自启动并与用户交互（例如弹出窗口让用户输入）。</p>
+<ul>
+<li><strong>尝试 1</strong>：最初直接使用 <code>nssm</code> 将 <code>getCode.exe</code> 注册为 Windows 服务。<ul>
+<li><strong>结果</strong>：程序启动了，但在后台默默运行，用户界面完全看不到，对键盘鼠标无反应。</li>
+</ul>
+</li>
+<li><strong>尝试 2</strong>：开机后手动双击运行 <code>getCode.exe</code>。<ul>
+<li><strong>结果</strong>：程序正常显示，交互正常。</li>
+</ul>
+</li>
+</ul>
+<p><strong>原因分析：</strong><br>通过上网翻找资料，查看任务管理器后发现：</p>
+<ul>
+<li>通过 <code>nssm</code> 启动的进程，其 <strong>会话 ID (Session ID)</strong> 为 <code>0</code>。</li>
+<li>用户手动启动的进程，其 <strong>会话 ID</strong> 为 <code>1</code>（或更高）。</li>
+<li>当前登录用户正在操作的桌面属于 Session 1，而 Session 0 的程序无法直接在 Session 1 的桌面上显示界面。</li>
+</ul>
+<p>原来这就是 Windows 的 <strong>Session 0 隔离机制</strong> ——服务运行在 Session 0，而用户交互桌面在 Session 1&#x2F;2&#x2F;…；Session 0 中创建的界面用户看不见，也无法接收用户输入。</p>
+<p><strong>解决方案思路：</strong><br>考虑了项目的使用场景，最后决定编写一个“启动器”服务（例如 <code>setExeSID.exe</code>），它的职责不是自己显示界面，而是探测当前用户所在的 Session ID，然后使用 Windows API “穿透”隔离，将目标程序 <code>getCode.exe</code> 注入到用户的 Session 中运行。</p>
+<p><strong>大概逻辑为：</strong></p>
+<ol>
+<li><code>setExeSID.exe</code> 由 nssm 注册为服务，开机自启（因此它在 <strong>Session 0</strong>）。</li>
+<li><code>setExeSID.exe</code> 获取当前活动用户的 Session ID（通常是 <strong>1</strong>，也可能是 2&#x2F;3…）。</li>
+<li><code>setExeSID.exe</code> 以该 Session 的用户 Token 为上下文，调用 <code>CreateProcessAsUser</code> 在用户会话中启动 <code>getCode.exe</code>（运行在用户桌面 <code>winsta0\default</code>）。</li>
+</ol>
+<p><strong>预期效果</strong>：<br>仍然实现开机自启动（靠服务）<br><code>getCode.exe</code> 实际运行在当前登录用户的 Session 中，可以正常显示 UI 并交互</p>
+<hr>
+<h2 id="2-查看会话ID"><a href="#2-查看会话ID" class="headerlink" title="2. 查看会话ID"></a>2. 查看会话ID</h2><p>打开“任务管理器” -&gt; “详细信息”选项卡 -&gt; 右键表头“选择列” -&gt; 勾选“会话 ID”。</p>
+<p><img src="/images/look_sid.jpg" alt="look_sid.jpg"></p>
+<hr>
+<h2 id="3-Session-0-隔离（为什么服务无法交互）"><a href="#3-Session-0-隔离（为什么服务无法交互）" class="headerlink" title="3. Session 0 隔离（为什么服务无法交互）"></a>3. Session 0 隔离（为什么服务无法交互）</h2><h3 id="机制"><a href="#机制" class="headerlink" title="机制"></a>机制</h3><ul>
+<li><strong>Windows XP 时代</strong>：系统服务和第一个登录的用户都运行在 Session 0。服务可以直接弹出窗口（<code>MessageBox</code>），用户能看到并交互。这带来了巨大的安全风险（例如 Shatter Attack，恶意程序向服务窗口发送消息提升权限）。</li>
+<li><strong>Windows Vista &#x2F; 7 &#x2F; 10 &#x2F; 11</strong>：引入了 <strong>Session 0 隔离</strong>。<ul>
+<li><strong>Session 0</strong>：<strong>专用于系统服务</strong>。非交互式，没有用户界面。</li>
+<li><strong>Session 1, 2…<strong>：</strong>用户会话</strong>。第一个登录的用户分配 Session 1，远程桌面用户分配 Session 2 等。</li>
+</ul>
+</li>
+</ul>
+<h3 id="为什么普通启动会失败？"><a href="#为什么普通启动会失败？" class="headerlink" title="为什么普通启动会失败？"></a>为什么普通启动会失败？</h3><p>当服务（Session 0）尝试启动一个带 UI 的进程时，该进程默认继承父进程的 Session ID (0)。由于 Session 0 无法访问用户的显卡驱动和桌面环境（<code>winsta0\default</code>），UI 渲染会失败，或者被系统拦截在不可见的后台。</p>
+<hr>
+<h2 id="4-核心做法：如何穿透？"><a href="#4-核心做法：如何穿透？" class="headerlink" title="4. 核心做法：如何穿透？"></a>4. 核心做法：如何穿透？</h2><p>要实现从 Session 0 启动进程到 Session 1，不能使用简单的 <code>CreateProcess</code> 或 <code>system()</code>，必须使用 <strong>Windows API</strong> 进行令牌（Token）操作。</p>
+<h3 id="关键步骤流程"><a href="#关键步骤流程" class="headerlink" title="关键步骤流程"></a>关键步骤流程</h3><ol>
+<li><strong>定位目标</strong>：找到当前正在活动的（用户正在看的）Session ID (<code>WTSGetActiveConsoleSessionId</code>)。</li>
+<li><strong>获取令牌</strong>：拿到该 Session 中用户的身份令牌 (<code>WTSQueryUserToken</code>)。</li>
+<li><strong>复制令牌</strong>：将令牌复制一份，并转换为主令牌 (<code>DuplicateTokenEx</code>)。</li>
+<li><strong>处理环境</strong>：为新进程创建正确的环境变量块 (<code>CreateEnvironmentBlock</code>)，否则程序可能找不到路径。</li>
+<li><strong>跨界启动</strong>：使用 <strong><code>CreateProcessAsUser</code></strong> 启动进程，并显式指定运行在交互式桌面 (<code>winsta0\default</code>)。</li>
+</ol>
+<h3 id="涉及到的主要-API"><a href="#涉及到的主要-API" class="headerlink" title="涉及到的主要 API"></a>涉及到的主要 API</h3><p>涉及到的主要 API 及其作用</p>
+<ul>
+<li><p><code>GetCurrentProcess</code><br>获取当前进程伪句柄（常用于配合 <code>OpenProcessToken</code>）。</p>
+</li>
+<li><p><code>OpenProcessToken</code><br>打开进程访问令牌（Token），用于查询&#x2F;调整权限。</p>
+</li>
+<li><p><code>LookupPrivilegeValue</code> + <code>AdjustTokenPrivileges</code><br>为当前进程启用某些特权。<br>常见原因：<code>CreateProcessAsUser</code> &#x2F; 资源配额调整等需要特权。<br>注意：<strong>前提是账户本身拥有该特权</strong>，只是默认未启用。</p>
+</li>
+<li><p>（会话枚举&#x2F;定位）</p>
+<ul>
+<li><code>WTSEnumerateSessions</code>：枚举会话列表（可选）</li>
+<li><code>WTSGetActiveConsoleSessionId</code>：获取当前物理控制台活动会话（常用）</li>
+<li><code>WTSQueryUserToken</code>：获取指定 Session 的用户 Token（常用）</li>
+</ul>
+</li>
+<li><p><code>DuplicateTokenEx</code><br>将 Token 复制为可用于创建进程的 <strong>Primary Token</strong>（常见必做步骤）。</p>
+</li>
+<li><p><code>CreateEnvironmentBlock</code><br>为目标用户创建环境变量块（否则新进程可能继承服务的环境，导致路径&#x2F;变量异常）。</p>
+</li>
+<li><p><code>CreateProcessAsUser</code><br>以指定用户的安全上下文创建进程。<br>关键点：默认新进程可能是非交互桌面，需要在 <code>STARTUPINFO.lpDesktop</code> 指定交互桌面。<br><code>STARTUPINFO.lpDesktop = L&quot;winsta0\\default&quot;</code><br>否则可能创建在不可见桌面，表现为“进程在跑但看不见&#x2F;不能交互”。</p>
+</li>
+</ul>
+<h2 id="5-常见坑与注意事项"><a href="#5-常见坑与注意事项" class="headerlink" title="5. 常见坑与注意事项"></a>5. 常见坑与注意事项</h2><ol>
+<li><p><strong>服务权限问题</strong>：<br>你的“启动器服务”必须以 <strong>LocalSystem (本地系统)</strong> 账户运行。如果以 <code>LocalService</code> 或 <code>NetworkService</code> 运行，调用 <code>WTSQueryUserToken</code> 会直接返回 <code>ERROR_PRIVILEGE_NOT_HELD</code> (错误码 1314)。</p>
+</li>
+<li><p><strong>无人登录时的情况</strong>：<br>如果电脑刚开机，停留在登录界面（LogonUI），此时 <code>WTSGetActiveConsoleSessionId</code> 可能返回 Session 1，但并没有即时用户。如果在此时启动程序，程序会在登录界面后台运行，用户输入密码进入桌面后可能反而看不到了。<br>最好在服务中做一个轮询，检测到有真实用户登录（Session ID &gt; 0 且状态为 Active）后再启动。</p>
+</li>
+<li><p><strong>用户文件访问权限</strong>：<br>虽然进程在用户 Session 中运行，但如果涉及到读写特定的网络共享路径或加密文件夹，仍需注意令牌的权限范围。</p>
+</li>
+</ol>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>当 Windows 上的程序需要：</p>
+<ul>
+<li><strong>开机自启动</strong>（常由服务实现）</li>
+<li>同时又需要<strong>用户交互（UI&#x2F;输入）</strong></li>
+</ul>
+<p>就必须考虑 <strong>Session 0 隔离</strong>。服务所在的 Session 0 与用户交互会话隔离，直接启动的 UI 程序往往不可交互。常见做法是：服务在 Session 0 中运行，引导在当前用户 Session 中创建进程（<code>WTSQueryUserToken</code> + <code>CreateProcessAsUser</code>），或采用服务与用户端代理的架构通过 IPC 完成交互。</p>
+<p>这样就可以完美实现开机自启服务与用户桌面的无缝交互。（比如开发远程协助软件）</p>
+<h2 id="6-参考资料"><a href="#6-参考资料" class="headerlink" title="6. 参考资料"></a>6. 参考资料</h2><p><a href="https://cloud.tencent.com/developer/article/1424933">关于突破SESSION 0隔离创建进程</a></p>
+<p><a href="https://blog.csdn.net/yockie/article/details/17029293">总结了用户权限设置和进程权限提升，提权demo也可参考</a></p>
+<p><a href="http://yfvb.com/help/win32sdk/index.htm?page=html/_qx5ll.htm">总结了window API</a></p>
+]]></content>
+      <categories>
+        <category>c++</category>
+      </categories>
+      <tags>
+        <tag>windows</tag>
+        <tag>Session ID</tag>
+        <tag>c++</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>centos或mac下使用locate指令时，报错</title>
     <url>/posts/988cb25a.html</url>
     <content><![CDATA[<h1 id="centos或mac下使用locate指令时，报错-var-db-locate-database"><a href="#centos或mac下使用locate指令时，报错-var-db-locate-database" class="headerlink" title="centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)"></a>centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)</h1><p>centos或mac下使用locate指令时，出现报错信息The locate database (&#x2F;var&#x2F;db&#x2F;locate.database)</p>
@@ -310,33 +412,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Hello World</title>
-    <url>/posts/4a17b156.html</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>教程</tag>
-        <tag>Hexo</tag>
-        <tag>博客搭建</tag>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>debian10系统原本为64位系统，如何配置32位编译and运行环境</title>
     <url>/posts/71d17bfd.html</url>
     <content><![CDATA[<h1 id="debian10系统原本为64位系统，如何配置32位编译and运行环境"><a href="#debian10系统原本为64位系统，如何配置32位编译and运行环境" class="headerlink" title="debian10系统原本为64位系统，如何配置32位编译and运行环境"></a>debian10系统原本为64位系统，如何配置32位编译and运行环境</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原本安装的是debian10的64位系统，但是因为有些第三方程序是32位的，需要在这个系统上编译运行，那么需要配置一下必要的环境</p>
@@ -365,32 +440,30 @@
       </tags>
   </entry>
   <entry>
-    <title>ifconfig指令配置网卡信息</title>
-    <url>/posts/e0d0b007.html</url>
-    <content><![CDATA[<h1 id="ifconfig指令配置网卡信息"><a href="#ifconfig指令配置网卡信息" class="headerlink" title="ifconfig指令配置网卡信息"></a>ifconfig指令配置网卡信息</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>linux&#x2F;unix系统下，输入ifconfig指令，发现只有lo本地回环，没有网卡信息，为了能够正常上网，需要配置一下网卡信息</p>
-<p>当输入指令</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig eth0 <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span></span><br><span class="line">(可以自行设置ip地址）</span><br></pre></td></tr></table></figure>
+    <title>Hello World</title>
+    <url>/posts/4a17b156.html</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
 
-<p>会提示报错信息</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="attr">SIOCSIFADDR</span>: <span class="title class_">No</span> such device</span><br><span class="line"><span class="attr">eth0</span>: <span class="variable constant_">ERROR</span> <span class="keyword">while</span> getting interface <span class="attr">flags</span>: <span class="title class_">No</span> such device</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
 
-<p>此时，我们会发现设置网卡eth0失败了，提示我们没有这个网卡。那么，很有可能，我们的网卡不叫“eth0”这个名字，而不是我们真的没有网卡。</p>
-<h2 id="ifconfig-a"><a href="#ifconfig-a" class="headerlink" title="ifconfig -a"></a>ifconfig -a</h2><p>输入指令</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig -a</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
 
-<p>此时，我们可以看到系统列出来我们所有的网卡名，如下图：</p>
-<p><img src="/images/ifconfig-a.jpg" alt="ifconfig-a指令显示所有网卡"></p>
-<h2 id="配置网卡的ip"><a href="#配置网卡的ip" class="headerlink" title="配置网卡的ip"></a>配置网卡的ip</h2><p>接下来，我们发现自己系统的网卡果然没有eth0这个网卡名，但是有en0，所以，接下来我们设置来配置这个网卡的ip</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig en0 <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span></span><br><span class="line">(可以自行设置ip地址）</span><br></pre></td></tr></table></figure>
-<p>然后回车后，就发现设置ip成功啦～</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>一般情况下，因为我们常见的linux下的网卡名字都是eth0，所以习惯性的就直接配置eth0的ip，但是有的系统并不是用eth0当网卡名，所以还是要先输入ifconfig -a指令，来查看一下我们当前的系统下，网卡的名字都是什么，然后再去配置ip</p>
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
       <categories>
         <category>技术折腾</category>
       </categories>
       <tags>
-        <tag>linux</tag>
-        <tag>配置网卡</tag>
+        <tag>教程</tag>
+        <tag>Hexo</tag>
+        <tag>博客搭建</tag>
+        <tag>Docker</tag>
       </tags>
   </entry>
   <entry>
@@ -628,6 +701,60 @@
       </tags>
   </entry>
   <entry>
+    <title>ifconfig指令配置网卡信息</title>
+    <url>/posts/e0d0b007.html</url>
+    <content><![CDATA[<h1 id="ifconfig指令配置网卡信息"><a href="#ifconfig指令配置网卡信息" class="headerlink" title="ifconfig指令配置网卡信息"></a>ifconfig指令配置网卡信息</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>linux&#x2F;unix系统下，输入ifconfig指令，发现只有lo本地回环，没有网卡信息，为了能够正常上网，需要配置一下网卡信息</p>
+<p>当输入指令</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig eth0 <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span></span><br><span class="line">(可以自行设置ip地址）</span><br></pre></td></tr></table></figure>
+
+<p>会提示报错信息</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="attr">SIOCSIFADDR</span>: <span class="title class_">No</span> such device</span><br><span class="line"><span class="attr">eth0</span>: <span class="variable constant_">ERROR</span> <span class="keyword">while</span> getting interface <span class="attr">flags</span>: <span class="title class_">No</span> such device</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们会发现设置网卡eth0失败了，提示我们没有这个网卡。那么，很有可能，我们的网卡不叫“eth0”这个名字，而不是我们真的没有网卡。</p>
+<h2 id="ifconfig-a"><a href="#ifconfig-a" class="headerlink" title="ifconfig -a"></a>ifconfig -a</h2><p>输入指令</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig -a</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们可以看到系统列出来我们所有的网卡名，如下图：</p>
+<p><img src="/images/ifconfig-a.jpg" alt="ifconfig-a指令显示所有网卡"></p>
+<h2 id="配置网卡的ip"><a href="#配置网卡的ip" class="headerlink" title="配置网卡的ip"></a>配置网卡的ip</h2><p>接下来，我们发现自己系统的网卡果然没有eth0这个网卡名，但是有en0，所以，接下来我们设置来配置这个网卡的ip</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig en0 <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span></span><br><span class="line">(可以自行设置ip地址）</span><br></pre></td></tr></table></figure>
+<p>然后回车后，就发现设置ip成功啦～</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>一般情况下，因为我们常见的linux下的网卡名字都是eth0，所以习惯性的就直接配置eth0的ip，但是有的系统并不是用eth0当网卡名，所以还是要先输入ifconfig -a指令，来查看一下我们当前的系统下，网卡的名字都是什么，然后再去配置ip</p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>配置网卡</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>libcryptopp源码编译</title>
+    <url>/posts/c428b79b.html</url>
+    <content><![CDATA[<h1 id="libcryptopp源码编译"><a href="#libcryptopp源码编译" class="headerlink" title="libcryptopp源码编译"></a>libcryptopp源码编译</h1><h2 id="详细步骤"><a href="#详细步骤" class="headerlink" title="详细步骤"></a>详细步骤</h2><p>1.下载源码，解压<br>2.修改GNUmakefile<br>因为是64位编译32位的库，还增加了-m32选项</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="variable constant_">CXXFLAGS</span> += -pipe -fPIC</span><br><span class="line"><span class="variable constant_">CXXFLAGS</span> += -m32</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如下图：<br><img src="/images/cryptopp_complie.jpg" alt="cryptopp_complie"></p>
+<p>3.然后make</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">make libcryptopp.<span class="property">a</span> libcryptopp.<span class="property">so</span> cryptest</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="/images/cryptopp_complie_2.jpg" alt="cryptopp_complie_2"></p>
+<p>4.然后安装make install</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">可以指定安装路径，如不想安装到默认路径</span><br><span class="line">make install <span class="variable constant_">PREFIX</span>=<span class="regexp">/usr/</span>local/selfpath</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/cryptopp_complie_3.jpg" alt="cryptopp_complie_3"></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.lwlwq.com/post-cryptopp.html">https://www.lwlwq.com/post-cryptopp.html</a></p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>交叉编译</tag>
+        <tag>libcryptopp</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>libcurl交叉编译</title>
     <url>/posts/ad4da72c.html</url>
     <content><![CDATA[<h1 id="libcurl交叉编译"><a href="#libcurl交叉编译" class="headerlink" title="libcurl交叉编译"></a>libcurl交叉编译</h1><h1 id="需要源码交叉编译libcurl操作步骤"><a href="#需要源码交叉编译libcurl操作步骤" class="headerlink" title="需要源码交叉编译libcurl操作步骤"></a>需要源码交叉编译libcurl操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要交叉编译libcurl，比如目标机器是32位系统的，但是本地机器是64位系统的，而且由于某些原因，我们无法在32位系统上直接编译，所以需要用到交叉编译</p>
@@ -664,31 +791,6 @@
         <tag>linux</tag>
         <tag>交叉编译</tag>
         <tag>libcurl</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>libcryptopp源码编译</title>
-    <url>/posts/c428b79b.html</url>
-    <content><![CDATA[<h1 id="libcryptopp源码编译"><a href="#libcryptopp源码编译" class="headerlink" title="libcryptopp源码编译"></a>libcryptopp源码编译</h1><h2 id="详细步骤"><a href="#详细步骤" class="headerlink" title="详细步骤"></a>详细步骤</h2><p>1.下载源码，解压<br>2.修改GNUmakefile<br>因为是64位编译32位的库，还增加了-m32选项</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="variable constant_">CXXFLAGS</span> += -pipe -fPIC</span><br><span class="line"><span class="variable constant_">CXXFLAGS</span> += -m32</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>如下图：<br><img src="/images/cryptopp_complie.jpg" alt="cryptopp_complie"></p>
-<p>3.然后make</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">make libcryptopp.<span class="property">a</span> libcryptopp.<span class="property">so</span> cryptest</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="/images/cryptopp_complie_2.jpg" alt="cryptopp_complie_2"></p>
-<p>4.然后安装make install</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">可以指定安装路径，如不想安装到默认路径</span><br><span class="line">make install <span class="variable constant_">PREFIX</span>=<span class="regexp">/usr/</span>local/selfpath</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="/images/cryptopp_complie_3.jpg" alt="cryptopp_complie_3"></p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.lwlwq.com/post-cryptopp.html">https://www.lwlwq.com/post-cryptopp.html</a></p>
-]]></content>
-      <categories>
-        <category>交叉编译</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>交叉编译</tag>
-        <tag>libcryptopp</tag>
       </tags>
   </entry>
   <entry>
@@ -778,11 +880,53 @@
         <category>技术折腾</category>
       </categories>
       <tags>
+        <tag>windows</tag>
+        <tag>c++</tag>
         <tag>linux</tag>
         <tag>CMake</tag>
         <tag>跨平台移植</tag>
-        <tag>windows</tag>
-        <tag>c++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>linux下查看编译的静态库和动态库是32位还是64位</title>
+    <url>/posts/4a576f58.html</url>
+    <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候可能会需要交叉编译，所以需要知道平台上编译出来的版本到底是64位还是32位</p>
+<h2 id="file指令查看动态库是32位还是64位"><a href="#file指令查看动态库是32位还是64位" class="headerlink" title="file指令查看动态库是32位还是64位"></a>file指令查看动态库是32位还是64位</h2><p>如图：file libcurl.so 查看当前编译的libcurl.so是32位还是64位的<br><img src="/images/file_so.jpg" alt="file_so.jpg"></p>
+<h2 id="objdump-a指令查看静态库是32位还是64位的"><a href="#objdump-a指令查看静态库是32位还是64位的" class="headerlink" title="objdump -a指令查看静态库是32位还是64位的"></a>objdump -a指令查看静态库是32位还是64位的</h2><p>如图：objdump -a libtest.a 查看当前编译的静态库libtest.a是32位还是64位的<br><img src="/images/objdump_a.jpg" alt="objdupm_a.jpg"></p>
+<h2 id="readelf-h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息"><a href="#readelf-h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息" class="headerlink" title="readelf -h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息"></a>readelf -h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息</h2><p>如图：readelf -h libssl.so 查看编译的动态库lib<br>Class字段显示当前库是32位or64位<br>Machine字段显示当前库运行的目标机器系统</p>
+<p><img src="/images/readelf_h.jpg" alt="readelf_h.jpg"></p>
+]]></content>
+      <categories>
+        <category>常用命令</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>交叉编译</tag>
+        <tag>常用命令</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>linux插件系统加载器-使用dl库</title>
+    <url>/posts/3ba077d3.html</url>
+    <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在 C&#x2F;C++ 开发中，项目里需要在程序运行期间加载一个外部的代码库（而不是在编译时链接），而且根据不同的配置，需要加载不同的代码库，进行热更新，那直接考虑的就是插件架构。</p>
+<p>操作系统提供的原生 API 是完全不同的，如果是在linux下，使用libdl库。一般使用这个库就是为了做插件系统加载器（可以说是它最主要的用途了）。</p>
+<h2 id="主要代码"><a href="#主要代码" class="headerlink" title="主要代码"></a>主要代码</h2><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">short</span> <span class="title">loadLibDemo::realLoadLib</span><span class="params">(<span class="type">const</span> string&amp; libPath)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(libPath.<span class="built_in">length</span>() &lt;= <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">	libHandle = <span class="built_in">dlopen</span>(libPath.<span class="built_in">c_str</span>(), RTLD_GLOBAL | RTLD_NOW);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span>==libHandle)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;dlopen fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pOne = (PFUN_APIOne)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;one_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pOne)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIOne] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pTwo = (PFUN_APITwo)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;two_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pTwo)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APITwo] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pThree = (PFUN_APIThree)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;three_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pThree)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIThree] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pFour = (PFUN_APIFour)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;four_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pFour)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIFour] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pFive = (PFUN_APIFive)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;five_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pFive)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIFive] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pSix = (PFUN_APISix)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;six_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pSix)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APISix] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>完整代码已经放在了<a href="https://github.com/TreeAndFlower/loadlibdemo-linux">https://github.com/TreeAndFlower/loadlibdemo-linux</a></p>
+<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><p>主要是，要对导出的动态库里的API，记得“extern c”</p>
+<p>当没有extern c的时候，编译出来的动态库里API如下：</p>
+<p><img src="/images/wu_extern_c.jpg" alt="默认是g++编译，所以有前缀后缀"></p>
+<p>当extern c添加了以后，编译出来的动态库API如下：</p>
+<p><img src="/images/you_extern_c.jpg" alt="相当于选择了gcc编译，没有多余的Z11前缀v后缀等内容"></p>
+<p>PS:</p>
+<p>这个示例代码，仅在linux平台下生效，因为链接的<code>dl</code>库，头文件是<code>#include &lt;dlfcn.h&gt;</code>，这些是linux平台的；<br>windows下用<code>Kernel32.lib</code>库，头文件是<code>Windows.h</code>；</p>
+]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>linux</tag>
       </tags>
   </entry>
   <entry>
@@ -807,7 +951,7 @@
   <entry>
     <title>将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错</title>
     <url>/posts/12cd23b6.html</url>
-    <content><![CDATA[<h1 id="将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared-identifier的奇怪报错"><a href="#将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared-identifier的奇怪报错" class="headerlink" title="将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错"></a>将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错</h1><h1 id="将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared-identifier的奇怪报错-1"><a href="#将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared-identifier的奇怪报错-1" class="headerlink" title="将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错"></a>将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我的一个工程里的源文件就叫他a.cpp,在linux下可以正常的编译，由于工程需要移植到windos下，所以我把a.cpp源文件移动到windows下的工程里，然后编译，编译的时候，发现有两个特别诡异的报错，报错内容如下：</p>
+    <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我的一个工程里的源文件就叫他a.cpp,在linux下可以正常的编译，由于工程需要移植到windos下，所以我把a.cpp源文件移动到windows下的工程里，然后编译，编译的时候，发现有两个特别诡异的报错，报错内容如下：</p>
 <p><img src="/images/copy_cpp_error.jpg" alt="直接将cpp从Linux下挪到windows下报错"></p>
 <p>更为奇怪的是，如果我在windows操作系统下，将a.cpp文件，用sublime.txt打开，然后再全选内容，拷贝到vs到工程里报错的a.cpp文件里，然后发现可以成功编译！</p>
 <h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>经过一系列脑壳疼的排查，最终发现，这是因为，linux下和windows下的换行符不一样！！！<br>如果用sublime.txt把报错的源文件a.cpp的所有\n替换成windows下的\r\n,然后再保存文件，把保存修改的文件，挪到vs里直接编译，发现阔以了！！！</p>
@@ -820,9 +964,9 @@
         <category>跨平台移植</category>
       </categories>
       <tags>
+        <tag>windows</tag>
         <tag>linux</tag>
         <tag>跨平台移植</tag>
-        <tag>windows</tag>
       </tags>
   </entry>
   <entry>
@@ -921,7 +1065,7 @@
     <content><![CDATA[<p>工欲善其事，必先利其器。</p>
 <p>关于visual studio的断点调试，一直没弄清楚那3个选项:逐过程，逐语句，跳出这3个都分别是什么含义！每次都是凭感觉来回试。。。现在终于研究明白了！</p>
 <h2 id="调试的核心三剑客"><a href="#调试的核心三剑客" class="headerlink" title="调试的核心三剑客"></a>调试的核心三剑客</h2><p>这三个功能是调试的<strong>核心三剑客</strong>，就像看电影时的“快进”、“慢放”和“跳过”。</p>
-<p>一定要记住它们的<strong>快捷键（F10, F11, Shift+F11）</strong>，使用的时候效率会提高十倍！</p>
+<p>一定要记住它们的<strong>快捷键（F10, F11, Shift+F11）</strong>，使用的时候效率会提高十倍！<br>（除了这些，还有些常用的的快捷键，比如 F5 是跳过此次命中，继续执行，真正调试的时候用起来都非常方便）</p>
 <h2 id="举个例子来说"><a href="#举个例子来说" class="headerlink" title="举个例子来说"></a>举个例子来说</h2><p>我们假设有这样一段代码，此时断点停在 <code>Calculate()</code> 这一行：</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">MyFunction</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line">    <span class="type">int</span> result = <span class="built_in">Calculate</span>(a, b);  <span class="comment">// &lt;--- 断点停在这里（黄色箭头）</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Result: %d&quot;</span>, result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
