@@ -5,9 +5,6 @@ tags: [linux, 跨平台移植, windows]
 categories: 跨平台移植
 ---
 
-# 将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错
-
-# 将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错
 
 ## 背景
 我的一个工程里的源文件就叫他a.cpp,在linux下可以正常的编译，由于工程需要移植到windos下，所以我把a.cpp源文件移动到windows下的工程里，然后编译，编译的时候，发现有两个特别诡异的报错，报错内容如下：
