@@ -2,7 +2,7 @@
 title: libcryptopp源码编译
 date: 2022-11-06 16:00:20
 tags: [linux, 交叉编译, libcryptopp]
-categories: 技术折腾
+categories: 交叉编译
 ---
 
 # libcryptopp源码编译
