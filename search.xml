@@ -157,6 +157,33 @@
       </tags>
   </entry>
   <entry>
+    <title>常用工具</title>
+    <url>/posts/7050c2d4.html</url>
+    <content><![CDATA[<h1 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h1><p>记录下常用的工具，持续更新</p>
+<h2 id="visual-studio-code"><a href="#visual-studio-code" class="headerlink" title="visual studio code"></a>visual studio code</h2><p>生产力工具，不管是写markdown文档，渲染mermaid图，写代码等等，都很好用！</p>
+<h3 id="配置C-git-中文相关插件"><a href="#配置C-git-中文相关插件" class="headerlink" title="配置C++,git,中文相关插件"></a>配置C++,git,中文相关插件</h3><p>git插件，c++插件都是装机必备，非常方便</p>
+<p><img src="/images/vs_git.jpg" alt="vs_git.jpg"></p>
+<h3 id="配置展示多行标签页"><a href="#配置展示多行标签页" class="headerlink" title="配置展示多行标签页"></a>配置展示多行标签页</h3><p>如果打开的标签页太多了，默认都是排一行，新的展示旧的被挤到后面去看不见了，这时选择多行展示标签页，会很方便</p>
+<p>1.按住CTRL+SHIFT+P弹出搜索框，选中“首选项：打开工作区设置”</p>
+<p><img src="/images/vs_set.jpg" alt="vs_set.jpg"></p>
+<p>2.打开设置页面后，搜索“wrap”，选中“Wrap Tabs”就可以展示多行标签了</p>
+<p><img src="/images/vs_wrap.jpg" alt="vs_wrap.jpg"></p>
+<p>3.最后效果如下，框选出来的都是打开的标签页，可以展示多行了：</p>
+<p><img src="/images/vs_show.jpg" alt="vs_show.jpg"></p>
+<h2 id="PEView-ProcessExploer，vbox-valgrind，wireshark"><a href="#PEView-ProcessExploer，vbox-valgrind，wireshark" class="headerlink" title="PEView, ProcessExploer，vbox, valgrind，wireshark"></a>PEView, ProcessExploer，vbox, valgrind，wireshark</h2><p>这些找具体例子结合的时候再详说</p>
+<h2 id="截图神器Snipaste"><a href="#截图神器Snipaste" class="headerlink" title="截图神器Snipaste"></a>截图神器Snipaste</h2><p>非常好用的截图神器，直接从官网下载了解压即可使用<br>常用功能<br>1.当Snipaste启动时，按下F1即可对屏幕进行截图<br>可以在截图时用“W、A、S、D”和键盘方向键分别对鼠标和截屏区域进行像素级移动</p>
+<p>2.标注功能也很强大</p>
+<p>3.按下F3可以贴图</p>
+<h2 id="画图-一个被低估的神器"><a href="#画图-一个被低估的神器" class="headerlink" title="画图-一个被低估的神器"></a>画图-一个被低估的神器</h2><p>电脑自带的软件-画图 是一个被低估的神器<br>尤其是在做UI界面相关非常精细的工作的时候，如果需要1px的精度，那么就可以借助画图软件，<br>勾选“标尺”或“网格线”进行图片的放大缩小对比，可以非常好的看出来设计图和实现的图的效果对比<br>做很精细的UI的时候是一个非常好用的工具<br><img src="/images/paint.jpg" alt="paint.jpg"></p>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>为什么谷歌搜不到我的个人博客？（附 Hexo + GSC 完整收录指南）</title>
     <url>/posts/47478614.html</url>
     <content><![CDATA[<p>刚搭好 Hexo 博客，兴冲冲地在 Google 搜索栏输入 <code>site:catistrue.com</code>，结果却是“找不到任何与此相关的内容或信息”。</p>
@@ -283,6 +310,33 @@
       </tags>
   </entry>
   <entry>
+    <title>Hello World</title>
+    <url>/posts/4a17b156.html</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>教程</tag>
+        <tag>Hexo</tag>
+        <tag>博客搭建</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>debian10系统原本为64位系统，如何配置32位编译and运行环境</title>
     <url>/posts/71d17bfd.html</url>
     <content><![CDATA[<h1 id="debian10系统原本为64位系统，如何配置32位编译and运行环境"><a href="#debian10系统原本为64位系统，如何配置32位编译and运行环境" class="headerlink" title="debian10系统原本为64位系统，如何配置32位编译and运行环境"></a>debian10系统原本为64位系统，如何配置32位编译and运行环境</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原本安装的是debian10的64位系统，但是因为有些第三方程序是32位的，需要在这个系统上编译运行，那么需要配置一下必要的环境</p>
@@ -311,30 +365,32 @@
       </tags>
   </entry>
   <entry>
-    <title>Hello World</title>
-    <url>/posts/4a17b156.html</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+    <title>ifconfig指令配置网卡信息</title>
+    <url>/posts/e0d0b007.html</url>
+    <content><![CDATA[<h1 id="ifconfig指令配置网卡信息"><a href="#ifconfig指令配置网卡信息" class="headerlink" title="ifconfig指令配置网卡信息"></a>ifconfig指令配置网卡信息</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>linux&#x2F;unix系统下，输入ifconfig指令，发现只有lo本地回环，没有网卡信息，为了能够正常上网，需要配置一下网卡信息</p>
+<p>当输入指令</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig eth0 <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span></span><br><span class="line">(可以自行设置ip地址）</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>会提示报错信息</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="attr">SIOCSIFADDR</span>: <span class="title class_">No</span> such device</span><br><span class="line"><span class="attr">eth0</span>: <span class="variable constant_">ERROR</span> <span class="keyword">while</span> getting interface <span class="attr">flags</span>: <span class="title class_">No</span> such device</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>此时，我们会发现设置网卡eth0失败了，提示我们没有这个网卡。那么，很有可能，我们的网卡不叫“eth0”这个名字，而不是我们真的没有网卡。</p>
+<h2 id="ifconfig-a"><a href="#ifconfig-a" class="headerlink" title="ifconfig -a"></a>ifconfig -a</h2><p>输入指令</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig -a</span><br></pre></td></tr></table></figure>
 
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<p>此时，我们可以看到系统列出来我们所有的网卡名，如下图：</p>
+<p><img src="/images/ifconfig-a.jpg" alt="ifconfig-a指令显示所有网卡"></p>
+<h2 id="配置网卡的ip"><a href="#配置网卡的ip" class="headerlink" title="配置网卡的ip"></a>配置网卡的ip</h2><p>接下来，我们发现自己系统的网卡果然没有eth0这个网卡名，但是有en0，所以，接下来我们设置来配置这个网卡的ip</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig en0 <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span></span><br><span class="line">(可以自行设置ip地址）</span><br></pre></td></tr></table></figure>
+<p>然后回车后，就发现设置ip成功啦～</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>一般情况下，因为我们常见的linux下的网卡名字都是eth0，所以习惯性的就直接配置eth0的ip，但是有的系统并不是用eth0当网卡名，所以还是要先输入ifconfig -a指令，来查看一下我们当前的系统下，网卡的名字都是什么，然后再去配置ip</p>
 ]]></content>
       <categories>
         <category>技术折腾</category>
       </categories>
       <tags>
-        <tag>教程</tag>
-        <tag>Hexo</tag>
-        <tag>博客搭建</tag>
-        <tag>Docker</tag>
+        <tag>linux</tag>
+        <tag>配置网卡</tag>
       </tags>
   </entry>
   <entry>
@@ -572,60 +628,6 @@
       </tags>
   </entry>
   <entry>
-    <title>ifconfig指令配置网卡信息</title>
-    <url>/posts/e0d0b007.html</url>
-    <content><![CDATA[<h1 id="ifconfig指令配置网卡信息"><a href="#ifconfig指令配置网卡信息" class="headerlink" title="ifconfig指令配置网卡信息"></a>ifconfig指令配置网卡信息</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>linux&#x2F;unix系统下，输入ifconfig指令，发现只有lo本地回环，没有网卡信息，为了能够正常上网，需要配置一下网卡信息</p>
-<p>当输入指令</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig eth0 <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span></span><br><span class="line">(可以自行设置ip地址）</span><br></pre></td></tr></table></figure>
-
-<p>会提示报错信息</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="attr">SIOCSIFADDR</span>: <span class="title class_">No</span> such device</span><br><span class="line"><span class="attr">eth0</span>: <span class="variable constant_">ERROR</span> <span class="keyword">while</span> getting interface <span class="attr">flags</span>: <span class="title class_">No</span> such device</span><br></pre></td></tr></table></figure>
-
-<p>此时，我们会发现设置网卡eth0失败了，提示我们没有这个网卡。那么，很有可能，我们的网卡不叫“eth0”这个名字，而不是我们真的没有网卡。</p>
-<h2 id="ifconfig-a"><a href="#ifconfig-a" class="headerlink" title="ifconfig -a"></a>ifconfig -a</h2><p>输入指令</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig -a</span><br></pre></td></tr></table></figure>
-
-<p>此时，我们可以看到系统列出来我们所有的网卡名，如下图：</p>
-<p><img src="/images/ifconfig-a.jpg" alt="ifconfig-a指令显示所有网卡"></p>
-<h2 id="配置网卡的ip"><a href="#配置网卡的ip" class="headerlink" title="配置网卡的ip"></a>配置网卡的ip</h2><p>接下来，我们发现自己系统的网卡果然没有eth0这个网卡名，但是有en0，所以，接下来我们设置来配置这个网卡的ip</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">ifconfig en0 <span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span></span><br><span class="line">(可以自行设置ip地址）</span><br></pre></td></tr></table></figure>
-<p>然后回车后，就发现设置ip成功啦～</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>一般情况下，因为我们常见的linux下的网卡名字都是eth0，所以习惯性的就直接配置eth0的ip，但是有的系统并不是用eth0当网卡名，所以还是要先输入ifconfig -a指令，来查看一下我们当前的系统下，网卡的名字都是什么，然后再去配置ip</p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>配置网卡</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>libcryptopp源码编译</title>
-    <url>/posts/c428b79b.html</url>
-    <content><![CDATA[<h1 id="libcryptopp源码编译"><a href="#libcryptopp源码编译" class="headerlink" title="libcryptopp源码编译"></a>libcryptopp源码编译</h1><h2 id="详细步骤"><a href="#详细步骤" class="headerlink" title="详细步骤"></a>详细步骤</h2><p>1.下载源码，解压<br>2.修改GNUmakefile<br>因为是64位编译32位的库，还增加了-m32选项</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="variable constant_">CXXFLAGS</span> += -pipe -fPIC</span><br><span class="line"><span class="variable constant_">CXXFLAGS</span> += -m32</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>如下图：<br><img src="/images/cryptopp_complie.jpg" alt="cryptopp_complie"></p>
-<p>3.然后make</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">make libcryptopp.<span class="property">a</span> libcryptopp.<span class="property">so</span> cryptest</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><img src="/images/cryptopp_complie_2.jpg" alt="cryptopp_complie_2"></p>
-<p>4.然后安装make install</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">可以指定安装路径，如不想安装到默认路径</span><br><span class="line">make install <span class="variable constant_">PREFIX</span>=<span class="regexp">/usr/</span>local/selfpath</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="/images/cryptopp_complie_3.jpg" alt="cryptopp_complie_3"></p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.lwlwq.com/post-cryptopp.html">https://www.lwlwq.com/post-cryptopp.html</a></p>
-]]></content>
-      <categories>
-        <category>交叉编译</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>交叉编译</tag>
-        <tag>libcryptopp</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>libcurl交叉编译</title>
     <url>/posts/ad4da72c.html</url>
     <content><![CDATA[<h1 id="libcurl交叉编译"><a href="#libcurl交叉编译" class="headerlink" title="libcurl交叉编译"></a>libcurl交叉编译</h1><h1 id="需要源码交叉编译libcurl操作步骤"><a href="#需要源码交叉编译libcurl操作步骤" class="headerlink" title="需要源码交叉编译libcurl操作步骤"></a>需要源码交叉编译libcurl操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要交叉编译libcurl，比如目标机器是32位系统的，但是本地机器是64位系统的，而且由于某些原因，我们无法在32位系统上直接编译，所以需要用到交叉编译</p>
@@ -662,6 +664,31 @@
         <tag>linux</tag>
         <tag>交叉编译</tag>
         <tag>libcurl</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>libcryptopp源码编译</title>
+    <url>/posts/c428b79b.html</url>
+    <content><![CDATA[<h1 id="libcryptopp源码编译"><a href="#libcryptopp源码编译" class="headerlink" title="libcryptopp源码编译"></a>libcryptopp源码编译</h1><h2 id="详细步骤"><a href="#详细步骤" class="headerlink" title="详细步骤"></a>详细步骤</h2><p>1.下载源码，解压<br>2.修改GNUmakefile<br>因为是64位编译32位的库，还增加了-m32选项</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="variable constant_">CXXFLAGS</span> += -pipe -fPIC</span><br><span class="line"><span class="variable constant_">CXXFLAGS</span> += -m32</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如下图：<br><img src="/images/cryptopp_complie.jpg" alt="cryptopp_complie"></p>
+<p>3.然后make</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">make libcryptopp.<span class="property">a</span> libcryptopp.<span class="property">so</span> cryptest</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="/images/cryptopp_complie_2.jpg" alt="cryptopp_complie_2"></p>
+<p>4.然后安装make install</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">可以指定安装路径，如不想安装到默认路径</span><br><span class="line">make install <span class="variable constant_">PREFIX</span>=<span class="regexp">/usr/</span>local/selfpath</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/cryptopp_complie_3.jpg" alt="cryptopp_complie_3"></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.lwlwq.com/post-cryptopp.html">https://www.lwlwq.com/post-cryptopp.html</a></p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>交叉编译</tag>
+        <tag>libcryptopp</tag>
       </tags>
   </entry>
   <entry>
@@ -775,6 +802,27 @@
         <tag>linux</tag>
         <tag>tcpdump</tag>
         <tag>抓包</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错</title>
+    <url>/posts/12cd23b6.html</url>
+    <content><![CDATA[<h1 id="将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared-identifier的奇怪报错"><a href="#将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared-identifier的奇怪报错" class="headerlink" title="将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错"></a>将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错</h1><h1 id="将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared-identifier的奇怪报错-1"><a href="#将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared-identifier的奇怪报错-1" class="headerlink" title="将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错"></a>将linux下源码文件，直接放在windows下vs编译的时候，关于undeclared identifier的奇怪报错</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我的一个工程里的源文件就叫他a.cpp,在linux下可以正常的编译，由于工程需要移植到windos下，所以我把a.cpp源文件移动到windows下的工程里，然后编译，编译的时候，发现有两个特别诡异的报错，报错内容如下：</p>
+<p><img src="/images/copy_cpp_error.jpg" alt="直接将cpp从Linux下挪到windows下报错"></p>
+<p>更为奇怪的是，如果我在windows操作系统下，将a.cpp文件，用sublime.txt打开，然后再全选内容，拷贝到vs到工程里报错的a.cpp文件里，然后发现可以成功编译！</p>
+<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>经过一系列脑壳疼的排查，最终发现，这是因为，linux下和windows下的换行符不一样！！！<br>如果用sublime.txt把报错的源文件a.cpp的所有\n替换成windows下的\r\n,然后再保存文件，把保存修改的文件，挪到vs里直接编译，发现阔以了！！！</p>
+<p>vs是不支持把linux下的换行符主动转成windows下的换行符的！！！巨坑</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>后来，查看了网友将linux和windows换行符的区别，讲的特别好<br>链接：<a href="https://blog.csdn.net/stpeace/article/details/45767245">https://blog.csdn.net/stpeace/article/details/45767245</a></p>
+<p>讲解的特别精彩的截图片段<br><img src="/images/huanhangfu.jpg" alt="linux与windows换行符的区别"></p>
+<h2 id="吐槽"><a href="#吐槽" class="headerlink" title="吐槽"></a>吐槽</h2><p>不得不说，像换行符这种巨坑的问题，排查起来简直特别特别坑……</p>
+]]></content>
+      <categories>
+        <category>跨平台移植</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>跨平台移植</tag>
+        <tag>windows</tag>
       </tags>
   </entry>
   <entry>
