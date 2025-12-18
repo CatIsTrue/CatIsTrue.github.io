@@ -226,6 +226,33 @@
       </tags>
   </entry>
   <entry>
+    <title>常用工具</title>
+    <url>/posts/7050c2d4.html</url>
+    <content><![CDATA[<h1 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h1><p>记录下常用的工具，持续更新</p>
+<h2 id="visual-studio-code"><a href="#visual-studio-code" class="headerlink" title="visual studio code"></a>visual studio code</h2><p>生产力工具，不管是写markdown文档，渲染mermaid图，写代码等等，都很好用！</p>
+<h3 id="配置C-git-中文相关插件"><a href="#配置C-git-中文相关插件" class="headerlink" title="配置C++,git,中文相关插件"></a>配置C++,git,中文相关插件</h3><p>git插件，c++插件都是装机必备，非常方便</p>
+<p><img src="/images/vs_git.jpg" alt="vs_git.jpg"></p>
+<h3 id="配置展示多行标签页"><a href="#配置展示多行标签页" class="headerlink" title="配置展示多行标签页"></a>配置展示多行标签页</h3><p>如果打开的标签页太多了，默认都是排一行，新的展示旧的被挤到后面去看不见了，这时选择多行展示标签页，会很方便</p>
+<p>1.按住CTRL+SHIFT+P弹出搜索框，选中“首选项：打开工作区设置”</p>
+<p><img src="/images/vs_set.jpg" alt="vs_set.jpg"></p>
+<p>2.打开设置页面后，搜索“wrap”，选中“Wrap Tabs”就可以展示多行标签了</p>
+<p><img src="/images/vs_wrap.jpg" alt="vs_wrap.jpg"></p>
+<p>3.最后效果如下，框选出来的都是打开的标签页，可以展示多行了：</p>
+<p><img src="/images/vs_show.jpg" alt="vs_show.jpg"></p>
+<h2 id="PEView-ProcessExploer，vbox-valgrind，wireshark"><a href="#PEView-ProcessExploer，vbox-valgrind，wireshark" class="headerlink" title="PEView, ProcessExploer，vbox, valgrind，wireshark"></a>PEView, ProcessExploer，vbox, valgrind，wireshark</h2><p>这些找具体例子结合的时候再详说</p>
+<h2 id="截图神器Snipaste"><a href="#截图神器Snipaste" class="headerlink" title="截图神器Snipaste"></a>截图神器Snipaste</h2><p>非常好用的截图神器，直接从官网下载了解压即可使用<br>常用功能<br>1.当Snipaste启动时，按下F1即可对屏幕进行截图<br>可以在截图时用“W、A、S、D”和键盘方向键分别对鼠标和截屏区域进行像素级移动</p>
+<p>2.标注功能也很强大</p>
+<p>3.按下F3可以贴图</p>
+<h2 id="画图-一个被低估的神器"><a href="#画图-一个被低估的神器" class="headerlink" title="画图-一个被低估的神器"></a>画图-一个被低估的神器</h2><p>电脑自带的软件-画图 是一个被低估的神器<br>尤其是在做UI界面相关非常精细的工作的时候，如果需要1px的精度，那么就可以借助画图软件，<br>勾选“标尺”或“网格线”进行图片的放大缩小对比，可以非常好的看出来设计图和实现的图的效果对比<br>做很精细的UI的时候是一个非常好用的工具<br><img src="/images/paint.jpg" alt="paint.jpg"></p>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>如何通过CMake修改 Windows 程序的主线程栈大小</title>
     <url>/posts/b2c5f831.html</url>
     <content><![CDATA[<h1 id="CMake选项之CMAKE-EXE-LINKER-FLAGS"><a href="#CMake选项之CMAKE-EXE-LINKER-FLAGS" class="headerlink" title="CMake选项之CMAKE_EXE_LINKER_FLAGS"></a>CMake选项之CMAKE_EXE_LINKER_FLAGS</h1><h1 id="如何通过CMake修改-Windows-程序的主线程栈大小"><a href="#如何通过CMake修改-Windows-程序的主线程栈大小" class="headerlink" title="如何通过CMake修改 Windows 程序的主线程栈大小"></a>如何通过CMake修改 Windows 程序的主线程栈大小</h1><p>只需要在CMakeLists.txt里添加如下一行</p>
@@ -256,33 +283,6 @@
       <tags>
         <tag>Windows</tag>
         <tag>CMake</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>常用工具</title>
-    <url>/posts/7050c2d4.html</url>
-    <content><![CDATA[<h1 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h1><p>记录下常用的工具，持续更新</p>
-<h2 id="visual-studio-code"><a href="#visual-studio-code" class="headerlink" title="visual studio code"></a>visual studio code</h2><p>生产力工具，不管是写markdown文档，渲染mermaid图，写代码等等，都很好用！</p>
-<h3 id="配置C-git-中文相关插件"><a href="#配置C-git-中文相关插件" class="headerlink" title="配置C++,git,中文相关插件"></a>配置C++,git,中文相关插件</h3><p>git插件，c++插件都是装机必备，非常方便</p>
-<p><img src="/images/vs_git.jpg" alt="vs_git.jpg"></p>
-<h3 id="配置展示多行标签页"><a href="#配置展示多行标签页" class="headerlink" title="配置展示多行标签页"></a>配置展示多行标签页</h3><p>如果打开的标签页太多了，默认都是排一行，新的展示旧的被挤到后面去看不见了，这时选择多行展示标签页，会很方便</p>
-<p>1.按住CTRL+SHIFT+P弹出搜索框，选中“首选项：打开工作区设置”</p>
-<p><img src="/images/vs_set.jpg" alt="vs_set.jpg"></p>
-<p>2.打开设置页面后，搜索“wrap”，选中“Wrap Tabs”就可以展示多行标签了</p>
-<p><img src="/images/vs_wrap.jpg" alt="vs_wrap.jpg"></p>
-<p>3.最后效果如下，框选出来的都是打开的标签页，可以展示多行了：</p>
-<p><img src="/images/vs_show.jpg" alt="vs_show.jpg"></p>
-<h2 id="PEView-ProcessExploer，vbox-valgrind，wireshark"><a href="#PEView-ProcessExploer，vbox-valgrind，wireshark" class="headerlink" title="PEView, ProcessExploer，vbox, valgrind，wireshark"></a>PEView, ProcessExploer，vbox, valgrind，wireshark</h2><p>这些找具体例子结合的时候再详说</p>
-<h2 id="截图神器Snipaste"><a href="#截图神器Snipaste" class="headerlink" title="截图神器Snipaste"></a>截图神器Snipaste</h2><p>非常好用的截图神器，直接从官网下载了解压即可使用<br>常用功能<br>1.当Snipaste启动时，按下F1即可对屏幕进行截图<br>可以在截图时用“W、A、S、D”和键盘方向键分别对鼠标和截屏区域进行像素级移动</p>
-<p>2.标注功能也很强大</p>
-<p>3.按下F3可以贴图</p>
-<h2 id="画图-一个被低估的神器"><a href="#画图-一个被低估的神器" class="headerlink" title="画图-一个被低估的神器"></a>画图-一个被低估的神器</h2><p>电脑自带的软件-画图 是一个被低估的神器<br>尤其是在做UI界面相关非常精细的工作的时候，如果需要1px的精度，那么就可以借助画图软件，<br>勾选“标尺”或“网格线”进行图片的放大缩小对比，可以非常好的看出来设计图和实现的图的效果对比<br>做很精细的UI的时候是一个非常好用的工具<br><img src="/images/paint.jpg" alt="paint.jpg"></p>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>tools</tag>
       </tags>
   </entry>
   <entry>
@@ -440,6 +440,33 @@
       </tags>
   </entry>
   <entry>
+    <title>Hello World</title>
+    <url>/posts/4a17b156.html</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>教程</tag>
+        <tag>Hexo</tag>
+        <tag>博客搭建</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>本地配置多个git账号</title>
     <url>/posts/aedc60d4.html</url>
     <content><![CDATA[<p>有时候，需要在一个电脑上管理多个 Git 账号（比如一个是 GitLab，一个是 GitHub，或者两个都是 GitHub 账号）是一个比较常见的场景。</p>
@@ -505,33 +532,6 @@
       </categories>
       <tags>
         <tag>git</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/posts/4a17b156.html</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>教程</tag>
-        <tag>Hexo</tag>
-        <tag>博客搭建</tag>
-        <tag>Docker</tag>
       </tags>
   </entry>
   <entry>
@@ -823,45 +823,6 @@
       </tags>
   </entry>
   <entry>
-    <title>libcurl交叉编译</title>
-    <url>/posts/ad4da72c.html</url>
-    <content><![CDATA[<h1 id="libcurl交叉编译"><a href="#libcurl交叉编译" class="headerlink" title="libcurl交叉编译"></a>libcurl交叉编译</h1><h1 id="需要源码交叉编译libcurl操作步骤"><a href="#需要源码交叉编译libcurl操作步骤" class="headerlink" title="需要源码交叉编译libcurl操作步骤"></a>需要源码交叉编译libcurl操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要交叉编译libcurl，比如目标机器是32位系统的，但是本地机器是64位系统的，而且由于某些原因，我们无法在32位系统上直接编译，所以需要用到交叉编译</p>
-<h2 id="编译openssl"><a href="#编译openssl" class="headerlink" title="编译openssl"></a>编译openssl</h2><p>libcurl是依赖openssl的，所以先编译openssl的32位库</p>
-<p>完整编译选项配置如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">setarch i386 ./config -m32 –prefix=/home/muhan/openssl/ –openssldir=/home/muhan/openssl/ -Wl,-rpath,/usr/local/openssl/lib shared</span><br></pre></td></tr></table></figure>
-<p>详细选项含义如下：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置-m32 指定编译32位的库</span><br><span class="line">配置–prefix 指定openssl的安装目录</span><br><span class="line">配置–openssldir 指定openssl的头文件目录</span><br><span class="line">配置shared关键字 指定编译时生成动态库（libssl.so/libcrypto.so及其相关软连接）</span><br></pre></td></tr></table></figure>
-
-<p>然后再make &amp;&amp; make install 即可</p>
-<h2 id="编译安装zlib"><a href="#编译安装zlib" class="headerlink" title="编译安装zlib"></a>编译安装zlib</h2><p>有时候有的系统是默认安装了32位zlib库的，那么就可以跳过这一步，但是有的系统需要自己下载编译zlib-32位库</p>
-<p>完整编译选项配置如下：<br>直接修改CMakeLists.txt文件，增加以下两行</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_C_FLAGS “-m32”)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS “-m32”)</span><br></pre></td></tr></table></figure>
-<p>详细选项含义如下：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置CMAKE_C_FLAGS 指定编译32位库环境</span><br><span class="line">配置CMAKE_CXX_FLAGS 指定编译32位库环境</span><br></pre></td></tr></table></figure>
-
-<p>然后再mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; make &amp;&amp; make install 即可</p>
-<h2 id="编译安装libcurl"><a href="#编译安装libcurl" class="headerlink" title="编译安装libcurl"></a>编译安装libcurl</h2><p>最后就是编译libcurl</p>
-<p>完整编译选项配置如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure PKG_CONFIG_PATH=/home/muhan/openssl CFLAGS=”-m32” CPPFLAGS=”-I/home/muhan/openssl/include” LDFLAGS=”-L/home/muhan/openssl/lib”</span><br></pre></td></tr></table></figure>
-
-<p>详细选项含义如下：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置PKG_CONFIG_PATH 指定启动openssl选项(启动这个选项，就会默认链接lssl，lcrypto，lz三个库)</span><br><span class="line">配置CFLAGS 指定编译32位库环境</span><br><span class="line">配置CPPFLAGS 指定链接的库的头文件</span><br><span class="line">配置LDFLAGS 指定链接的库的路径</span><br></pre></td></tr></table></figure>
-
-<p>然后再make &amp;&amp; make install 即可</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当编译第三方库的时候，如果有CMakeLists.txt，直接用CMakeLists.txt编译就很方便；<br>如果只有configure，那么需要先了解编译选项</p>
-<p>执行.&#x2F;configure –help 来查看当前支持的编译选项<br>然后根据提示配置一下我们需要指定的选项，比如自己指定的openssl的版本的库和头文件路径名，比如CC的版本，比如安装路径等等<br>(当然，如果不需要额外配置这些东西的话，直接走默认配置的话，那么直接执行.&#x2F;config 或者 .&#x2F;configure 就行)</p>
-<p>然后在生成Makefile之后，再make &amp;&amp; make install 即可</p>
-]]></content>
-      <categories>
-        <category>交叉编译</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>交叉编译</tag>
-        <tag>libcurl</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux项目移植到Windows下CMake改造</title>
     <url>/posts/fe7b4b0a.html</url>
     <content><![CDATA[<h1 id="linux项目移植到Windows下CMake改造"><a href="#linux项目移植到Windows下CMake改造" class="headerlink" title="linux项目移植到Windows下CMake改造"></a>linux项目移植到Windows下CMake改造</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>因项目工程需要，将linux下的<code>AProject</code>项目迁移到Windows下，对代码进行适配，编译选项进行修改。<br>通过CMake配置Windows(MSVC编译器)选项，进行跨平台移植。</p>
@@ -953,6 +914,45 @@
         <tag>linux</tag>
         <tag>CMake</tag>
         <tag>跨平台移植</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>libcurl交叉编译</title>
+    <url>/posts/ad4da72c.html</url>
+    <content><![CDATA[<h1 id="libcurl交叉编译"><a href="#libcurl交叉编译" class="headerlink" title="libcurl交叉编译"></a>libcurl交叉编译</h1><h1 id="需要源码交叉编译libcurl操作步骤"><a href="#需要源码交叉编译libcurl操作步骤" class="headerlink" title="需要源码交叉编译libcurl操作步骤"></a>需要源码交叉编译libcurl操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要交叉编译libcurl，比如目标机器是32位系统的，但是本地机器是64位系统的，而且由于某些原因，我们无法在32位系统上直接编译，所以需要用到交叉编译</p>
+<h2 id="编译openssl"><a href="#编译openssl" class="headerlink" title="编译openssl"></a>编译openssl</h2><p>libcurl是依赖openssl的，所以先编译openssl的32位库</p>
+<p>完整编译选项配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">setarch i386 ./config -m32 –prefix=/home/muhan/openssl/ –openssldir=/home/muhan/openssl/ -Wl,-rpath,/usr/local/openssl/lib shared</span><br></pre></td></tr></table></figure>
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置-m32 指定编译32位的库</span><br><span class="line">配置–prefix 指定openssl的安装目录</span><br><span class="line">配置–openssldir 指定openssl的头文件目录</span><br><span class="line">配置shared关键字 指定编译时生成动态库（libssl.so/libcrypto.so及其相关软连接）</span><br></pre></td></tr></table></figure>
+
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="编译安装zlib"><a href="#编译安装zlib" class="headerlink" title="编译安装zlib"></a>编译安装zlib</h2><p>有时候有的系统是默认安装了32位zlib库的，那么就可以跳过这一步，但是有的系统需要自己下载编译zlib-32位库</p>
+<p>完整编译选项配置如下：<br>直接修改CMakeLists.txt文件，增加以下两行</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_C_FLAGS “-m32”)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS “-m32”)</span><br></pre></td></tr></table></figure>
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置CMAKE_C_FLAGS 指定编译32位库环境</span><br><span class="line">配置CMAKE_CXX_FLAGS 指定编译32位库环境</span><br></pre></td></tr></table></figure>
+
+<p>然后再mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; make &amp;&amp; make install 即可</p>
+<h2 id="编译安装libcurl"><a href="#编译安装libcurl" class="headerlink" title="编译安装libcurl"></a>编译安装libcurl</h2><p>最后就是编译libcurl</p>
+<p>完整编译选项配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure PKG_CONFIG_PATH=/home/muhan/openssl CFLAGS=”-m32” CPPFLAGS=”-I/home/muhan/openssl/include” LDFLAGS=”-L/home/muhan/openssl/lib”</span><br></pre></td></tr></table></figure>
+
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置PKG_CONFIG_PATH 指定启动openssl选项(启动这个选项，就会默认链接lssl，lcrypto，lz三个库)</span><br><span class="line">配置CFLAGS 指定编译32位库环境</span><br><span class="line">配置CPPFLAGS 指定链接的库的头文件</span><br><span class="line">配置LDFLAGS 指定链接的库的路径</span><br></pre></td></tr></table></figure>
+
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当编译第三方库的时候，如果有CMakeLists.txt，直接用CMakeLists.txt编译就很方便；<br>如果只有configure，那么需要先了解编译选项</p>
+<p>执行.&#x2F;configure –help 来查看当前支持的编译选项<br>然后根据提示配置一下我们需要指定的选项，比如自己指定的openssl的版本的库和头文件路径名，比如CC的版本，比如安装路径等等<br>(当然，如果不需要额外配置这些东西的话，直接走默认配置的话，那么直接执行.&#x2F;config 或者 .&#x2F;configure 就行)</p>
+<p>然后在生成Makefile之后，再make &amp;&amp; make install 即可</p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>交叉编译</tag>
+        <tag>libcurl</tag>
       </tags>
   </entry>
   <entry>
