@@ -75,6 +75,37 @@
       </tags>
   </entry>
   <entry>
+    <title>centos或mac下使用locate指令时，报错</title>
+    <url>/posts/988cb25a.html</url>
+    <content><![CDATA[<h1 id="centos或mac下使用locate指令时，报错-var-db-locate-database"><a href="#centos或mac下使用locate指令时，报错-var-db-locate-database" class="headerlink" title="centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)"></a>centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)</h1><p>centos或mac下使用locate指令时，出现报错信息The locate database (&#x2F;var&#x2F;db&#x2F;locate.database)</p>
+<h2 id="在centos系统下，使用locate指令报错"><a href="#在centos系统下，使用locate指令报错" class="headerlink" title="在centos系统下，使用locate指令报错"></a>在centos系统下，使用locate指令报错</h2><p>使用locate指令时，出现报错信息’var&#x2F;lib&#x2F;mlocate&#x2F;mlocate.db’:No such file or directory时，处理方案如下：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//输入以下指令即可</span></span><br><span class="line">updatedb</span><br><span class="line"><span class="comment">//需要等待一段时间，因为生成数据库需要一段时间</span></span><br></pre></td></tr></table></figure>
+
+<p>稍等一段时间之后，再输入locate指令，即可发现可以使用了</p>
+<h2 id="在mac系统下，使用locate指令报错"><a href="#在mac系统下，使用locate指令报错" class="headerlink" title="在mac系统下，使用locate指令报错"></a>在mac系统下，使用locate指令报错</h2><p>当在mac上使用locate指令时，报错如下：<br><img src="/images/locate_01.jpg" alt="使用locate指令时报错"></p>
+<p>解决方案如下：</p>
+<ol>
+<li><p>先根据刚才的提醒，输入sudo launchctl load -w &#x2F;System&#x2F;Library&#x2F;LaunchDaemons&#x2F;com.apple.locate.plist<br><img src="/images/locate_02.jpg" alt="根据提示，输入launchtcl指令"></p>
+</li>
+<li><p>然后，输入指令sudo &#x2F;usr&#x2F;libexec&#x2F;locate.updatedb<br><img src="/images/locate_03.jpg" alt="生成数据库"></p>
+</li>
+</ol>
+<p>输入上面这个指令后，会等待好久一段时间，要稍微等待一会儿</p>
+<ol start="3">
+<li>最后再次输入locate指令，发现locate指令已经生效啦<br><img src="/images/locate_04.jpg" alt="locate指令已经生效啦"></li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>因为我之前经常在ubuntu下，都没有碰到过locate指令不好用的情况，最近需要在centos和mac下操作，忽然发现居然loacte指令使用失效，于是上网查找了解决办法，经过尝试了一些方案后，终于在centos和mac下可以使用locate指令了，因此做出了以上的总结～</p>
+<p>感谢网友们无私分享的解决方案～<br>参考的网友方案：<a href="https://www.jianshu.com/p/d8f4f9e4b58c">https://www.jianshu.com/p/d8f4f9e4b58c</a></p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>教程</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Windows 会话 ID (Session ID) 与 Session 0 隔离穿透指南</title>
     <url>/posts/f5974992.html</url>
     <content><![CDATA[<h2 id="1-背景：开机自启动程序无法弹出界面？"><a href="#1-背景：开机自启动程序无法弹出界面？" class="headerlink" title="1. 背景：开机自启动程序无法弹出界面？"></a>1. 背景：开机自启动程序无法弹出界面？</h2><p>在开发 Windows 后台服务（Service）或开机自启程序时，经常遇到一个棘手的问题：</p>
@@ -174,37 +205,6 @@
         <tag>windows</tag>
         <tag>Session ID</tag>
         <tag>c++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>centos或mac下使用locate指令时，报错</title>
-    <url>/posts/988cb25a.html</url>
-    <content><![CDATA[<h1 id="centos或mac下使用locate指令时，报错-var-db-locate-database"><a href="#centos或mac下使用locate指令时，报错-var-db-locate-database" class="headerlink" title="centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)"></a>centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)</h1><p>centos或mac下使用locate指令时，出现报错信息The locate database (&#x2F;var&#x2F;db&#x2F;locate.database)</p>
-<h2 id="在centos系统下，使用locate指令报错"><a href="#在centos系统下，使用locate指令报错" class="headerlink" title="在centos系统下，使用locate指令报错"></a>在centos系统下，使用locate指令报错</h2><p>使用locate指令时，出现报错信息’var&#x2F;lib&#x2F;mlocate&#x2F;mlocate.db’:No such file or directory时，处理方案如下：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//输入以下指令即可</span></span><br><span class="line">updatedb</span><br><span class="line"><span class="comment">//需要等待一段时间，因为生成数据库需要一段时间</span></span><br></pre></td></tr></table></figure>
-
-<p>稍等一段时间之后，再输入locate指令，即可发现可以使用了</p>
-<h2 id="在mac系统下，使用locate指令报错"><a href="#在mac系统下，使用locate指令报错" class="headerlink" title="在mac系统下，使用locate指令报错"></a>在mac系统下，使用locate指令报错</h2><p>当在mac上使用locate指令时，报错如下：<br><img src="/images/locate_01.jpg" alt="使用locate指令时报错"></p>
-<p>解决方案如下：</p>
-<ol>
-<li><p>先根据刚才的提醒，输入sudo launchctl load -w &#x2F;System&#x2F;Library&#x2F;LaunchDaemons&#x2F;com.apple.locate.plist<br><img src="/images/locate_02.jpg" alt="根据提示，输入launchtcl指令"></p>
-</li>
-<li><p>然后，输入指令sudo &#x2F;usr&#x2F;libexec&#x2F;locate.updatedb<br><img src="/images/locate_03.jpg" alt="生成数据库"></p>
-</li>
-</ol>
-<p>输入上面这个指令后，会等待好久一段时间，要稍微等待一会儿</p>
-<ol start="3">
-<li>最后再次输入locate指令，发现locate指令已经生效啦<br><img src="/images/locate_04.jpg" alt="locate指令已经生效啦"></li>
-</ol>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>因为我之前经常在ubuntu下，都没有碰到过locate指令不好用的情况，最近需要在centos和mac下操作，忽然发现居然loacte指令使用失效，于是上网查找了解决办法，经过尝试了一些方案后，终于在centos和mac下可以使用locate指令了，因此做出了以上的总结～</p>
-<p>感谢网友们无私分享的解决方案～<br>参考的网友方案：<a href="https://www.jianshu.com/p/d8f4f9e4b58c">https://www.jianshu.com/p/d8f4f9e4b58c</a></p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>教程</tag>
       </tags>
   </entry>
   <entry>
@@ -440,65 +440,102 @@
       </tags>
   </entry>
   <entry>
-    <title>本地配置多个git账号</title>
-    <url>/posts/aedc60d4.html</url>
-    <content><![CDATA[<p>有时候，需要在一个电脑上管理多个 Git 账号（比如一个是 GitLab，一个是 GitHub，或者两个都是 GitHub 账号）是一个比较常见的场景。</p>
-<p>如果不配置好，很容易出现“用错账号提交代码”或者“没权限推送代码”的尴尬情况。</p>
-<p>最优雅、最推荐的方案是使用 <strong>SSH Config + 文件夹别名</strong> 的方式。</p>
-<p>下面是手把手的配置指南：</p>
-<h2 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h2><ol>
-<li><strong>生成两把钥匙</strong>：为每个账号生成不同的 SSH Key。</li>
-<li><strong>告诉 SSH 怎么选</strong>：配置 <code>~/.ssh/config</code> 文件，让 SSH 知道访问不同主机时用哪把钥匙。</li>
-<li><strong>告诉 Git 怎么选</strong>：(可选但推荐) 通过文件夹路径自动切换用户名和邮箱。</li>
-</ol>
+    <title>git cherry-pick选择想要合并的提交</title>
+    <url>/posts/9669144a.html</url>
+    <content><![CDATA[<p><code>git cherry-pick</code> 用来把某些特定提交从一个分支“拣选”到当前分支，相当于“只搬你想要的那几次提交”，而不是把整个分支合并过来。</p>
+<p>就是说：我只要这几个 <code>commit</code>，不要整条分支历史。</p>
 <hr>
-<h3 id="第一步：生成两对-SSH-Key"><a href="#第一步：生成两对-SSH-Key" class="headerlink" title="第一步：生成两对 SSH Key"></a>第一步：生成两对 SSH Key</h3><p>打开终端（Terminal 或 Git Bash），分别生成两个 SSH Key。<br><strong>注意要给文件起不同的名字！</strong></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 生成账号1的 Key (假设是 GitHub)</span></span><br><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;你的邮箱1@gmail.com&quot;</span> -f ~/.ssh/id_ed25519_gmail</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 生成账号2的 Key (假设是 GitLab)</span></span><br><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;你的邮箱2@mail.163.com&quot;</span> -f ~/.ssh/id_ed25519_163</span><br></pre></td></tr></table></figure>
-<p><em>(如果系统不支持 ed25519，可以用 <code>-t rsa -b 4096</code> 代替)</em></p>
-<p>现在你的 <code>~/.ssh/</code> 目录下应该有 4 个文件（两个私钥无后缀，两个公钥带 <code>.pub</code>）。</p>
-<h3 id="第二步：把公钥添加到对应的平台"><a href="#第二步：把公钥添加到对应的平台" class="headerlink" title="第二步：把公钥添加到对应的平台"></a>第二步：把公钥添加到对应的平台</h3><ol>
-<li><strong>账号1</strong>：复制 <code>id_ed25519_gmail.pub</code> 的内容 -&gt; 去 GitHub -&gt; Settings -&gt; SSH and GPG keys -&gt; New SSH key。</li>
-<li><strong>账号2</strong>：复制 <code>id_ed25519_163.pub</code> 的内容 -&gt; 去 GitLab -&gt; Settings -&gt; SSH Keys。</li>
-</ol>
-<h3 id="第三步：配置-SSH-Config-最关键的一步"><a href="#第三步：配置-SSH-Config-最关键的一步" class="headerlink" title="第三步：配置 SSH Config (最关键的一步)"></a>第三步：配置 SSH Config (最关键的一步)</h3><p>在 <code>~/.ssh/</code> 目录下创建一个名为 <code>config</code> 的文件（如果没有的话）。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建或编辑 config 文件</span></span><br><span class="line">code ~/.ssh/config</span><br></pre></td></tr></table></figure>
-
-<p><strong>将以下内容填入文件中：</strong></p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># --- 账号1 (GitHub) ---</span><br><span class="line">Host github.com</span><br><span class="line">    HostName github.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519_gmail</span><br><span class="line"></span><br><span class="line"># --- 账号2 (假设是 GitLab) ---</span><br><span class="line"># 注意：这里的 Host 起了个别名，叫 gitlab-123</span><br><span class="line">Host gitlab-123</span><br><span class="line">    HostName gitlab.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519_163</span><br></pre></td></tr></table></figure>
-
+<h2 id="一、什么是-cherry-pick？"><a href="#一、什么是-cherry-pick？" class="headerlink" title="一、什么是 cherry-pick？"></a>一、什么是 <code>cherry-pick</code>？</h2><p>简单来说，<code>cherry-pick</code> 就是将某个分支上的<strong>特定提交（commit）</strong>，复制并应用到当前分支上。</p>
+<p>它与 Merge 的区别在于：</p>
+<ul>
+<li><strong>Merge</strong>：把另一个分支的所有改动一股脑合过来。</li>
+<li><strong>Cherry-pick</strong>：只把特定的某次（或某几次）提交合过来，其他的不要。</li>
+</ul>
 <blockquote>
-<p><strong>注意：</strong> 如果两个账号都是 GitHub，你需要给第二个 Host 起个别名，比如 <code>Host github-123</code>，下面的 <code>HostName</code> 依然填 <code>github.com</code>。</p>
+<p><strong>注意</strong>：Cherry-pick 会产生一个新的提交 SHA-1 值，虽然内容一样，但在 Git 看来这是一个全新的提交。</p>
 </blockquote>
-<h3 id="第四步：解决用户名和邮箱自动切换-可选但更方便"><a href="#第四步：解决用户名和邮箱自动切换-可选但更方便" class="headerlink" title="第四步：解决用户名和邮箱自动切换 (可选但更方便)"></a>第四步：解决用户名和邮箱自动切换 (可选但更方便)</h3><p>一种方法是你每次 clone 下来后手动设置 <code>git config user.name</code>，不过这很容易忘掉这个步骤。</p>
-<p>另一种方法就是接下来，我们可以利用 Git 的 <strong>“includeIf”</strong> 功能，根据文件夹路径自动切换配置。</p>
+<hr>
+<h2 id="二、什么时候用-cherry-pick（使用场景）"><a href="#二、什么时候用-cherry-pick（使用场景）" class="headerlink" title="二、什么时候用 cherry-pick（使用场景）"></a>二、什么时候用 <code>cherry-pick</code>（使用场景）</h2><h3 id="1-热修复回补：把线上修复同步到其它分支"><a href="#1-热修复回补：把线上修复同步到其它分支" class="headerlink" title="1. 热修复回补：把线上修复同步到其它分支"></a>1. 热修复回补：把线上修复同步到其它分支</h3><p>常见流程：</p>
+<ul>
+<li>在 <code>release/hotfix</code> 上修了一个 <code>bug</code> 并发布</li>
+<li>需要把同样的修复回补到 <code>main</code>、<code>develop</code>（或多个维护分支）<br>这时 <code>cherry-pick</code> 比 <code>merge</code> 更直接：只带走“修复提交”，不带走其它分支差异。</li>
+</ul>
+<h3 id="2-挑选单个功能-提交：从别的分支拿一小段变更"><a href="#2-挑选单个功能-提交：从别的分支拿一小段变更" class="headerlink" title="2. 挑选单个功能&#x2F;提交：从别的分支拿一小段变更"></a>2. 挑选单个功能&#x2F;提交：从别的分支拿一小段变更</h3><p>例如某个 feature 分支上有一个独立的小优化提交，你当前分支也需要，但你不想把整个 feature 合并过来（因为它还没完成&#x2F;包含其它改动）。</p>
+<h3 id="3-修复“提交到了错误分支”"><a href="#3-修复“提交到了错误分支”" class="headerlink" title="3. 修复“提交到了错误分支”"></a>3. 修复“提交到了错误分支”</h3><p>你本来应该把提交放到 <code>feature/a</code>，结果在 <code>feature/b</code> 上提交了：</p>
+<ul>
+<li>用 <code>cherry-pick</code> 把提交拣到正确分支</li>
+<li>然后在错误分支上回滚&#x2F;删除（看团队策略）</li>
+</ul>
+<h3 id="4-分支策略限制：禁止-merge，只允许线性回补"><a href="#4-分支策略限制：禁止-merge，只允许线性回补" class="headerlink" title="4. 分支策略限制：禁止 merge，只允许线性回补"></a>4. 分支策略限制：禁止 merge，只允许线性回补</h3><p>一些团队对 <code>release</code> 分支要求很严格：只允许挑选经过验证的修复提交，禁止直接合并开发分支。<code>cherry-pick</code> 很适合这种“审计式回补”。</p>
+<hr>
+<h2 id="三、基本操作指南"><a href="#三、基本操作指南" class="headerlink" title="三、基本操作指南"></a>三、基本操作指南</h2><h3 id="1-挑选单个提交（最常用）"><a href="#1-挑选单个提交（最常用）" class="headerlink" title="1. 挑选单个提交（最常用）"></a>1. 挑选单个提交（最常用）</h3><p>假设你想把 <code>feature</code> 分支上的提交 <code>a1b2c3d</code> 应用到 <code>main</code> 分支。</p>
 <ol>
-<li><p><strong>规划文件夹</strong>：</p>
-<ul>
-<li>在电脑里建一个文件夹叫 <code>~/Code/GMail</code> (放项目1)</li>
-<li>建另一个文件夹叫 <code>~/Code/Mail163</code> (放项目2)</li>
-</ul>
-</li>
-<li><p><strong>创建特定的 .gitconfig 文件</strong>：</p>
-<ul>
-<li>创建 <code>~/.gitconfig-gmail</code>，内容如下：<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[user]</span></span><br><span class="line">    <span class="attr">name</span> = 昵称<span class="number">1</span></span><br><span class="line">    <span class="attr">email</span> = 邮箱<span class="number">1</span>@gmail.com</span><br></pre></td></tr></table></figure></li>
-<li>创建 <code>~/.gitconfig-123</code>，内容如下：<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[user]</span></span><br><span class="line">    <span class="attr">name</span> = 昵称<span class="number">2</span></span><br><span class="line">    <span class="attr">email</span> = 邮箱<span class="number">2</span>@mail.<span class="number">163</span>.com</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>**修改主配置文件 <code>~/.gitconfig</code>**：<br>打开全局的 <code>~/.gitconfig</code>，在最下面加入：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 如果路径包含 ~/Code/GMail/，就引用配置1</span></span><br><span class="line"><span class="section">[includeIf &quot;gitdir:~/Code/GMail/&quot;]</span></span><br><span class="line">    <span class="attr">path</span> = ~/.gitconfig-gmail</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果路径包含 ~/Code/Mail163/，就引用配置2</span></span><br><span class="line"><span class="section">[includeIf &quot;gitdir:~/Code/Mail163/&quot;]</span></span><br><span class="line">    <span class="attr">path</span> = ~/.gitconfig-<span class="number">123</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>切换到目标分支</strong>：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git switch main</span><br></pre></td></tr></table></figure></li>
+<li><strong>执行 cherry-pick</strong>：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick a1b2c3d</span><br></pre></td></tr></table></figure></li>
 </ol>
-<h3 id="第五步：验证效果"><a href="#第五步：验证效果" class="headerlink" title="第五步：验证效果"></a>第五步：验证效果</h3><ol>
-<li><p><strong>测试连接</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh -T git@github.com</span><br><span class="line"><span class="comment"># 应该显示：Hi [账号1]! You&#x27;ve successfully authenticated...</span></span><br><span class="line"></span><br><span class="line">ssh -T git@gitlab-123</span><br><span class="line"><span class="comment"># 应该显示：Welcome to GitLab, [账号2]!</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>平时使用</strong>：</p>
+<h3 id="2-挑选多个提交"><a href="#2-挑选多个提交" class="headerlink" title="2. 挑选多个提交"></a>2. 挑选多个提交</h3><h4 id="挑选不连续的多个提交："><a href="#挑选不连续的多个提交：" class="headerlink" title="挑选不连续的多个提交："></a>挑选不连续的多个提交：</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick commit_id_1 commit_id_2</span><br></pre></td></tr></table></figure>
+<p>这会按顺序一次应用这两个提交。</p>
+<h4 id="挑选连续的一段提交（区间）："><a href="#挑选连续的一段提交（区间）：" class="headerlink" title="挑选连续的一段提交（区间）："></a>挑选连续的一段提交（区间）：</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick start_commit_id^..end_commit_id</span><br></pre></td></tr></table></figure>
 <ul>
-<li><strong>项目1</strong>：正常 clone 即可。<br><code>git clone git@github.com:user/repo.git</code></li>
-<li><strong>项目2</strong>：如果你在 config 里用了别名（比如上面把公司 GitLab 叫 <code>gitlab-123</code>），clone 的时候要稍微改一下地址：<br><code>git clone git@gitlab-123:group/project.git</code><br><em>(把原本的域名换成你在 config 里写的 Host 别名)</em></li>
+<li>注意中间是两个点 <code>..</code>。</li>
+<li><code>start_commit_id^</code> 表示包含起始提交（如果不加 <code>^</code> 就不包含起始提交，这是 Git 区间的特性）。</li>
 </ul>
-</li>
+<h3 id="3-挑选提交但不立即提交（只拿代码）"><a href="#3-挑选提交但不立即提交（只拿代码）" class="headerlink" title="3. 挑选提交但不立即提交（只拿代码）"></a>3. 挑选提交但不立即提交（只拿代码）</h3><p>如果你只想把改动拿过来，放在暂存区（Staged），不想自动生成 Commit，可以加 <code>-n</code> 或 <code>--no-commit</code>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick -n a1b2c3d</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>场景</strong>：你想拿过来改点东西再提交，或者你想把多个 cherry-pick 的改动合并成一个新的提交。</li>
+</ul>
+<hr>
+<h2 id="四、冲突处理"><a href="#四、冲突处理" class="headerlink" title="四、冲突处理"></a>四、冲突处理</h2><p>Cherry-pick 本质上也是一种合并操作，所以<strong>非常容易遇到冲突</strong>。</p>
+<p>当执行 <code>git cherry-pick</code> 遇到冲突时，Git 会暂停操作。你需要解决冲突：</p>
+<ol>
+<li><strong>查看冲突文件</strong>：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git status</span><br></pre></td></tr></table></figure></li>
+<li><strong>手动解决冲突</strong>（编辑代码，保留你想要的部分）。</li>
+<li><strong>标记冲突已解决</strong>：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git add &lt;path/to/conflict-file&gt;</span><br></pre></td></tr></table></figure></li>
+<li><strong>继续执行 cherry-pick</strong>：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick --<span class="built_in">continue</span></span><br></pre></td></tr></table></figure>
+<em>(此时不需要 <code>git commit</code>，该命令会自动弹窗让你编辑提交信息并生成提交)</em></li>
 </ol>
-<p>这样配置后，只要你在 <code>~/Code/GMail</code> 目录下操作，提交记录自动就是邮箱1；在 <code>~/Code/Mail163</code> 下操作，自动就是邮箱2。完美兼容！</p>
+<h4 id="如果想放弃-cherry-pick："><a href="#如果想放弃-cherry-pick：" class="headerlink" title="如果想放弃 cherry-pick："></a>如果想放弃 cherry-pick：</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick --abort</span><br></pre></td></tr></table></figure>
+<p>这会回到操作前的状态。</p>
+<hr>
+<h2 id="五、技巧与注意事项"><a href="#五、技巧与注意事项" class="headerlink" title="五、技巧与注意事项"></a>五、技巧与注意事项</h2><h3 id="1-保留原作者信息"><a href="#1-保留原作者信息" class="headerlink" title="1. 保留原作者信息"></a>1. 保留原作者信息</h3><p>Cherry-pick 默认会保留原提交的作者（Author）信息，但提交者（Committer）会变成你。这通常是期望的行为。</p>
+<h3 id="2-加上来源标记-x"><a href="#2-加上来源标记-x" class="headerlink" title="2. 加上来源标记 (-x)"></a>2. 加上来源标记 (<code>-x</code>)</h3><p>如果你想在提交信息里记录这个提交是从哪里摘过来的，可以加 <code>-x</code> 参数：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick -x a1b2c3d</span><br></pre></td></tr></table></figure>
+<p>提交信息末尾会自动添加一行：<code>(cherry picked from commit a1b2c3d...)</code>。</p>
+<blockquote>
+<p><strong>建议</strong>：在团队协作中，加上 <code>-x</code> 是个好习惯，方便溯源。</p>
+</blockquote>
+<h3 id="3-避免频繁-Cherry-pick"><a href="#3-避免频繁-Cherry-pick" class="headerlink" title="3. 避免频繁 Cherry-pick"></a>3. 避免频繁 Cherry-pick</h3><p>虽然好用，但不要滥用。如果你发现自己在频繁地在分支间倒腾提交，说明你的<strong>分支策略</strong>可能出了问题。频繁 Cherry-pick 会导致产生大量重复内容的提交（Duplicate Commits），增加未来合并时的冲突风险。</p>
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><table>
+<thead>
+<tr>
+<th align="left">命令</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>git cherry-pick &lt;commit-hash&gt;</code></td>
+<td align="left">把指定提交应用到当前分支</td>
+</tr>
+<tr>
+<td align="left"><code>git cherry-pick -x &lt;commit-hash&gt;</code></td>
+<td align="left">应用并自动追加来源说明（推荐）</td>
+</tr>
+<tr>
+<td align="left"><code>git cherry-pick -n &lt;commit-hash&gt;</code></td>
+<td align="left">应用改动但不生成提交（只放暂存区）</td>
+</tr>
+<tr>
+<td align="left"><code>git cherry-pick --continue</code></td>
+<td align="left">解决冲突后继续</td>
+</tr>
+<tr>
+<td align="left"><code>git cherry-pick --abort</code></td>
+<td align="left">放弃操作，回退</td>
+</tr>
+</tbody></table>
+<p><code>Cherry-pick</code>，能让你在处理紧急修复、特定功能迁移时非常方便。</p>
 ]]></content>
       <categories>
         <category>git</category>
@@ -634,6 +671,74 @@
         <tag>Hexo</tag>
         <tag>博客搭建</tag>
         <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>本地配置多个git账号</title>
+    <url>/posts/aedc60d4.html</url>
+    <content><![CDATA[<p>有时候，需要在一个电脑上管理多个 Git 账号（比如一个是 GitLab，一个是 GitHub，或者两个都是 GitHub 账号）是一个比较常见的场景。</p>
+<p>如果不配置好，很容易出现“用错账号提交代码”或者“没权限推送代码”的尴尬情况。</p>
+<p>最优雅、最推荐的方案是使用 <strong>SSH Config + 文件夹别名</strong> 的方式。</p>
+<p>下面是手把手的配置指南：</p>
+<h2 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h2><ol>
+<li><strong>生成两把钥匙</strong>：为每个账号生成不同的 SSH Key。</li>
+<li><strong>告诉 SSH 怎么选</strong>：配置 <code>~/.ssh/config</code> 文件，让 SSH 知道访问不同主机时用哪把钥匙。</li>
+<li><strong>告诉 Git 怎么选</strong>：(可选但推荐) 通过文件夹路径自动切换用户名和邮箱。</li>
+</ol>
+<hr>
+<h3 id="第一步：生成两对-SSH-Key"><a href="#第一步：生成两对-SSH-Key" class="headerlink" title="第一步：生成两对 SSH Key"></a>第一步：生成两对 SSH Key</h3><p>打开终端（Terminal 或 Git Bash），分别生成两个 SSH Key。<br><strong>注意要给文件起不同的名字！</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 生成账号1的 Key (假设是 GitHub)</span></span><br><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;你的邮箱1@gmail.com&quot;</span> -f ~/.ssh/id_ed25519_gmail</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 生成账号2的 Key (假设是 GitLab)</span></span><br><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;你的邮箱2@mail.163.com&quot;</span> -f ~/.ssh/id_ed25519_163</span><br></pre></td></tr></table></figure>
+<p><em>(如果系统不支持 ed25519，可以用 <code>-t rsa -b 4096</code> 代替)</em></p>
+<p>现在你的 <code>~/.ssh/</code> 目录下应该有 4 个文件（两个私钥无后缀，两个公钥带 <code>.pub</code>）。</p>
+<h3 id="第二步：把公钥添加到对应的平台"><a href="#第二步：把公钥添加到对应的平台" class="headerlink" title="第二步：把公钥添加到对应的平台"></a>第二步：把公钥添加到对应的平台</h3><ol>
+<li><strong>账号1</strong>：复制 <code>id_ed25519_gmail.pub</code> 的内容 -&gt; 去 GitHub -&gt; Settings -&gt; SSH and GPG keys -&gt; New SSH key。</li>
+<li><strong>账号2</strong>：复制 <code>id_ed25519_163.pub</code> 的内容 -&gt; 去 GitLab -&gt; Settings -&gt; SSH Keys。</li>
+</ol>
+<h3 id="第三步：配置-SSH-Config-最关键的一步"><a href="#第三步：配置-SSH-Config-最关键的一步" class="headerlink" title="第三步：配置 SSH Config (最关键的一步)"></a>第三步：配置 SSH Config (最关键的一步)</h3><p>在 <code>~/.ssh/</code> 目录下创建一个名为 <code>config</code> 的文件（如果没有的话）。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建或编辑 config 文件</span></span><br><span class="line">code ~/.ssh/config</span><br></pre></td></tr></table></figure>
+
+<p><strong>将以下内容填入文件中：</strong></p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># --- 账号1 (GitHub) ---</span><br><span class="line">Host github.com</span><br><span class="line">    HostName github.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519_gmail</span><br><span class="line"></span><br><span class="line"># --- 账号2 (假设是 GitLab) ---</span><br><span class="line"># 注意：这里的 Host 起了个别名，叫 gitlab-123</span><br><span class="line">Host gitlab-123</span><br><span class="line">    HostName gitlab.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519_163</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意：</strong> 如果两个账号都是 GitHub，你需要给第二个 Host 起个别名，比如 <code>Host github-123</code>，下面的 <code>HostName</code> 依然填 <code>github.com</code>。</p>
+</blockquote>
+<h3 id="第四步：解决用户名和邮箱自动切换-可选但更方便"><a href="#第四步：解决用户名和邮箱自动切换-可选但更方便" class="headerlink" title="第四步：解决用户名和邮箱自动切换 (可选但更方便)"></a>第四步：解决用户名和邮箱自动切换 (可选但更方便)</h3><p>一种方法是你每次 clone 下来后手动设置 <code>git config user.name</code>，不过这很容易忘掉这个步骤。</p>
+<p>另一种方法就是接下来，我们可以利用 Git 的 <strong>“includeIf”</strong> 功能，根据文件夹路径自动切换配置。</p>
+<ol>
+<li><p><strong>规划文件夹</strong>：</p>
+<ul>
+<li>在电脑里建一个文件夹叫 <code>~/Code/GMail</code> (放项目1)</li>
+<li>建另一个文件夹叫 <code>~/Code/Mail163</code> (放项目2)</li>
+</ul>
+</li>
+<li><p><strong>创建特定的 .gitconfig 文件</strong>：</p>
+<ul>
+<li>创建 <code>~/.gitconfig-gmail</code>，内容如下：<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[user]</span></span><br><span class="line">    <span class="attr">name</span> = 昵称<span class="number">1</span></span><br><span class="line">    <span class="attr">email</span> = 邮箱<span class="number">1</span>@gmail.com</span><br></pre></td></tr></table></figure></li>
+<li>创建 <code>~/.gitconfig-123</code>，内容如下：<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[user]</span></span><br><span class="line">    <span class="attr">name</span> = 昵称<span class="number">2</span></span><br><span class="line">    <span class="attr">email</span> = 邮箱<span class="number">2</span>@mail.<span class="number">163</span>.com</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>**修改主配置文件 <code>~/.gitconfig</code>**：<br>打开全局的 <code>~/.gitconfig</code>，在最下面加入：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 如果路径包含 ~/Code/GMail/，就引用配置1</span></span><br><span class="line"><span class="section">[includeIf &quot;gitdir:~/Code/GMail/&quot;]</span></span><br><span class="line">    <span class="attr">path</span> = ~/.gitconfig-gmail</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果路径包含 ~/Code/Mail163/，就引用配置2</span></span><br><span class="line"><span class="section">[includeIf &quot;gitdir:~/Code/Mail163/&quot;]</span></span><br><span class="line">    <span class="attr">path</span> = ~/.gitconfig-<span class="number">123</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="第五步：验证效果"><a href="#第五步：验证效果" class="headerlink" title="第五步：验证效果"></a>第五步：验证效果</h3><ol>
+<li><p><strong>测试连接</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh -T git@github.com</span><br><span class="line"><span class="comment"># 应该显示：Hi [账号1]! You&#x27;ve successfully authenticated...</span></span><br><span class="line"></span><br><span class="line">ssh -T git@gitlab-123</span><br><span class="line"><span class="comment"># 应该显示：Welcome to GitLab, [账号2]!</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>平时使用</strong>：</p>
+<ul>
+<li><strong>项目1</strong>：正常 clone 即可。<br><code>git clone git@github.com:user/repo.git</code></li>
+<li><strong>项目2</strong>：如果你在 config 里用了别名（比如上面把公司 GitLab 叫 <code>gitlab-123</code>），clone 的时候要稍微改一下地址：<br><code>git clone git@gitlab-123:group/project.git</code><br><em>(把原本的域名换成你在 config 里写的 Host 别名)</em></li>
+</ul>
+</li>
+</ol>
+<p>这样配置后，只要你在 <code>~/Code/GMail</code> 目录下操作，提交记录自动就是邮箱1；在 <code>~/Code/Mail163</code> 下操作，自动就是邮箱2。完美兼容！</p>
+]]></content>
+      <categories>
+        <category>git</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
       </tags>
   </entry>
   <entry>
@@ -925,45 +1030,6 @@
       </tags>
   </entry>
   <entry>
-    <title>libcurl交叉编译</title>
-    <url>/posts/ad4da72c.html</url>
-    <content><![CDATA[<h1 id="libcurl交叉编译"><a href="#libcurl交叉编译" class="headerlink" title="libcurl交叉编译"></a>libcurl交叉编译</h1><h1 id="需要源码交叉编译libcurl操作步骤"><a href="#需要源码交叉编译libcurl操作步骤" class="headerlink" title="需要源码交叉编译libcurl操作步骤"></a>需要源码交叉编译libcurl操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要交叉编译libcurl，比如目标机器是32位系统的，但是本地机器是64位系统的，而且由于某些原因，我们无法在32位系统上直接编译，所以需要用到交叉编译</p>
-<h2 id="编译openssl"><a href="#编译openssl" class="headerlink" title="编译openssl"></a>编译openssl</h2><p>libcurl是依赖openssl的，所以先编译openssl的32位库</p>
-<p>完整编译选项配置如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">setarch i386 ./config -m32 –prefix=/home/muhan/openssl/ –openssldir=/home/muhan/openssl/ -Wl,-rpath,/usr/local/openssl/lib shared</span><br></pre></td></tr></table></figure>
-<p>详细选项含义如下：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置-m32 指定编译32位的库</span><br><span class="line">配置–prefix 指定openssl的安装目录</span><br><span class="line">配置–openssldir 指定openssl的头文件目录</span><br><span class="line">配置shared关键字 指定编译时生成动态库（libssl.so/libcrypto.so及其相关软连接）</span><br></pre></td></tr></table></figure>
-
-<p>然后再make &amp;&amp; make install 即可</p>
-<h2 id="编译安装zlib"><a href="#编译安装zlib" class="headerlink" title="编译安装zlib"></a>编译安装zlib</h2><p>有时候有的系统是默认安装了32位zlib库的，那么就可以跳过这一步，但是有的系统需要自己下载编译zlib-32位库</p>
-<p>完整编译选项配置如下：<br>直接修改CMakeLists.txt文件，增加以下两行</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_C_FLAGS “-m32”)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS “-m32”)</span><br></pre></td></tr></table></figure>
-<p>详细选项含义如下：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置CMAKE_C_FLAGS 指定编译32位库环境</span><br><span class="line">配置CMAKE_CXX_FLAGS 指定编译32位库环境</span><br></pre></td></tr></table></figure>
-
-<p>然后再mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; make &amp;&amp; make install 即可</p>
-<h2 id="编译安装libcurl"><a href="#编译安装libcurl" class="headerlink" title="编译安装libcurl"></a>编译安装libcurl</h2><p>最后就是编译libcurl</p>
-<p>完整编译选项配置如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure PKG_CONFIG_PATH=/home/muhan/openssl CFLAGS=”-m32” CPPFLAGS=”-I/home/muhan/openssl/include” LDFLAGS=”-L/home/muhan/openssl/lib”</span><br></pre></td></tr></table></figure>
-
-<p>详细选项含义如下：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置PKG_CONFIG_PATH 指定启动openssl选项(启动这个选项，就会默认链接lssl，lcrypto，lz三个库)</span><br><span class="line">配置CFLAGS 指定编译32位库环境</span><br><span class="line">配置CPPFLAGS 指定链接的库的头文件</span><br><span class="line">配置LDFLAGS 指定链接的库的路径</span><br></pre></td></tr></table></figure>
-
-<p>然后再make &amp;&amp; make install 即可</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当编译第三方库的时候，如果有CMakeLists.txt，直接用CMakeLists.txt编译就很方便；<br>如果只有configure，那么需要先了解编译选项</p>
-<p>执行.&#x2F;configure –help 来查看当前支持的编译选项<br>然后根据提示配置一下我们需要指定的选项，比如自己指定的openssl的版本的库和头文件路径名，比如CC的版本，比如安装路径等等<br>(当然，如果不需要额外配置这些东西的话，直接走默认配置的话，那么直接执行.&#x2F;config 或者 .&#x2F;configure 就行)</p>
-<p>然后在生成Makefile之后，再make &amp;&amp; make install 即可</p>
-]]></content>
-      <categories>
-        <category>交叉编译</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>交叉编译</tag>
-        <tag>libcurl</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux项目移植到Windows下CMake改造</title>
     <url>/posts/fe7b4b0a.html</url>
     <content><![CDATA[<h1 id="linux项目移植到Windows下CMake改造"><a href="#linux项目移植到Windows下CMake改造" class="headerlink" title="linux项目移植到Windows下CMake改造"></a>linux项目移植到Windows下CMake改造</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>因项目工程需要，将linux下的<code>AProject</code>项目迁移到Windows下，对代码进行适配，编译选项进行修改。<br>通过CMake配置Windows(MSVC编译器)选项，进行跨平台移植。</p>
@@ -1050,11 +1116,50 @@
         <category>技术折腾</category>
       </categories>
       <tags>
+        <tag>linux</tag>
         <tag>windows</tag>
         <tag>c++</tag>
-        <tag>linux</tag>
         <tag>CMake</tag>
         <tag>跨平台移植</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>libcurl交叉编译</title>
+    <url>/posts/ad4da72c.html</url>
+    <content><![CDATA[<h1 id="libcurl交叉编译"><a href="#libcurl交叉编译" class="headerlink" title="libcurl交叉编译"></a>libcurl交叉编译</h1><h1 id="需要源码交叉编译libcurl操作步骤"><a href="#需要源码交叉编译libcurl操作步骤" class="headerlink" title="需要源码交叉编译libcurl操作步骤"></a>需要源码交叉编译libcurl操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要交叉编译libcurl，比如目标机器是32位系统的，但是本地机器是64位系统的，而且由于某些原因，我们无法在32位系统上直接编译，所以需要用到交叉编译</p>
+<h2 id="编译openssl"><a href="#编译openssl" class="headerlink" title="编译openssl"></a>编译openssl</h2><p>libcurl是依赖openssl的，所以先编译openssl的32位库</p>
+<p>完整编译选项配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">setarch i386 ./config -m32 –prefix=/home/muhan/openssl/ –openssldir=/home/muhan/openssl/ -Wl,-rpath,/usr/local/openssl/lib shared</span><br></pre></td></tr></table></figure>
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置-m32 指定编译32位的库</span><br><span class="line">配置–prefix 指定openssl的安装目录</span><br><span class="line">配置–openssldir 指定openssl的头文件目录</span><br><span class="line">配置shared关键字 指定编译时生成动态库（libssl.so/libcrypto.so及其相关软连接）</span><br></pre></td></tr></table></figure>
+
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="编译安装zlib"><a href="#编译安装zlib" class="headerlink" title="编译安装zlib"></a>编译安装zlib</h2><p>有时候有的系统是默认安装了32位zlib库的，那么就可以跳过这一步，但是有的系统需要自己下载编译zlib-32位库</p>
+<p>完整编译选项配置如下：<br>直接修改CMakeLists.txt文件，增加以下两行</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_C_FLAGS “-m32”)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS “-m32”)</span><br></pre></td></tr></table></figure>
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置CMAKE_C_FLAGS 指定编译32位库环境</span><br><span class="line">配置CMAKE_CXX_FLAGS 指定编译32位库环境</span><br></pre></td></tr></table></figure>
+
+<p>然后再mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; make &amp;&amp; make install 即可</p>
+<h2 id="编译安装libcurl"><a href="#编译安装libcurl" class="headerlink" title="编译安装libcurl"></a>编译安装libcurl</h2><p>最后就是编译libcurl</p>
+<p>完整编译选项配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure PKG_CONFIG_PATH=/home/muhan/openssl CFLAGS=”-m32” CPPFLAGS=”-I/home/muhan/openssl/include” LDFLAGS=”-L/home/muhan/openssl/lib”</span><br></pre></td></tr></table></figure>
+
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置PKG_CONFIG_PATH 指定启动openssl选项(启动这个选项，就会默认链接lssl，lcrypto，lz三个库)</span><br><span class="line">配置CFLAGS 指定编译32位库环境</span><br><span class="line">配置CPPFLAGS 指定链接的库的头文件</span><br><span class="line">配置LDFLAGS 指定链接的库的路径</span><br></pre></td></tr></table></figure>
+
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当编译第三方库的时候，如果有CMakeLists.txt，直接用CMakeLists.txt编译就很方便；<br>如果只有configure，那么需要先了解编译选项</p>
+<p>执行.&#x2F;configure –help 来查看当前支持的编译选项<br>然后根据提示配置一下我们需要指定的选项，比如自己指定的openssl的版本的库和头文件路径名，比如CC的版本，比如安装路径等等<br>(当然，如果不需要额外配置这些东西的话，直接走默认配置的话，那么直接执行.&#x2F;config 或者 .&#x2F;configure 就行)</p>
+<p>然后在生成Makefile之后，再make &amp;&amp; make install 即可</p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>交叉编译</tag>
+        <tag>libcurl</tag>
       </tags>
   </entry>
   <entry>
@@ -1134,8 +1239,8 @@
         <category>跨平台移植</category>
       </categories>
       <tags>
-        <tag>windows</tag>
         <tag>linux</tag>
+        <tag>windows</tag>
         <tag>跨平台移植</tag>
       </tags>
   </entry>
