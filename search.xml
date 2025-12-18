@@ -75,37 +75,6 @@
       </tags>
   </entry>
   <entry>
-    <title>centos或mac下使用locate指令时，报错</title>
-    <url>/posts/988cb25a.html</url>
-    <content><![CDATA[<h1 id="centos或mac下使用locate指令时，报错-var-db-locate-database"><a href="#centos或mac下使用locate指令时，报错-var-db-locate-database" class="headerlink" title="centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)"></a>centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)</h1><p>centos或mac下使用locate指令时，出现报错信息The locate database (&#x2F;var&#x2F;db&#x2F;locate.database)</p>
-<h2 id="在centos系统下，使用locate指令报错"><a href="#在centos系统下，使用locate指令报错" class="headerlink" title="在centos系统下，使用locate指令报错"></a>在centos系统下，使用locate指令报错</h2><p>使用locate指令时，出现报错信息’var&#x2F;lib&#x2F;mlocate&#x2F;mlocate.db’:No such file or directory时，处理方案如下：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//输入以下指令即可</span></span><br><span class="line">updatedb</span><br><span class="line"><span class="comment">//需要等待一段时间，因为生成数据库需要一段时间</span></span><br></pre></td></tr></table></figure>
-
-<p>稍等一段时间之后，再输入locate指令，即可发现可以使用了</p>
-<h2 id="在mac系统下，使用locate指令报错"><a href="#在mac系统下，使用locate指令报错" class="headerlink" title="在mac系统下，使用locate指令报错"></a>在mac系统下，使用locate指令报错</h2><p>当在mac上使用locate指令时，报错如下：<br><img src="/images/locate_01.jpg" alt="使用locate指令时报错"></p>
-<p>解决方案如下：</p>
-<ol>
-<li><p>先根据刚才的提醒，输入sudo launchctl load -w &#x2F;System&#x2F;Library&#x2F;LaunchDaemons&#x2F;com.apple.locate.plist<br><img src="/images/locate_02.jpg" alt="根据提示，输入launchtcl指令"></p>
-</li>
-<li><p>然后，输入指令sudo &#x2F;usr&#x2F;libexec&#x2F;locate.updatedb<br><img src="/images/locate_03.jpg" alt="生成数据库"></p>
-</li>
-</ol>
-<p>输入上面这个指令后，会等待好久一段时间，要稍微等待一会儿</p>
-<ol start="3">
-<li>最后再次输入locate指令，发现locate指令已经生效啦<br><img src="/images/locate_04.jpg" alt="locate指令已经生效啦"></li>
-</ol>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>因为我之前经常在ubuntu下，都没有碰到过locate指令不好用的情况，最近需要在centos和mac下操作，忽然发现居然loacte指令使用失效，于是上网查找了解决办法，经过尝试了一些方案后，终于在centos和mac下可以使用locate指令了，因此做出了以上的总结～</p>
-<p>感谢网友们无私分享的解决方案～<br>参考的网友方案：<a href="https://www.jianshu.com/p/d8f4f9e4b58c">https://www.jianshu.com/p/d8f4f9e4b58c</a></p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>教程</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Windows 会话 ID (Session ID) 与 Session 0 隔离穿透指南</title>
     <url>/posts/f5974992.html</url>
     <content><![CDATA[<h2 id="1-背景：开机自启动程序无法弹出界面？"><a href="#1-背景：开机自启动程序无法弹出界面？" class="headerlink" title="1. 背景：开机自启动程序无法弹出界面？"></a>1. 背景：开机自启动程序无法弹出界面？</h2><p>在开发 Windows 后台服务（Service）或开机自启程序时，经常遇到一个棘手的问题：</p>
@@ -205,6 +174,37 @@
         <tag>windows</tag>
         <tag>Session ID</tag>
         <tag>c++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>centos或mac下使用locate指令时，报错</title>
+    <url>/posts/988cb25a.html</url>
+    <content><![CDATA[<h1 id="centos或mac下使用locate指令时，报错-var-db-locate-database"><a href="#centos或mac下使用locate指令时，报错-var-db-locate-database" class="headerlink" title="centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)"></a>centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)</h1><p>centos或mac下使用locate指令时，出现报错信息The locate database (&#x2F;var&#x2F;db&#x2F;locate.database)</p>
+<h2 id="在centos系统下，使用locate指令报错"><a href="#在centos系统下，使用locate指令报错" class="headerlink" title="在centos系统下，使用locate指令报错"></a>在centos系统下，使用locate指令报错</h2><p>使用locate指令时，出现报错信息’var&#x2F;lib&#x2F;mlocate&#x2F;mlocate.db’:No such file or directory时，处理方案如下：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//输入以下指令即可</span></span><br><span class="line">updatedb</span><br><span class="line"><span class="comment">//需要等待一段时间，因为生成数据库需要一段时间</span></span><br></pre></td></tr></table></figure>
+
+<p>稍等一段时间之后，再输入locate指令，即可发现可以使用了</p>
+<h2 id="在mac系统下，使用locate指令报错"><a href="#在mac系统下，使用locate指令报错" class="headerlink" title="在mac系统下，使用locate指令报错"></a>在mac系统下，使用locate指令报错</h2><p>当在mac上使用locate指令时，报错如下：<br><img src="/images/locate_01.jpg" alt="使用locate指令时报错"></p>
+<p>解决方案如下：</p>
+<ol>
+<li><p>先根据刚才的提醒，输入sudo launchctl load -w &#x2F;System&#x2F;Library&#x2F;LaunchDaemons&#x2F;com.apple.locate.plist<br><img src="/images/locate_02.jpg" alt="根据提示，输入launchtcl指令"></p>
+</li>
+<li><p>然后，输入指令sudo &#x2F;usr&#x2F;libexec&#x2F;locate.updatedb<br><img src="/images/locate_03.jpg" alt="生成数据库"></p>
+</li>
+</ol>
+<p>输入上面这个指令后，会等待好久一段时间，要稍微等待一会儿</p>
+<ol start="3">
+<li>最后再次输入locate指令，发现locate指令已经生效啦<br><img src="/images/locate_04.jpg" alt="locate指令已经生效啦"></li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>因为我之前经常在ubuntu下，都没有碰到过locate指令不好用的情况，最近需要在centos和mac下操作，忽然发现居然loacte指令使用失效，于是上网查找了解决办法，经过尝试了一些方案后，终于在centos和mac下可以使用locate指令了，因此做出了以上的总结～</p>
+<p>感谢网友们无私分享的解决方案～<br>参考的网友方案：<a href="https://www.jianshu.com/p/d8f4f9e4b58c">https://www.jianshu.com/p/d8f4f9e4b58c</a></p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>教程</tag>
       </tags>
   </entry>
   <entry>
@@ -499,6 +499,108 @@
 </li>
 </ol>
 <p>这样配置后，只要你在 <code>~/Code/GMail</code> 目录下操作，提交记录自动就是邮箱1；在 <code>~/Code/Mail163</code> 下操作，自动就是邮箱2。完美兼容！</p>
+]]></content>
+      <categories>
+        <category>git</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Git Rebase与交互式变基</title>
+    <url>/posts/ae152b94.html</url>
+    <content><![CDATA[<p>在 Git 的世界里，<code>git rebase</code>（变基）大概是最常用的命令之一。</p>
+<p>很多人因为害怕“把代码搞丢”而只敢用 <code>git merge</code>，导致提交历史里充斥着无意义的 <code>Merge branch &#39;master&#39; into feature</code> 节点，或者像蚯蚓一样弯弯曲曲的分支线。</p>
+<p>但是如果使用 <code>git rebase</code>，就会把你的提交历史变成一条优雅的直线。</p>
+<p>rebase 的核心作用：把一串提交“搬家”到新的基底上，从而让提交历史更线性、更易读。你可以把它理解为：把分支上的提交“重放”到另一个分支（或另一个提交）之后。</p>
+<hr>
+<h2 id="一、-核心概念：Rebase-到底是在干什么？"><a href="#一、-核心概念：Rebase-到底是在干什么？" class="headerlink" title="一、 核心概念：Rebase 到底是在干什么？"></a>一、 核心概念：Rebase 到底是在干什么？</h2><p>简单来说，<strong>Rebase &#x3D; 重新（Re）定义起点（Base）。</strong></p>
+<p>想象一下，你从 <code>master</code> 分支切出了一个 <code>feature</code> 分支写代码。<br>在你写代码的几天里，同事向 <code>master</code> 推送了新代码。此时，你的 <code>feature</code> 分支的“地基”已经过时了。</p>
+<h3 id="Merge-vs-Rebase"><a href="#Merge-vs-Rebase" class="headerlink" title="Merge vs Rebase"></a>Merge vs Rebase</h3><ul>
+<li>**Merge (合并)**：保留所有历史，创建一个新的“合并节点”。就像把两条河流汇聚在一起，虽然真实，但如果合并频繁，历史线会变得像蜘蛛网一样乱。</li>
+<li><strong>Rebase (变基)<strong>：把你在这个分支上的所有修改“剪”下来，然后贴到 <code>master</code> 的最新位置后面。就像你时光倒流，假装你的代码是</strong>刚刚</strong>基于最新的 <code>master</code> 写出来的。</li>
+</ul>
+<p><strong>结果：你的历史线变成了一条干净的直线。</strong></p>
+<hr>
+<h2 id="二、-场景一：同步上游代码-不用-i"><a href="#二、-场景一：同步上游代码-不用-i" class="headerlink" title="二、 场景一：同步上游代码 (不用 -i)"></a>二、 场景一：同步上游代码 (不用 <code>-i</code>)</h2><p><strong>场景</strong>：你在开发 <code>feature</code> 分支，准备提 Pull Request，但发现 <code>master</code> 已经更新了。为了避免冲突，或者为了让提交历史好看，你需要把 <code>master</code> 的新代码同步过来。</p>
+<h3 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 切换到master，把最新的代码同步过来</span></span><br><span class="line">git checkout master</span><br><span class="line">git pull</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 再切换到你的开发分支</span></span><br><span class="line">git checkout feature</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 执行变基（把 feature 接到 master 的最前面）</span></span><br><span class="line">git rebase master</span><br></pre></td></tr></table></figure>
+
+<h3 id="可能会发生什么？"><a href="#可能会发生什么？" class="headerlink" title="可能会发生什么？"></a>可能会发生什么？</h3><p>如果一切顺利，Git 会自动搞定。但通常会遇到冲突（Conflict）。此时 Git 会停下来让你解决。</p>
+<p><strong>解决冲突流程：</strong></p>
+<ol>
+<li>打开代码编辑器，手动解决冲突文件。</li>
+<li>将解决后的文件放入暂存区：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git add &lt;文件名&gt;</span><br></pre></td></tr></table></figure></li>
+<li><strong>注意：不要 commit！</strong> 而是告诉 rebase 继续：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git rebase --<span class="built_in">continue</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>(如果你中途后悔了，想放弃变基，执行 <code>git rebase --abort</code> 即可回到操作前。)</p>
+<hr>
+<h2 id="三、-场景二：整理提交历史-使用-i"><a href="#三、-场景二：整理提交历史-使用-i" class="headerlink" title="三、 场景二：整理提交历史 (使用 -i)"></a>三、 场景二：整理提交历史 (使用 <code>-i</code>)</h2><p>这是 Rebase 最神的地方。</p>
+<p><strong>场景</strong>：你在开发某个功能，为了保存进度，你可能提交了这样的 Log：</p>
+<ul>
+<li><code>feat: 完成登录功能</code></li>
+<li><code>fix: 修复一个拼写错误</code></li>
+<li><code>wip: 还没写完，先存一下</code></li>
+<li><code>fix: 刚才有个 bug 没改对</code></li>
+</ul>
+<p>这堆乱七八糟的提交如果推送到公司仓库，会被同事鄙视的。你需要把这 4 个提交合并成 <strong>1 个</strong> 完美的提交。</p>
+<h3 id="操作步骤-1"><a href="#操作步骤-1" class="headerlink" title="操作步骤"></a>操作步骤</h3><p>假设我们要整理最近的 4 次提交：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git rebase -i HEAD~4</span><br></pre></td></tr></table></figure>
+
+<p>这里的 <code>-i</code> 代表 <strong>Interactive（交互式）</strong>。</p>
+<h3 id="交互界面怎么玩？"><a href="#交互界面怎么玩？" class="headerlink" title="交互界面怎么玩？"></a>交互界面怎么玩？</h3><p>输入命令后，Git 会自动打开 Vim（或你配置的编辑器），内容大概长这样：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">pick 1a2b3c4 feat: 完成登录功能</span><br><span class="line">pick 5d6e7f8 fix: 修复一个拼写错误</span><br><span class="line">pick 9g0h1i2 wip: 还没写完，先存一下</span><br><span class="line">pick 3j4k5l6 fix: 刚才有个 bug 没改对</span><br><span class="line"></span><br><span class="line"># Commands:</span><br><span class="line"># p, pick = use commit (保留该提交)</span><br><span class="line"># r, reword = use commit, but edit the commit message (保留提交，但修改注释)</span><br><span class="line"># s, squash = use commit, but meld into previous commit (合并到上一个提交)</span><br><span class="line"># f, fixup = like &quot;squash&quot;, but discard this commit&#x27;s log message (合并但丢弃注释)</span><br><span class="line"># d, drop = remove commit (删除该提交)</span><br></pre></td></tr></table></figure>
+
+<p><strong>你的任务是修改每一行开头的单词：</strong></p>
+<p>我们想把后面 3 个都“挤”进第 1 个里，所以修改如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">pick 1a2b3c4 feat: 完成登录功能</span><br><span class="line">s 5d6e7f8 fix: 修复一个拼写错误</span><br><span class="line">s 9g0h1i2 wip: 还没写完，先存一下</span><br><span class="line">s 3j4k5l6 fix: 刚才有个 bug 没改对</span><br></pre></td></tr></table></figure>
+
+<p>保存并退出（Vim 中按 <code>Esc</code> 然后输入 <code>:wq</code>）。</p>
+<p>Git 会弹出第二个编辑器窗口，让你编写合并后的 <strong>最终 Commit Message</strong>。修改完保存退出，你的 4 个提交就变成 1 个了！</p>
+<hr>
+<h2 id="四、-黄金法则：绝对不要-Rebase-公共分支！"><a href="#四、-黄金法则：绝对不要-Rebase-公共分支！" class="headerlink" title="四、 黄金法则：绝对不要 Rebase 公共分支！"></a>四、 黄金法则：绝对不要 Rebase 公共分支！</h2><p>这是使用 Rebase 唯一的、绝对的红线。</p>
+<p><strong>原则：</strong></p>
+<blockquote>
+<p>只有当这个分支 <strong>只有你一个人在用</strong>（还是本地分支）时，你才能随便 Rebase。</p>
+</blockquote>
+<p><strong>为什么？</strong><br>Rebase 会修改提交的 Hash ID（因为它重写了历史）。<br>如果你把 <code>master</code> 分支或者同事正在开发的 <code>feature-shared</code> 分支给 Rebase 了，同事那边的代码就会和远程仓库彻底对不上号，导致灾难级的冲突。</p>
+<p><strong>一句话总结：已推送到远程且有人协作的分支，老老实实用 Merge；本地自己玩的分支，大胆用 Rebase。</strong></p>
+<hr>
+<h2 id="五、-总结"><a href="#五、-总结" class="headerlink" title="五、 总结"></a>五、 总结</h2><table>
+<thead>
+<tr>
+<th align="left">需求</th>
+<th align="left">命令</th>
+<th align="left">效果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>同步 master 代码</strong></td>
+<td align="left"><code>git rebase master</code></td>
+<td align="left">你的分支基于最新的 master，历史是一条直线。</td>
+</tr>
+<tr>
+<td align="left"><strong>合并琐碎提交</strong></td>
+<td align="left"><code>git rebase -i HEAD~N</code></td>
+<td align="left">进入交互模式，使用 <code>squash</code> 压缩 N 个提交。</td>
+</tr>
+<tr>
+<td align="left"><strong>修改某次提交信息</strong></td>
+<td align="left"><code>git rebase -i HEAD~N</code></td>
+<td align="left">进入交互模式，使用 <code>reword</code> 修改注释。</td>
+</tr>
+<tr>
+<td align="left"><strong>删除某次提交</strong></td>
+<td align="left"><code>git rebase -i HEAD~N</code></td>
+<td align="left">进入交互模式，使用 <code>drop</code> 丢弃某次提交。</td>
+</tr>
+<tr>
+<td align="left"><strong>变基失败想重来</strong></td>
+<td align="left"><code>git rebase --abort</code></td>
+<td align="left">回到变基之前的状态，无事发生。</td>
+</tr>
+</tbody></table>
+<p>学会 Git Rebase，是提高使用git效率的必经之路~</p>
 ]]></content>
       <categories>
         <category>git</category>
@@ -948,9 +1050,9 @@
         <category>技术折腾</category>
       </categories>
       <tags>
-        <tag>linux</tag>
         <tag>windows</tag>
         <tag>c++</tag>
+        <tag>linux</tag>
         <tag>CMake</tag>
         <tag>跨平台移植</tag>
       </tags>
@@ -1032,8 +1134,8 @@
         <category>跨平台移植</category>
       </categories>
       <tags>
-        <tag>linux</tag>
         <tag>windows</tag>
+        <tag>linux</tag>
         <tag>跨平台移植</tag>
       </tags>
   </entry>
