@@ -1,5 +1,5 @@
 ---
-title: GitRebase与交互式变基
+title: Git Rebase与交互式变基
 date: 2020-01-07 20:42:01
 tags: [git]
 categories: git
