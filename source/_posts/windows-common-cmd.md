@@ -201,7 +201,7 @@ ren D:\logs\old.log app.log
 删除目录的指令和linux完全不一样，`rd /s /q 目录名`
 删除文件的指令也很奇怪，`del /f /q 文件名`
 
-复制文件和linux也不一样，不能缩写成cp,会不识别，windows下复制文件是`copy 源文件 目标文件或目录`
+windows下复制文件是`copy 源文件 目标文件或目录`
 复制目录更费劲，是`robocopy 源目录 目标目录 /e`
 
 移动文件或目录都是`move 源 目标`指令
