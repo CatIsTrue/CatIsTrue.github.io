@@ -75,34 +75,92 @@
       </tags>
   </entry>
   <entry>
-    <title>centos或mac下使用locate指令时，报错</title>
-    <url>/posts/988cb25a.html</url>
-    <content><![CDATA[<h1 id="centos或mac下使用locate指令时，报错-var-db-locate-database"><a href="#centos或mac下使用locate指令时，报错-var-db-locate-database" class="headerlink" title="centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)"></a>centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)</h1><p>centos或mac下使用locate指令时，出现报错信息The locate database (&#x2F;var&#x2F;db&#x2F;locate.database)</p>
-<h2 id="在centos系统下，使用locate指令报错"><a href="#在centos系统下，使用locate指令报错" class="headerlink" title="在centos系统下，使用locate指令报错"></a>在centos系统下，使用locate指令报错</h2><p>使用locate指令时，出现报错信息’var&#x2F;lib&#x2F;mlocate&#x2F;mlocate.db’:No such file or directory时，处理方案如下：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//输入以下指令即可</span></span><br><span class="line">updatedb</span><br><span class="line"><span class="comment">//需要等待一段时间，因为生成数据库需要一段时间</span></span><br></pre></td></tr></table></figure>
+    <title>C++ 单元测试黑魔法：`#define private public`</title>
+    <url>/posts/be9c26b5.html</url>
+    <content><![CDATA[<p>在 C++ 单元测试的世界里，一直流传着一个“邪道”技巧。</p>
+<p>当你面对一个庞大的遗留类，想要测试其中一个复杂的 <code>private</code> 辅助函数，或者验证某个 <code>private</code> 成员变量的状态，但又不想（或不能）修改原始头文件去添加 <code>friend</code> 声明时，很多人的第一反应是使用那个著名的“黑魔法”：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> private public</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> protected public</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;MyLegacyClass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">undef</span> private</span></span><br><span class="line"><span class="meta">#<span class="keyword">undef</span> protected</span></span><br></pre></td></tr></table></figure>
 
-<p>稍等一段时间之后，再输入locate指令，即可发现可以使用了</p>
-<h2 id="在mac系统下，使用locate指令报错"><a href="#在mac系统下，使用locate指令报错" class="headerlink" title="在mac系统下，使用locate指令报错"></a>在mac系统下，使用locate指令报错</h2><p>当在mac上使用locate指令时，报错如下：<br><img src="/images/locate_01.jpg" alt="使用locate指令时报错"></p>
-<p>解决方案如下：</p>
+<h2 id="一、-黑魔法的原理：欺骗编译器"><a href="#一、-黑魔法的原理：欺骗编译器" class="headerlink" title="一、 黑魔法的原理：欺骗编译器"></a>一、 黑魔法的原理：欺骗编译器</h2><p>这个技巧的核心逻辑非常简单粗暴：<strong>预处理器的宏替换</strong>。</p>
+<p>C++ 的编译过程是分阶段的。在编译器真正开始语法分析之前，预处理器会先处理所有的 <code>#include</code> 和 <code>#define</code>。</p>
+<p>当我们写下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Test.cpp</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> private public</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;MyLegacyClass.h&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>预处理器在展开 <code>MyLegacyClass.h</code> 时，会将其中的所有 <code>private</code> 关键字替换为 <code>public</code>。<br>对于编译器来说，在编译 <code>Test.cpp</code> 这个单元时，<code>MyLegacyClass</code> 的所有成员<strong>确实就是公有的</strong>。因此，测试代码可以直接调用 <code>MyLegacyClass::PrivateFunc()</code> 而不会报“访问权限错误”。</p>
+<p>这是编译期的欺骗，很完美，对吧？</p>
+<h2 id="二、-在-Linux-GCC-Clang-上屡试不爽"><a href="#二、-在-Linux-GCC-Clang-上屡试不爽" class="headerlink" title="二、 在 Linux (GCC&#x2F;Clang) 上屡试不爽"></a>二、 在 Linux (GCC&#x2F;Clang) 上屡试不爽</h2><p>在 Linux 环境下，GCC 和 Clang 遵循 <strong>Itanium C++ ABI</strong>（应用程序二进制接口）标准。</p>
+<p>在该标准下，函数的<strong>符号修饰（Name Mangling）</strong>主要包含函数名、命名空间和参数类型等信息，但通常<strong>不包含访问控制级别（public&#x2F;private&#x2F;protected）</strong>。</p>
+<p>也就是说，对于下面这个函数：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyLegacyClass</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">PrivateFunc</span><span class="params">(<span class="type">int</span> type)</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>无论它是 <code>private</code> 还是 <code>public</code>，GCC 生成的符号名可能都是类似 <code>_ZN7Scanner11UpdateTokenEi</code> 的样子。</p>
 <ol>
-<li><p>先根据刚才的提醒，输入sudo launchctl load -w &#x2F;System&#x2F;Library&#x2F;LaunchDaemons&#x2F;com.apple.locate.plist<br><img src="/images/locate_02.jpg" alt="根据提示，输入launchtcl指令"></p>
+<li><strong>库的编译</strong>：<code>MyLegacyClass.cpp</code> 正常编译，<code>PrivateFunc</code> 是 private，生成符号 <code>_ZN7Scanner11UpdateTokenEi</code>。</li>
+<li><strong>测试的编译</strong>：<code>Test.cpp</code> 用了黑魔法，编译器以为 <code>PrivateFunc</code> 是 public，生成调用指令，寻找符号 <code>_ZN7Scanner11UpdateTokenEi</code>。</li>
+<li><strong>链接</strong>：链接器发现两个符号名字一样，<strong>链接成功</strong>！</li>
+</ol>
+<p>在实践中，Itanium ABI 往往能“宽容”地让它跑通。因此，这一招在 Linux 环境下（使用 GCC 或 Clang）屡试不爽，属于“快速通关”的秘籍。</p>
+<p>不过，需要注意的是，当你试图将代码移植到 Windows 环境，使用 Visual Studio (MSVC) 编译时，黑魔法就会失效——**链接错误 (LNK2019)**。</p>
+<hr>
+<h2 id="三、-Windows-MSVC-的滑铁卢：LNK2019"><a href="#三、-Windows-MSVC-的滑铁卢：LNK2019" class="headerlink" title="三、 Windows (MSVC) 的滑铁卢：LNK2019"></a>三、 Windows (MSVC) 的滑铁卢：LNK2019</h2><p>如果在 Windows 上使用 MSVC 编译器做同样的事情，你会收到类似这样的错误：</p>
+<blockquote>
+<p><strong>error LNK2019</strong>: 无法解析的外部符号  “public: bool __cdecl MyLegacyClass::PrivateFunc(int)” (?PrivateFunc@MyLegacyClass@@QEAAXH@Z)，函数 “private: virtual void __cdecl ATest_APrivateFuncCase_Test::TestBody(void)”(?TestBody@ATest_APrivateFuncCase_Test@@EEAAXXZ) 中引用了该符号</p>
+</blockquote>
+<p>这表明你使用 <code>#define private public</code> 这种“黑魔法”虽然欺骗了编译器（Compiler），让你在测试代码中可以调用私有函数，但它改变不了链接器（Linker）的事实。</p>
+<h3 id="根本原因：MSVC-的符号修饰包含访问级别"><a href="#根本原因：MSVC-的符号修饰包含访问级别" class="headerlink" title="根本原因：MSVC 的符号修饰包含访问级别"></a>根本原因：MSVC 的符号修饰包含访问级别</h3><p>微软的 C++ ABI 与 Itanium ABI 不同。MSVC 在生成函数的修饰名（Mangled Name）时，<strong>将函数的访问控制权限（Access Specifier）编码进了符号名里</strong>。</p>
+<p>我们来看一下区别：</p>
+<table>
+<thead>
+<tr>
+<th align="left">代码定义</th>
+<th align="left">访问权限</th>
+<th align="left">MSVC 生成的符号名 (大致示意)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>void PrivateFunc(int)</code></td>
+<td align="left"><strong>private</strong></td>
+<td align="left"><code>?PrivateFunc@MyLegacyClass@@AEAAXH@Z</code></td>
+</tr>
+<tr>
+<td align="left"><code>void PrivateFunc(int)</code></td>
+<td align="left"><strong>public</strong></td>
+<td align="left"><code>?PrivateFunc@MyLegacyClass@@QEAAXH@Z</code></td>
+</tr>
+</tbody></table>
+<p>我们注意到:</p>
+<ul>
+<li>Private 版本包含 <strong><code>A</code></strong> (<code>AEAA...</code>)</li>
+<li>Public 版本包含 <strong><code>Q</code></strong> (<code>QEAA...</code>)</li>
+</ul>
+<h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><ol>
+<li><p>**源文件编译 (<code>MyLegacyClass.cpp</code>)**：<br>你编译项目源代码时，没有加黑魔法。编译器看到的是 <code>private</code>，生成的 <code>MyLegacyClass.obj</code> 里，函数的符号是 **带 A 的 (Private 版)**。</p>
 </li>
-<li><p>然后，输入指令sudo &#x2F;usr&#x2F;libexec&#x2F;locate.updatedb<br><img src="/images/locate_03.jpg" alt="生成数据库"></p>
+<li><p><strong>测试文件编译 (<code>Test.cpp</code>)<strong>：<br>你使用了 <code>#define private public</code>。编译器被欺骗了，它认为 <code>PrivateFunc</code> 是 <code>public</code> 的。于是它在生成 <code>Test.obj</code> 时，生成了一个</strong>寻找 带 Q 的 (Public 版)</strong> 符号的指令。</p>
+</li>
+<li><p><strong>链接阶段</strong>：<br>链接器开始工作。测试代码大喊：“给我一个 <code>...QEAA...</code> (Public) 的函数！”<br>由于只有 <code>MyLegacyClass.obj</code>，它回答：“我只有 <code>...AEAA...</code> (Private) 的版本。”<br><strong>链接器：不匹配，报错，LNK2019。</strong></p>
 </li>
 </ol>
-<p>输入上面这个指令后，会等待好久一段时间，要稍微等待一会儿</p>
-<ol start="3">
-<li>最后再次输入locate指令，发现locate指令已经生效啦<br><img src="/images/locate_04.jpg" alt="locate指令已经生效啦"></li>
-</ol>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>因为我之前经常在ubuntu下，都没有碰到过locate指令不好用的情况，最近需要在centos和mac下操作，忽然发现居然loacte指令使用失效，于是上网查找了解决办法，经过尝试了一些方案后，终于在centos和mac下可以使用locate指令了，因此做出了以上的总结～</p>
-<p>感谢网友们无私分享的解决方案～<br>参考的网友方案：<a href="https://www.jianshu.com/p/d8f4f9e4b58c">https://www.jianshu.com/p/d8f4f9e4b58c</a></p>
+<p>这就是为什么<code>MSVC</code>下加了黑魔法，却仍然死活链接不上的原因。</p>
+<h2 id="四、-更推荐的解决方案"><a href="#四、-更推荐的解决方案" class="headerlink" title="四、 更推荐的解决方案"></a>四、 更推荐的解决方案</h2><p>一般来说，我们 <code>#define private public</code> 是未定义行为且在 Windows 上不可用，我们应该如何测试私有成员呢？</p>
+<h3 id="1-使用-Google-Test-的-FRIEND-TEST-推荐"><a href="#1-使用-Google-Test-的-FRIEND-TEST-推荐" class="headerlink" title="1. 使用 Google Test 的 FRIEND_TEST (推荐)"></a>1. 使用 Google Test 的 <code>FRIEND_TEST</code> (推荐)</h3><p>这是最标准、最安全的方法。它利用了 C++ 的 <code>friend</code> 机制，专门为测试开放白名单。</p>
+<p><strong>在头文件中：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gtest/gtest_prod.h&gt;</span> <span class="comment">// 引入 gtest 里的这个头文件</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyLegacyClass</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">PrivateFunc</span><span class="params">(<span class="type">int</span> type)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 允许 ATest 类的 APrivateFuncCase 测试用例访问私有成员</span></span><br><span class="line">    <span class="built_in">FRIEND_TEST</span>(ATest, APrivateFuncCase);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>在测试文件中：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">TEST</span>(ATest, APrivateFuncCase) &#123;</span><br><span class="line">    MyLegacyClass scan;</span><br><span class="line">    <span class="comment">// 直接访问，合法的！</span></span><br><span class="line">    scan.<span class="built_in">PrivateFunc</span>(<span class="number">1</span>); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种方式生成的符号名是完全一致的，无论在 Linux 还是 Windows 都能完美运行。</p>
+<h3 id="2-也是一种思路：Pimpl-模式"><a href="#2-也是一种思路：Pimpl-模式" class="headerlink" title="2. 也是一种思路：Pimpl 模式"></a>2. 也是一种思路：Pimpl 模式</h3><p>如果你的私有逻辑非常复杂以至于需要大量测试，这通常意味着该逻辑应该被提取到一个独立的类中（Impl 类）。你可以将这个 Impl 类设为 public（或在内部头文件中定义），然后单独对其进行测试。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>#define private public</code> 就像是程序员的禁术。它在 Linux&#x2F;GCC 的宽容下或许能让你尝到甜头，但在 Windows&#x2F;MSVC 严谨的 ABI 规则面前，它会罢工报警。<br>还是权衡一下使用场景再决定要不要用吧。</p>
 ]]></content>
       <categories>
-        <category>技术折腾</category>
+        <category>c++</category>
       </categories>
       <tags>
-        <tag>linux</tag>
-        <tag>教程</tag>
+        <tag>c++</tag>
+        <tag>单元测试</tag>
+        <tag>google test</tag>
       </tags>
   </entry>
   <entry>
@@ -202,9 +260,40 @@
         <category>c++</category>
       </categories>
       <tags>
+        <tag>c++</tag>
         <tag>windows</tag>
         <tag>Session ID</tag>
-        <tag>c++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>centos或mac下使用locate指令时，报错</title>
+    <url>/posts/988cb25a.html</url>
+    <content><![CDATA[<h1 id="centos或mac下使用locate指令时，报错-var-db-locate-database"><a href="#centos或mac下使用locate指令时，报错-var-db-locate-database" class="headerlink" title="centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)"></a>centos或mac下使用locate指令时，报错(&#x2F;var&#x2F;db&#x2F;locate.database)</h1><p>centos或mac下使用locate指令时，出现报错信息The locate database (&#x2F;var&#x2F;db&#x2F;locate.database)</p>
+<h2 id="在centos系统下，使用locate指令报错"><a href="#在centos系统下，使用locate指令报错" class="headerlink" title="在centos系统下，使用locate指令报错"></a>在centos系统下，使用locate指令报错</h2><p>使用locate指令时，出现报错信息’var&#x2F;lib&#x2F;mlocate&#x2F;mlocate.db’:No such file or directory时，处理方案如下：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">//输入以下指令即可</span></span><br><span class="line">updatedb</span><br><span class="line"><span class="comment">//需要等待一段时间，因为生成数据库需要一段时间</span></span><br></pre></td></tr></table></figure>
+
+<p>稍等一段时间之后，再输入locate指令，即可发现可以使用了</p>
+<h2 id="在mac系统下，使用locate指令报错"><a href="#在mac系统下，使用locate指令报错" class="headerlink" title="在mac系统下，使用locate指令报错"></a>在mac系统下，使用locate指令报错</h2><p>当在mac上使用locate指令时，报错如下：<br><img src="/images/locate_01.jpg" alt="使用locate指令时报错"></p>
+<p>解决方案如下：</p>
+<ol>
+<li><p>先根据刚才的提醒，输入sudo launchctl load -w &#x2F;System&#x2F;Library&#x2F;LaunchDaemons&#x2F;com.apple.locate.plist<br><img src="/images/locate_02.jpg" alt="根据提示，输入launchtcl指令"></p>
+</li>
+<li><p>然后，输入指令sudo &#x2F;usr&#x2F;libexec&#x2F;locate.updatedb<br><img src="/images/locate_03.jpg" alt="生成数据库"></p>
+</li>
+</ol>
+<p>输入上面这个指令后，会等待好久一段时间，要稍微等待一会儿</p>
+<ol start="3">
+<li>最后再次输入locate指令，发现locate指令已经生效啦<br><img src="/images/locate_04.jpg" alt="locate指令已经生效啦"></li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>因为我之前经常在ubuntu下，都没有碰到过locate指令不好用的情况，最近需要在centos和mac下操作，忽然发现居然loacte指令使用失效，于是上网查找了解决办法，经过尝试了一些方案后，终于在centos和mac下可以使用locate指令了，因此做出了以上的总结～</p>
+<p>感谢网友们无私分享的解决方案～<br>参考的网友方案：<a href="https://www.jianshu.com/p/d8f4f9e4b58c">https://www.jianshu.com/p/d8f4f9e4b58c</a></p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>教程</tag>
       </tags>
   </entry>
   <entry>
@@ -545,6 +634,74 @@
       </tags>
   </entry>
   <entry>
+    <title>本地配置多个git账号</title>
+    <url>/posts/aedc60d4.html</url>
+    <content><![CDATA[<p>有时候，需要在一个电脑上管理多个 Git 账号（比如一个是 GitLab，一个是 GitHub，或者两个都是 GitHub 账号）是一个比较常见的场景。</p>
+<p>如果不配置好，很容易出现“用错账号提交代码”或者“没权限推送代码”的尴尬情况。</p>
+<p>最优雅、最推荐的方案是使用 <strong>SSH Config + 文件夹别名</strong> 的方式。</p>
+<p>下面是手把手的配置指南：</p>
+<h2 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h2><ol>
+<li><strong>生成两把钥匙</strong>：为每个账号生成不同的 SSH Key。</li>
+<li><strong>告诉 SSH 怎么选</strong>：配置 <code>~/.ssh/config</code> 文件，让 SSH 知道访问不同主机时用哪把钥匙。</li>
+<li><strong>告诉 Git 怎么选</strong>：(可选但推荐) 通过文件夹路径自动切换用户名和邮箱。</li>
+</ol>
+<hr>
+<h3 id="第一步：生成两对-SSH-Key"><a href="#第一步：生成两对-SSH-Key" class="headerlink" title="第一步：生成两对 SSH Key"></a>第一步：生成两对 SSH Key</h3><p>打开终端（Terminal 或 Git Bash），分别生成两个 SSH Key。<br><strong>注意要给文件起不同的名字！</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 生成账号1的 Key (假设是 GitHub)</span></span><br><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;你的邮箱1@gmail.com&quot;</span> -f ~/.ssh/id_ed25519_gmail</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 生成账号2的 Key (假设是 GitLab)</span></span><br><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;你的邮箱2@mail.163.com&quot;</span> -f ~/.ssh/id_ed25519_163</span><br></pre></td></tr></table></figure>
+<p><em>(如果系统不支持 ed25519，可以用 <code>-t rsa -b 4096</code> 代替)</em></p>
+<p>现在你的 <code>~/.ssh/</code> 目录下应该有 4 个文件（两个私钥无后缀，两个公钥带 <code>.pub</code>）。</p>
+<h3 id="第二步：把公钥添加到对应的平台"><a href="#第二步：把公钥添加到对应的平台" class="headerlink" title="第二步：把公钥添加到对应的平台"></a>第二步：把公钥添加到对应的平台</h3><ol>
+<li><strong>账号1</strong>：复制 <code>id_ed25519_gmail.pub</code> 的内容 -&gt; 去 GitHub -&gt; Settings -&gt; SSH and GPG keys -&gt; New SSH key。</li>
+<li><strong>账号2</strong>：复制 <code>id_ed25519_163.pub</code> 的内容 -&gt; 去 GitLab -&gt; Settings -&gt; SSH Keys。</li>
+</ol>
+<h3 id="第三步：配置-SSH-Config-最关键的一步"><a href="#第三步：配置-SSH-Config-最关键的一步" class="headerlink" title="第三步：配置 SSH Config (最关键的一步)"></a>第三步：配置 SSH Config (最关键的一步)</h3><p>在 <code>~/.ssh/</code> 目录下创建一个名为 <code>config</code> 的文件（如果没有的话）。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建或编辑 config 文件</span></span><br><span class="line">code ~/.ssh/config</span><br></pre></td></tr></table></figure>
+
+<p><strong>将以下内容填入文件中：</strong></p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># --- 账号1 (GitHub) ---</span><br><span class="line">Host github.com</span><br><span class="line">    HostName github.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519_gmail</span><br><span class="line"></span><br><span class="line"># --- 账号2 (假设是 GitLab) ---</span><br><span class="line"># 注意：这里的 Host 起了个别名，叫 gitlab-123</span><br><span class="line">Host gitlab-123</span><br><span class="line">    HostName gitlab.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519_163</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意：</strong> 如果两个账号都是 GitHub，你需要给第二个 Host 起个别名，比如 <code>Host github-123</code>，下面的 <code>HostName</code> 依然填 <code>github.com</code>。</p>
+</blockquote>
+<h3 id="第四步：解决用户名和邮箱自动切换-可选但更方便"><a href="#第四步：解决用户名和邮箱自动切换-可选但更方便" class="headerlink" title="第四步：解决用户名和邮箱自动切换 (可选但更方便)"></a>第四步：解决用户名和邮箱自动切换 (可选但更方便)</h3><p>一种方法是你每次 clone 下来后手动设置 <code>git config user.name</code>，不过这很容易忘掉这个步骤。</p>
+<p>另一种方法就是接下来，我们可以利用 Git 的 <strong>“includeIf”</strong> 功能，根据文件夹路径自动切换配置。</p>
+<ol>
+<li><p><strong>规划文件夹</strong>：</p>
+<ul>
+<li>在电脑里建一个文件夹叫 <code>~/Code/GMail</code> (放项目1)</li>
+<li>建另一个文件夹叫 <code>~/Code/Mail163</code> (放项目2)</li>
+</ul>
+</li>
+<li><p><strong>创建特定的 .gitconfig 文件</strong>：</p>
+<ul>
+<li>创建 <code>~/.gitconfig-gmail</code>，内容如下：<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[user]</span></span><br><span class="line">    <span class="attr">name</span> = 昵称<span class="number">1</span></span><br><span class="line">    <span class="attr">email</span> = 邮箱<span class="number">1</span>@gmail.com</span><br></pre></td></tr></table></figure></li>
+<li>创建 <code>~/.gitconfig-123</code>，内容如下：<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[user]</span></span><br><span class="line">    <span class="attr">name</span> = 昵称<span class="number">2</span></span><br><span class="line">    <span class="attr">email</span> = 邮箱<span class="number">2</span>@mail.<span class="number">163</span>.com</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>**修改主配置文件 <code>~/.gitconfig</code>**：<br>打开全局的 <code>~/.gitconfig</code>，在最下面加入：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 如果路径包含 ~/Code/GMail/，就引用配置1</span></span><br><span class="line"><span class="section">[includeIf &quot;gitdir:~/Code/GMail/&quot;]</span></span><br><span class="line">    <span class="attr">path</span> = ~/.gitconfig-gmail</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果路径包含 ~/Code/Mail163/，就引用配置2</span></span><br><span class="line"><span class="section">[includeIf &quot;gitdir:~/Code/Mail163/&quot;]</span></span><br><span class="line">    <span class="attr">path</span> = ~/.gitconfig-<span class="number">123</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="第五步：验证效果"><a href="#第五步：验证效果" class="headerlink" title="第五步：验证效果"></a>第五步：验证效果</h3><ol>
+<li><p><strong>测试连接</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh -T git@github.com</span><br><span class="line"><span class="comment"># 应该显示：Hi [账号1]! You&#x27;ve successfully authenticated...</span></span><br><span class="line"></span><br><span class="line">ssh -T git@gitlab-123</span><br><span class="line"><span class="comment"># 应该显示：Welcome to GitLab, [账号2]!</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>平时使用</strong>：</p>
+<ul>
+<li><strong>项目1</strong>：正常 clone 即可。<br><code>git clone git@github.com:user/repo.git</code></li>
+<li><strong>项目2</strong>：如果你在 config 里用了别名（比如上面把公司 GitLab 叫 <code>gitlab-123</code>），clone 的时候要稍微改一下地址：<br><code>git clone git@gitlab-123:group/project.git</code><br><em>(把原本的域名换成你在 config 里写的 Host 别名)</em></li>
+</ul>
+</li>
+</ol>
+<p>这样配置后，只要你在 <code>~/Code/GMail</code> 目录下操作，提交记录自动就是邮箱1；在 <code>~/Code/Mail163</code> 下操作，自动就是邮箱2。完美兼容！</p>
+]]></content>
+      <categories>
+        <category>git</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Git Rebase与交互式变基</title>
     <url>/posts/ae152b94.html</url>
     <content><![CDATA[<p>在 Git 的世界里，<code>git rebase</code>（变基）大概是最常用的命令之一。</p>
@@ -671,74 +828,6 @@
         <tag>Hexo</tag>
         <tag>博客搭建</tag>
         <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>本地配置多个git账号</title>
-    <url>/posts/aedc60d4.html</url>
-    <content><![CDATA[<p>有时候，需要在一个电脑上管理多个 Git 账号（比如一个是 GitLab，一个是 GitHub，或者两个都是 GitHub 账号）是一个比较常见的场景。</p>
-<p>如果不配置好，很容易出现“用错账号提交代码”或者“没权限推送代码”的尴尬情况。</p>
-<p>最优雅、最推荐的方案是使用 <strong>SSH Config + 文件夹别名</strong> 的方式。</p>
-<p>下面是手把手的配置指南：</p>
-<h2 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h2><ol>
-<li><strong>生成两把钥匙</strong>：为每个账号生成不同的 SSH Key。</li>
-<li><strong>告诉 SSH 怎么选</strong>：配置 <code>~/.ssh/config</code> 文件，让 SSH 知道访问不同主机时用哪把钥匙。</li>
-<li><strong>告诉 Git 怎么选</strong>：(可选但推荐) 通过文件夹路径自动切换用户名和邮箱。</li>
-</ol>
-<hr>
-<h3 id="第一步：生成两对-SSH-Key"><a href="#第一步：生成两对-SSH-Key" class="headerlink" title="第一步：生成两对 SSH Key"></a>第一步：生成两对 SSH Key</h3><p>打开终端（Terminal 或 Git Bash），分别生成两个 SSH Key。<br><strong>注意要给文件起不同的名字！</strong></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 生成账号1的 Key (假设是 GitHub)</span></span><br><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;你的邮箱1@gmail.com&quot;</span> -f ~/.ssh/id_ed25519_gmail</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 生成账号2的 Key (假设是 GitLab)</span></span><br><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;你的邮箱2@mail.163.com&quot;</span> -f ~/.ssh/id_ed25519_163</span><br></pre></td></tr></table></figure>
-<p><em>(如果系统不支持 ed25519，可以用 <code>-t rsa -b 4096</code> 代替)</em></p>
-<p>现在你的 <code>~/.ssh/</code> 目录下应该有 4 个文件（两个私钥无后缀，两个公钥带 <code>.pub</code>）。</p>
-<h3 id="第二步：把公钥添加到对应的平台"><a href="#第二步：把公钥添加到对应的平台" class="headerlink" title="第二步：把公钥添加到对应的平台"></a>第二步：把公钥添加到对应的平台</h3><ol>
-<li><strong>账号1</strong>：复制 <code>id_ed25519_gmail.pub</code> 的内容 -&gt; 去 GitHub -&gt; Settings -&gt; SSH and GPG keys -&gt; New SSH key。</li>
-<li><strong>账号2</strong>：复制 <code>id_ed25519_163.pub</code> 的内容 -&gt; 去 GitLab -&gt; Settings -&gt; SSH Keys。</li>
-</ol>
-<h3 id="第三步：配置-SSH-Config-最关键的一步"><a href="#第三步：配置-SSH-Config-最关键的一步" class="headerlink" title="第三步：配置 SSH Config (最关键的一步)"></a>第三步：配置 SSH Config (最关键的一步)</h3><p>在 <code>~/.ssh/</code> 目录下创建一个名为 <code>config</code> 的文件（如果没有的话）。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建或编辑 config 文件</span></span><br><span class="line">code ~/.ssh/config</span><br></pre></td></tr></table></figure>
-
-<p><strong>将以下内容填入文件中：</strong></p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># --- 账号1 (GitHub) ---</span><br><span class="line">Host github.com</span><br><span class="line">    HostName github.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519_gmail</span><br><span class="line"></span><br><span class="line"># --- 账号2 (假设是 GitLab) ---</span><br><span class="line"># 注意：这里的 Host 起了个别名，叫 gitlab-123</span><br><span class="line">Host gitlab-123</span><br><span class="line">    HostName gitlab.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519_163</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>注意：</strong> 如果两个账号都是 GitHub，你需要给第二个 Host 起个别名，比如 <code>Host github-123</code>，下面的 <code>HostName</code> 依然填 <code>github.com</code>。</p>
-</blockquote>
-<h3 id="第四步：解决用户名和邮箱自动切换-可选但更方便"><a href="#第四步：解决用户名和邮箱自动切换-可选但更方便" class="headerlink" title="第四步：解决用户名和邮箱自动切换 (可选但更方便)"></a>第四步：解决用户名和邮箱自动切换 (可选但更方便)</h3><p>一种方法是你每次 clone 下来后手动设置 <code>git config user.name</code>，不过这很容易忘掉这个步骤。</p>
-<p>另一种方法就是接下来，我们可以利用 Git 的 <strong>“includeIf”</strong> 功能，根据文件夹路径自动切换配置。</p>
-<ol>
-<li><p><strong>规划文件夹</strong>：</p>
-<ul>
-<li>在电脑里建一个文件夹叫 <code>~/Code/GMail</code> (放项目1)</li>
-<li>建另一个文件夹叫 <code>~/Code/Mail163</code> (放项目2)</li>
-</ul>
-</li>
-<li><p><strong>创建特定的 .gitconfig 文件</strong>：</p>
-<ul>
-<li>创建 <code>~/.gitconfig-gmail</code>，内容如下：<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[user]</span></span><br><span class="line">    <span class="attr">name</span> = 昵称<span class="number">1</span></span><br><span class="line">    <span class="attr">email</span> = 邮箱<span class="number">1</span>@gmail.com</span><br></pre></td></tr></table></figure></li>
-<li>创建 <code>~/.gitconfig-123</code>，内容如下：<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[user]</span></span><br><span class="line">    <span class="attr">name</span> = 昵称<span class="number">2</span></span><br><span class="line">    <span class="attr">email</span> = 邮箱<span class="number">2</span>@mail.<span class="number">163</span>.com</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>**修改主配置文件 <code>~/.gitconfig</code>**：<br>打开全局的 <code>~/.gitconfig</code>，在最下面加入：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 如果路径包含 ~/Code/GMail/，就引用配置1</span></span><br><span class="line"><span class="section">[includeIf &quot;gitdir:~/Code/GMail/&quot;]</span></span><br><span class="line">    <span class="attr">path</span> = ~/.gitconfig-gmail</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果路径包含 ~/Code/Mail163/，就引用配置2</span></span><br><span class="line"><span class="section">[includeIf &quot;gitdir:~/Code/Mail163/&quot;]</span></span><br><span class="line">    <span class="attr">path</span> = ~/.gitconfig-<span class="number">123</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<h3 id="第五步：验证效果"><a href="#第五步：验证效果" class="headerlink" title="第五步：验证效果"></a>第五步：验证效果</h3><ol>
-<li><p><strong>测试连接</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh -T git@github.com</span><br><span class="line"><span class="comment"># 应该显示：Hi [账号1]! You&#x27;ve successfully authenticated...</span></span><br><span class="line"></span><br><span class="line">ssh -T git@gitlab-123</span><br><span class="line"><span class="comment"># 应该显示：Welcome to GitLab, [账号2]!</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>平时使用</strong>：</p>
-<ul>
-<li><strong>项目1</strong>：正常 clone 即可。<br><code>git clone git@github.com:user/repo.git</code></li>
-<li><strong>项目2</strong>：如果你在 config 里用了别名（比如上面把公司 GitLab 叫 <code>gitlab-123</code>），clone 的时候要稍微改一下地址：<br><code>git clone git@gitlab-123:group/project.git</code><br><em>(把原本的域名换成你在 config 里写的 Host 别名)</em></li>
-</ul>
-</li>
-</ol>
-<p>这样配置后，只要你在 <code>~/Code/GMail</code> 目录下操作，提交记录自动就是邮箱1；在 <code>~/Code/Mail163</code> 下操作，自动就是邮箱2。完美兼容！</p>
-]]></content>
-      <categories>
-        <category>git</category>
-      </categories>
-      <tags>
-        <tag>git</tag>
       </tags>
   </entry>
   <entry>
@@ -1030,6 +1119,45 @@
       </tags>
   </entry>
   <entry>
+    <title>libcurl交叉编译</title>
+    <url>/posts/ad4da72c.html</url>
+    <content><![CDATA[<h1 id="libcurl交叉编译"><a href="#libcurl交叉编译" class="headerlink" title="libcurl交叉编译"></a>libcurl交叉编译</h1><h1 id="需要源码交叉编译libcurl操作步骤"><a href="#需要源码交叉编译libcurl操作步骤" class="headerlink" title="需要源码交叉编译libcurl操作步骤"></a>需要源码交叉编译libcurl操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要交叉编译libcurl，比如目标机器是32位系统的，但是本地机器是64位系统的，而且由于某些原因，我们无法在32位系统上直接编译，所以需要用到交叉编译</p>
+<h2 id="编译openssl"><a href="#编译openssl" class="headerlink" title="编译openssl"></a>编译openssl</h2><p>libcurl是依赖openssl的，所以先编译openssl的32位库</p>
+<p>完整编译选项配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">setarch i386 ./config -m32 –prefix=/home/muhan/openssl/ –openssldir=/home/muhan/openssl/ -Wl,-rpath,/usr/local/openssl/lib shared</span><br></pre></td></tr></table></figure>
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置-m32 指定编译32位的库</span><br><span class="line">配置–prefix 指定openssl的安装目录</span><br><span class="line">配置–openssldir 指定openssl的头文件目录</span><br><span class="line">配置shared关键字 指定编译时生成动态库（libssl.so/libcrypto.so及其相关软连接）</span><br></pre></td></tr></table></figure>
+
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="编译安装zlib"><a href="#编译安装zlib" class="headerlink" title="编译安装zlib"></a>编译安装zlib</h2><p>有时候有的系统是默认安装了32位zlib库的，那么就可以跳过这一步，但是有的系统需要自己下载编译zlib-32位库</p>
+<p>完整编译选项配置如下：<br>直接修改CMakeLists.txt文件，增加以下两行</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_C_FLAGS “-m32”)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS “-m32”)</span><br></pre></td></tr></table></figure>
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置CMAKE_C_FLAGS 指定编译32位库环境</span><br><span class="line">配置CMAKE_CXX_FLAGS 指定编译32位库环境</span><br></pre></td></tr></table></figure>
+
+<p>然后再mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; make &amp;&amp; make install 即可</p>
+<h2 id="编译安装libcurl"><a href="#编译安装libcurl" class="headerlink" title="编译安装libcurl"></a>编译安装libcurl</h2><p>最后就是编译libcurl</p>
+<p>完整编译选项配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure PKG_CONFIG_PATH=/home/muhan/openssl CFLAGS=”-m32” CPPFLAGS=”-I/home/muhan/openssl/include” LDFLAGS=”-L/home/muhan/openssl/lib”</span><br></pre></td></tr></table></figure>
+
+<p>详细选项含义如下：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置PKG_CONFIG_PATH 指定启动openssl选项(启动这个选项，就会默认链接lssl，lcrypto，lz三个库)</span><br><span class="line">配置CFLAGS 指定编译32位库环境</span><br><span class="line">配置CPPFLAGS 指定链接的库的头文件</span><br><span class="line">配置LDFLAGS 指定链接的库的路径</span><br></pre></td></tr></table></figure>
+
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当编译第三方库的时候，如果有CMakeLists.txt，直接用CMakeLists.txt编译就很方便；<br>如果只有configure，那么需要先了解编译选项</p>
+<p>执行.&#x2F;configure –help 来查看当前支持的编译选项<br>然后根据提示配置一下我们需要指定的选项，比如自己指定的openssl的版本的库和头文件路径名，比如CC的版本，比如安装路径等等<br>(当然，如果不需要额外配置这些东西的话，直接走默认配置的话，那么直接执行.&#x2F;config 或者 .&#x2F;configure 就行)</p>
+<p>然后在生成Makefile之后，再make &amp;&amp; make install 即可</p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>交叉编译</tag>
+        <tag>libcurl</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux项目移植到Windows下CMake改造</title>
     <url>/posts/fe7b4b0a.html</url>
     <content><![CDATA[<h1 id="linux项目移植到Windows下CMake改造"><a href="#linux项目移植到Windows下CMake改造" class="headerlink" title="linux项目移植到Windows下CMake改造"></a>linux项目移植到Windows下CMake改造</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>因项目工程需要，将linux下的<code>AProject</code>项目迁移到Windows下，对代码进行适配，编译选项进行修改。<br>通过CMake配置Windows(MSVC编译器)选项，进行跨平台移植。</p>
@@ -1116,50 +1244,11 @@
         <category>技术折腾</category>
       </categories>
       <tags>
-        <tag>linux</tag>
-        <tag>windows</tag>
         <tag>c++</tag>
+        <tag>windows</tag>
+        <tag>linux</tag>
         <tag>CMake</tag>
         <tag>跨平台移植</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>libcurl交叉编译</title>
-    <url>/posts/ad4da72c.html</url>
-    <content><![CDATA[<h1 id="libcurl交叉编译"><a href="#libcurl交叉编译" class="headerlink" title="libcurl交叉编译"></a>libcurl交叉编译</h1><h1 id="需要源码交叉编译libcurl操作步骤"><a href="#需要源码交叉编译libcurl操作步骤" class="headerlink" title="需要源码交叉编译libcurl操作步骤"></a>需要源码交叉编译libcurl操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要交叉编译libcurl，比如目标机器是32位系统的，但是本地机器是64位系统的，而且由于某些原因，我们无法在32位系统上直接编译，所以需要用到交叉编译</p>
-<h2 id="编译openssl"><a href="#编译openssl" class="headerlink" title="编译openssl"></a>编译openssl</h2><p>libcurl是依赖openssl的，所以先编译openssl的32位库</p>
-<p>完整编译选项配置如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">setarch i386 ./config -m32 –prefix=/home/muhan/openssl/ –openssldir=/home/muhan/openssl/ -Wl,-rpath,/usr/local/openssl/lib shared</span><br></pre></td></tr></table></figure>
-<p>详细选项含义如下：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置-m32 指定编译32位的库</span><br><span class="line">配置–prefix 指定openssl的安装目录</span><br><span class="line">配置–openssldir 指定openssl的头文件目录</span><br><span class="line">配置shared关键字 指定编译时生成动态库（libssl.so/libcrypto.so及其相关软连接）</span><br></pre></td></tr></table></figure>
-
-<p>然后再make &amp;&amp; make install 即可</p>
-<h2 id="编译安装zlib"><a href="#编译安装zlib" class="headerlink" title="编译安装zlib"></a>编译安装zlib</h2><p>有时候有的系统是默认安装了32位zlib库的，那么就可以跳过这一步，但是有的系统需要自己下载编译zlib-32位库</p>
-<p>完整编译选项配置如下：<br>直接修改CMakeLists.txt文件，增加以下两行</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(CMAKE_C_FLAGS “-m32”)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_FLAGS “-m32”)</span><br></pre></td></tr></table></figure>
-<p>详细选项含义如下：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置CMAKE_C_FLAGS 指定编译32位库环境</span><br><span class="line">配置CMAKE_CXX_FLAGS 指定编译32位库环境</span><br></pre></td></tr></table></figure>
-
-<p>然后再mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; make &amp;&amp; make install 即可</p>
-<h2 id="编译安装libcurl"><a href="#编译安装libcurl" class="headerlink" title="编译安装libcurl"></a>编译安装libcurl</h2><p>最后就是编译libcurl</p>
-<p>完整编译选项配置如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure PKG_CONFIG_PATH=/home/muhan/openssl CFLAGS=”-m32” CPPFLAGS=”-I/home/muhan/openssl/include” LDFLAGS=”-L/home/muhan/openssl/lib”</span><br></pre></td></tr></table></figure>
-
-<p>详细选项含义如下：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">配置PKG_CONFIG_PATH 指定启动openssl选项(启动这个选项，就会默认链接lssl，lcrypto，lz三个库)</span><br><span class="line">配置CFLAGS 指定编译32位库环境</span><br><span class="line">配置CPPFLAGS 指定链接的库的头文件</span><br><span class="line">配置LDFLAGS 指定链接的库的路径</span><br></pre></td></tr></table></figure>
-
-<p>然后再make &amp;&amp; make install 即可</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当编译第三方库的时候，如果有CMakeLists.txt，直接用CMakeLists.txt编译就很方便；<br>如果只有configure，那么需要先了解编译选项</p>
-<p>执行.&#x2F;configure –help 来查看当前支持的编译选项<br>然后根据提示配置一下我们需要指定的选项，比如自己指定的openssl的版本的库和头文件路径名，比如CC的版本，比如安装路径等等<br>(当然，如果不需要额外配置这些东西的话，直接走默认配置的话，那么直接执行.&#x2F;config 或者 .&#x2F;configure 就行)</p>
-<p>然后在生成Makefile之后，再make &amp;&amp; make install 即可</p>
-]]></content>
-      <categories>
-        <category>交叉编译</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>交叉编译</tag>
-        <tag>libcurl</tag>
       </tags>
   </entry>
   <entry>
@@ -1239,8 +1328,8 @@
         <category>跨平台移植</category>
       </categories>
       <tags>
-        <tag>linux</tag>
         <tag>windows</tag>
+        <tag>linux</tag>
         <tag>跨平台移植</tag>
       </tags>
   </entry>
@@ -1332,6 +1421,87 @@
       <tags>
         <tag>交叉编译</tag>
         <tag>raspberrypi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++迭代器失效陷阱：一次vector反向遍历中的崩溃分析</title>
+    <url>/posts/c73fde88.html</url>
+    <content><![CDATA[<h1 id="一次vector反向遍历中的崩溃调试经历"><a href="#一次vector反向遍历中的崩溃调试经历" class="headerlink" title="一次vector反向遍历中的崩溃调试经历"></a>一次vector反向遍历中的崩溃调试经历</h1><p>在 C++ 开发中，<code>std::vector</code> 是最常用的容器，但它也是很多“诡异”崩溃的源头。最近在排查一个 MSVC Debug 模式下的崩溃时，遇到了一个经典的 <strong>迭代器失效（Iterator Invalidation）</strong> 问题。</p>
+<p>最令人困惑的是：<strong>旧代码里已经提前 <code>reserve</code> 了足够的空间，理论上没有发生内存重新分配（Reallocation），为什么迭代器还是失效了？</strong></p>
+<h2 id="问题现象：令人困惑的崩溃"><a href="#问题现象：令人困惑的崩溃" class="headerlink" title="问题现象：令人困惑的崩溃"></a>问题现象：令人困惑的崩溃</h2><p>这段旧代码逻辑大致如下：我们需要反向遍历一个 <code>vector</code>，找到符合条件的元素后，向 <code>vector</code> 尾部添加一个新元素，然后继续使用当前的迭代器处理数据。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 伪代码示例</span></span><br><span class="line">std::vector&lt;Block&gt; blocks;</span><br><span class="line">blocks.<span class="built_in">reserve</span>(<span class="number">1000</span>); <span class="comment">// 预分配充足内存</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 反向遍历</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span> it = blocks.<span class="built_in">rbegin</span>(); it != blocks.<span class="built_in">rend</span>(); ++it) &#123;</span><br><span class="line">    <span class="keyword">if</span> (it-&gt;condition) &#123;</span><br><span class="line">        <span class="comment">// 修改当前元素逻辑...</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 危险操作：在遍历过程中添加新元素</span></span><br><span class="line">        blocks.<span class="built_in">push_back</span>(newBlock); </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 此时blocks.size()只有8，远小于1000</span></span><br><span class="line">        <span class="comment">// 崩溃点：试图访问刚才那个迭代器</span></span><br><span class="line">        <span class="built_in">process</span>(*it); </span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段旧代码在<code>linux</code>下运行了上十年。</p>
+<p>但是，在跨平台移植到<code>windows</code>上后，在 Visual Studio Debug 模式下，运行到 <code>process(*it)</code> 时直接弹窗崩溃：</p>
+<blockquote>
+<p><strong>Debug Assertion Failed!</strong></p>
+<p>Expression: <strong>can’t decrement invalidated vector iterator</strong></p>
+<p>翻译过来就是：“无法对一个已经失效的 vector 迭代器进行减法操作（–）”。</p>
+</blockquote>
+<h2 id="为什么会崩？"><a href="#为什么会崩？" class="headerlink" title="为什么会崩？"></a>为什么会崩？</h2><p>很多开发者的第一反应是：“可能是 <code>push_back</code> 导致 <code>vector</code> 扩容了，旧内存被释放，所以迭代器失效。”</p>
+<p>但是翻看项目代码发现，旧代码里有 <code>blocks.reserve(1000)</code>，已经确保 <code>capacity</code> 远大于 <code>size</code>（崩溃时是<code>size</code>值是8）。但结果依然崩溃。为什么？</p>
+<h3 id="1-迭代器失效-≠-内存重分配"><a href="#1-迭代器失效-≠-内存重分配" class="headerlink" title="1. 迭代器失效 ≠ 内存重分配"></a>1. 迭代器失效 ≠ 内存重分配</h3><p>这是最大的误区。虽然内存重分配（Reallocation）<strong>一定会</strong>导致所有迭代器失效，但<strong>即使不发生内存重分配，某些操作依然会让迭代器失效。</strong></p>
+<p>根据 C++ 标准：</p>
+<blockquote>
+<p>如果 <code>push_back</code> 没有导致内存重分配，那么 <code>end()</code>迭代器以及所有指向<strong>尾后位置</strong>的迭代器都会失效。</p>
+<p>如果重新<code>reserve()</code>,那么所有迭代器可能失效</p>
+</blockquote>
+<h3 id="2-反向迭代器的特殊机制"><a href="#2-反向迭代器的特殊机制" class="headerlink" title="2. 反向迭代器的特殊机制"></a>2. 反向迭代器的特殊机制</h3><p>崩溃的核心原因在于代码里使用了 <code>rbegin()</code> &#x2F; <code>rend()</code>。</p>
+<p>在 C++ STL 中，反向迭代器<code>std::reverse_iterator</code>本质上是正向迭代器的包装器，其内部实现依赖于end()位置：</p>
+<ul>
+<li><code>rbegin()</code> 在物理上对应的是 <code>end() - 1</code>。</li>
+<li><code>rend()</code> 在物理上对应的是 <code>begin() - 1</code>（虚拟位置）。</li>
+</ul>
+<p>所以当我们执行 <code>push_back</code> 时：</p>
+<ol>
+<li>虽然数据还在原来的内存块里（因为之前有 <code>reserve(1000)</code>，当前<code>size</code>是8，所以没有触发内存重新分配）。</li>
+<li>但是 <code>vector</code> 的 <strong><code>end()</code> 位置改变了</strong>（因为多了一个元素，尾巴向后移了一位）。</li>
+</ol>
+<p><strong>由于反向迭代器依赖于 <code>end()</code> 的相对位置，一旦 <code>end()</code> 发生改变，所有基于旧 <code>end()</code> 建立的反向迭代器关系在逻辑上就“错位”了。</strong></p>
+<p><strong>所有依赖end()的反向迭代器立即失效</strong></p>
+<p><strong>即使内存未重分配，迭代器仍被标记为无效</strong></p>
+<h3 id="3-MSVC-Debug-模式的“洁癖”"><a href="#3-MSVC-Debug-模式的“洁癖”" class="headerlink" title="3. MSVC Debug 模式的“洁癖”"></a>3. MSVC Debug 模式的“洁癖”</h3><p>在 Release 模式下，这行代码可能<strong>侥幸</strong>能跑通（这叫未定义行为，Undefined Behavior），因为内存确实没动。但这是未定义行为(UB)，随时可能崩溃或产生错误结果。</p>
+<p>但在 Debug 模式下，MSVC 的 STL 实现开启了 <strong>Iterator Debugging</strong>。它维护了一个迭代器版本列表：</p>
+<ol>
+<li>当你创建 <code>it</code> 时，它记录了 vector 的当前版本。</li>
+<li>当你调用 <code>push_back</code> 时，vector 的版本号更新了。</li>
+<li>当你再次访问 <code>*it</code> 时，调试器发现 <code>it</code> 的版本号过期失效了，直接断言崩溃，抛出 <code>can&#39;t decrement invalidated vector iterator</code>。</li>
+</ol>
+<p><strong>这是一种保护机制，提醒你：这段代码逻辑在标准层面上是错误的。</strong></p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>既然知道了原因，解决起来就很容易了。核心原则是：<strong>永远不要相信修改容器后的旧迭代器。</strong></p>
+<h3 id="方法一：先备份数据"><a href="#方法一：先备份数据" class="headerlink" title="方法一：先备份数据"></a>方法一：先备份数据</h3><p>这是最安全、改动最小的方法。在调用 <code>push_back</code> 之前，把我们需要的数据拷贝一份出来。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span> it = blocks.<span class="built_in">rbegin</span>(); it != blocks.<span class="built_in">rend</span>(); ++it) &#123;</span><br><span class="line">    <span class="keyword">if</span> (it-&gt;condition) &#123;</span><br><span class="line">        <span class="comment">// 1. 先备份数据！(Safe Copy)</span></span><br><span class="line">        <span class="keyword">auto</span> safeBlock = *it; </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 2. 再修改容器 (这一步会让 it 失效)</span></span><br><span class="line">        blocks.<span class="built_in">push_back</span>(newBlock); </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 3. 使用备份的数据进行后续操作</span></span><br><span class="line">        <span class="built_in">process</span>(safeBlock); </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 4. 立即退出循环或重置迭代器，绝对不要再对 it 做 ++ 操作</span></span><br><span class="line">        <span class="keyword">return</span>; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="方法二：使用下标索引（最稳健）"><a href="#方法二：使用下标索引（最稳健）" class="headerlink" title="方法二：使用下标索引（最稳健）"></a>方法二：使用下标索引（最稳健）</h3><p>下标（Index）不依赖于迭代器对象，只要不发生内存搬迁（或者你知道搬迁后的新位置），下标永远是数学上的绝对偏移量。<br><strong>索引不受容器修改影响</strong></p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 使用 int 索引代替迭代器</span></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = blocks.<span class="built_in">size</span>() - <span class="number">1</span>; i &gt;= <span class="number">0</span>; --i) &#123;</span><br><span class="line">    <span class="keyword">if</span> (blocks[i].condition) &#123;</span><br><span class="line">        blocks.<span class="built_in">push_back</span>(newBlock);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 即使 push_back 了，blocks[i] 依然指向原来的第 i 个元素</span></span><br><span class="line">        <span class="comment">// 只要没发生扩容导致内存地址变了，这里甚至引用都有效</span></span><br><span class="line">        <span class="comment">// 但最稳妥的还是只读数据</span></span><br><span class="line">        <span class="built_in">process</span>(blocks[i]);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="深入理解：vector的内存管理"><a href="#深入理解：vector的内存管理" class="headerlink" title="深入理解：vector的内存管理"></a>深入理解：vector的内存管理</h2><h3 id="容量-capacity-与大小-size"><a href="#容量-capacity-与大小-size" class="headerlink" title="容量(capacity)与大小(size)"></a>容量(capacity)与大小(size)</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">graph LR</span><br><span class="line">    A[vector内存布局]</span><br><span class="line">    B[已用空间 size=3]</span><br><span class="line">    C[预留空间 capacity=8]</span><br><span class="line">    D[空闲空间]</span><br><span class="line">    </span><br><span class="line">    A --&gt;|内存块| B</span><br><span class="line">    B --&gt; C</span><br><span class="line">    C --&gt; D</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>reserve()</code>仅影响<code>capacity</code></li>
+<li><code>push_back()</code>修改<code>size</code></li>
+<li>迭代器失效仅与<code>size</code>变化有关，与<code>capacity</code>无关</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><strong><code>reserve</code> 不能防止迭代器失效</strong>：它只能防止内存重分配，但 <code>push_back</code> 依然会改变容器的逻辑状态（如 <code>end()</code> 位置）。</li>
+<li><strong>修改即死刑</strong>：在循环遍历 <code>vector</code> 的过程中，一旦执行了 <code>push_back</code>、<code>insert</code> 或 <code>erase</code>，请默认当前所有的迭代器都已失效。</li>
+<li><strong>Debug 报错是好事</strong>：MSVC 的 <code>invalidated vector iterator</code> 报错是在预警，避免将隐患带入生产环境。</li>
+<li><strong>先备份，后修改</strong>：修改容器后，永远不要再使用之前的任何迭代器。</li>
+<li><strong>反向迭代器特别脆弱</strong>：对容器的任何修改都会使其失效。</li>
+<li><strong>优先使用索引</strong>：当需要遍历并修改容器时，索引更安全。</li>
+</ol>
+<p>迭代器失效是C++中最常见的陷阱之一，特别是在使用容器反向迭代时。<br>在修改容器之前保存数据，而不是依赖迭代器，养成良好的安全编程习惯，可以避免许多难以调试的运行时错误。</p>
+<blockquote>
+<p>“在C++中，容器和迭代器的关系就像舞伴——其中一方改变动作时，另一方必须重新协调步伐，否则就会踩到对方的脚。”</p>
+</blockquote>
+<hr>
+<p><em>本文由排查真实 Bug 总结而来，希望能帮你少踩一个坑。</em></p>
+]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>Modern C++</tag>
       </tags>
   </entry>
   <entry>
