@@ -1334,6 +1334,27 @@
       </tags>
   </entry>
   <entry>
+    <title>redis交叉编译arm版本</title>
+    <url>/posts/2d53d0a1.html</url>
+    <content><![CDATA[<h1 id="redis交叉编译arm版本"><a href="#redis交叉编译arm版本" class="headerlink" title="redis交叉编译arm版本"></a>redis交叉编译arm版本</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>遇到以下报错时，记得更新redis版本，用最新的redis代码编译<br><img src="/images/redis_error.jpg" alt="redis_error"></p>
+<h2 id="编译环境"><a href="#编译环境" class="headerlink" title="编译环境"></a>编译环境</h2><p>在预先已经配置好交叉编译环境的虚拟机里，编译<code>arm</code>版本的<code>redis</code></p>
+<h2 id="编译步骤"><a href="#编译步骤" class="headerlink" title="编译步骤"></a>编译步骤</h2><p>1.修改<code>redis/deps</code>的<code>Makefile</code>，在<code>jemalloc</code>编译的时候，在<code>./configure</code>增加 <code>--host=arm-linux</code>选项</p>
+<p><img src="/images/redis_makefile.jpg" alt="redis_makefile"></p>
+<p><img src="/images/redis_configure.jpg" alt="redis_configure"></p>
+<p>2.在<code>redis</code>下直接执行<code>makefile</code>，如果之前编译过，先执行<code>make distclean</code>在彻底清除之前编译的残留，出现以下内容，就是编译完成了</p>
+<p><img src="/images/redis_make.jpg" alt="redis_make"></p>
+<p>3.查看编译出来的执行文件，比如<code>redis-cli</code> ，可以发现编译出来的<code>redis-cli</code>目标机器是<code>arm</code>的，交叉编译结束</p>
+<p><img src="/images/redis_check.jpg" alt="redis_check"></p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>交叉编译</tag>
+        <tag>第三方库</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>虚拟机安装官方树莓派系统，配置交叉编译链</title>
     <url>/posts/71c1cc71.html</url>
     <content><![CDATA[<h1 id="虚拟机安装官方树莓派系统，配置交叉编译链"><a href="#虚拟机安装官方树莓派系统，配置交叉编译链" class="headerlink" title="虚拟机安装官方树莓派系统，配置交叉编译链"></a>虚拟机安装官方树莓派系统，配置交叉编译链</h1><h2 id="1-下载官方镜像"><a href="#1-下载官方镜像" class="headerlink" title="1.下载官方镜像"></a>1.下载官方镜像</h2><p><a href="https://www.raspberrypi.org/software/raspberry-pi-desktop/">https://www.raspberrypi.org/software/raspberry-pi-desktop/</a><br>通过官网，下载raspberry镜像64位系统iso文件之后，可以安装在虚拟机vbox&#x2F;vmware里</p>
@@ -1357,6 +1378,32 @@
       <tags>
         <tag>交叉编译</tag>
         <tag>raspberrypi</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>openvpn交叉编译</title>
+    <url>/posts/612c40fd.html</url>
+    <content><![CDATA[<h1 id="openvpn交叉编译"><a href="#openvpn交叉编译" class="headerlink" title="openvpn交叉编译"></a>openvpn交叉编译</h1><h1 id="需要源码交叉编译openvpn的操作步骤"><a href="#需要源码交叉编译openvpn的操作步骤" class="headerlink" title="需要源码交叉编译openvpn的操作步骤"></a>需要源码交叉编译openvpn的操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>因为某些原因，只能选择交叉编译，当前平台是64位的，但是目标平台是32位的，目标平台又禁止了apt-get等相关操作，所以必须要源码交叉编译openvpn及其相关依赖库。因为之前交叉编译的时候，大多第三方库都是有现成的CMaKeLists.txt或者是Makefile，所以编译起来倒是也方便，但是，openvpn它只有configure文件，它是需要执行.&#x2F;configure成功设置好各种环境变量配置以后，才能生成Makefile的。于是，一开始踩了很多坑，在此做一个记录……</p>
+<h2 id="一、预先配置的环境变量"><a href="#一、预先配置的环境变量" class="headerlink" title="一、预先配置的环境变量"></a>一、预先配置的环境变量</h2><p>export CC&#x3D;指定交叉编译时gcc编译版本<br>export CXX&#x3D;指定交叉编译时g++编译版本</p>
+<h2 id="二、编译openssl"><a href="#二、编译openssl" class="headerlink" title="二、编译openssl"></a>二、编译openssl</h2><p>完整编译选项配置如下：<br><code>setarch i386 ./config -m32 –prefix=/home/muhan/openssl/ –openssldir=/home/muhan/openssl/ -Wl,-rpath,/usr/local/openssl/lib shared</code></p>
+<p>详细选项含义如下：<br>配置-m32 指定编译32位的库<br>配置–prefix 指定openssl的安装目录<br>配置–openssldir 指定openssl的目录<br>配置shared关键字 指定编译时生成动态库（libssl.so&#x2F;libcrypto.so及其相关软连接）</p>
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="三、编译安装lzo"><a href="#三、编译安装lzo" class="headerlink" title="三、编译安装lzo"></a>三、编译安装lzo</h2><p>完整编译选项配置如下：<br><code>./configure –enable-shared –prefix=/home/muhan/lzo/usr –with-sysroot=指定交叉编译时的sysroot的路径名</code></p>
+<p>详细选项含义如下：<br>配置–enable-shared 指定编译时生成动态库（liblzo2.so及其相关软连接）<br>配置–prefix 指定lzo安装路径<br>配置–with-sysroot 指定交叉编译时的sysroot</p>
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="四、编译安装openvpn"><a href="#四、编译安装openvpn" class="headerlink" title="四、编译安装openvpn"></a>四、编译安装openvpn</h2><p>完整编译选项配置如下：<br><code>./configure CC=指定交叉编译时gcc的那个版本 –prefix=/home/muhan/openvpn/ LZO_CFLAGS=”-I/home/muhan/lzo/usr/include” LZO_LIBS=”-L/home/muhan/lzo/usr/lib -llzo2” OPENSSL_CFLAGS=”-I/home/muhan/openssl/include” OPENSSL_LIBS=”-L/home/muhan/openssl/lib -lssl -lcrypto” –disable-plugin-auth-pam</code></p>
+<p>详细选项含义如下：<br>配置CC的版本<br>配置–prefix 指定openvpn安装目录<br>配置LZO_CFLAGS 指定lzo的头文件路径<br>配置LZO_LIBS 指定lzo的库文件路径及所链接的库<br>配置OPENSSL_CFLAGS 指定openssl的头文件路径<br>配置OPENSSL_LIBS 指定openssl的库文件路径及所链接的库<br>配置–disable-plugin-auth-pam 禁掉pam模块</p>
+<p>然后再make &amp;&amp; make install 即可</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当编译第三方库的时候，如果没有CMakeLists.txt，也没有Makefile，只有config或者configure，那么需要先了解编译选项</p>
+<p>执行.&#x2F;config –help 或者 .&#x2F;configure –help 来查看当前支持的编译选项<br>然后根据提示配置一下我们需要指定的选项，比如自己指定的openssl的版本的库和头文件路径名，比如CC的版本，比如安装路径等等<br>(当然，如果不需要额外配置这些东西的话，直接走默认配置的话，那么直接执行.&#x2F;config 或者 .&#x2F;configure 就行)</p>
+<p>然后在生成Makefile之后，再make &amp;&amp; make install 即可</p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>交叉编译</tag>
+        <tag>第三方库</tag>
       </tags>
   </entry>
   <entry>
