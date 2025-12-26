@@ -75,6 +75,43 @@
       </tags>
   </entry>
   <entry>
+    <title>Git 多账号配置下 Pull 需要输入密码的问题记录</title>
+    <url>/posts/84f9ccc3.html</url>
+    <content><![CDATA[<h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h2><p>在本地配置了多个 Git 账号（使用 SSH Key 管理）的情况下，从 GitLab 拉取三个仓库的代码。</p>
+<ul>
+<li><strong>仓库 A &amp; B：</strong> <code>git pull</code> 正常，直接走 SSH 验证。</li>
+<li><strong>仓库 C：</strong> <code>git pull</code> <strong>失败</strong>，提示需要输入密码 (Enter password)。</li>
+</ul>
+<p><a href="https://www.catistrue.com/posts/aedc60d4.html">关于具体的配置过程可以看这个文档</a></p>
+<h2 id="2-排查过程"><a href="#2-排查过程" class="headerlink" title="2. 排查过程"></a>2. 排查过程</h2><p>通过查看远程仓库地址发现差异：</p>
+<p><strong>正常的仓库 (A&#x2F;B):</strong><br>使用域名连接：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git remote -v</span><br><span class="line">origin  git@gitlab.namexxx.com:pjname/projectA.git (fetch)</span><br></pre></td></tr></table></figure>
+
+<p><strong>异常的仓库 (C):</strong><br>使用 IP 地址连接：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git remote -v</span><br><span class="line">origin  git@10.10.10.xxx:pjname/projectC.git (fetch)</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-原因分析"><a href="#3-原因分析" class="headerlink" title="3. 原因分析"></a>3. 原因分析</h2><p>本地的 SSH 配置文件 (<code>~/.ssh/config</code>) 是基于<strong>域名 (Host)</strong> 来匹配私钥的。配置通常如下所示：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># ~/.ssh/config 示例</span><br><span class="line">Host gitlab.namexxx.com</span><br><span class="line">    HostName gitlab.namexxx.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_rsa_work</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当 Git 访问 <code>gitlab.namexxx.com</code> 时，SSH 代理能成功匹配到 <code>id_rsa_work</code> 私钥。</li>
+<li>当 Git 访问 <code>10.10.10.xxx</code> 时，SSH 代理<strong>无法</strong>将这个 IP 匹配到上述规则，导致找不到对应的私钥。</li>
+<li>SSH 机制在无法使用密钥登录时，会自动降级为密码验证，因此提示输入密码。</li>
+</ul>
+<h2 id="4-解决方案"><a href="#4-解决方案" class="headerlink" title="4. 解决方案"></a>4. 解决方案</h2><p>将异常仓库的远程地址从 <strong>IP</strong> 修改为 <strong>域名</strong>。</p>
+<p><strong>执行命令：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 进入项目目录</span></span><br><span class="line"><span class="built_in">cd</span> D:\projectC</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 修改 remote url (将 IP 替换为域名)</span></span><br><span class="line">git remote set-url origin git@gitlab.namexxx.com:pjname/projectC.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证修改结果</span></span><br><span class="line">git remote -v</span><br><span class="line"><span class="comment"># 输出应为: origin git@gitlab.namexxx.com:pjname/projectC.git (fetch)...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 测试拉取</span></span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>在多 Git 账号环境下，<strong>必须严格保证 Remote URL 的 Host 部分与 <code>~/.ssh/config</code> 中的 Host 定义一致</strong>。不要混用 IP 地址和域名，否则 SSH 规则将失效。</p>
+]]></content>
+      <categories>
+        <category>git</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C++ 单元测试黑魔法：`#define private public`</title>
     <url>/posts/be9c26b5.html</url>
     <content><![CDATA[<p>在 C++ 单元测试的世界里，一直流传着一个“邪道”技巧。</p>
@@ -852,33 +889,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Hello World</title>
-    <url>/posts/4a17b156.html</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>教程</tag>
-        <tag>Hexo</tag>
-        <tag>博客搭建</tag>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>从零开始：使用 Docker + Hexo + Vercel + 腾讯云域名搭建个人博客</title>
     <url>/posts/e09a1826.html</url>
     <content><![CDATA[<p>终于拥有了自己的独立域名博客！🎉</p>
@@ -1113,6 +1123,33 @@
       </tags>
   </entry>
   <entry>
+    <title>Hello World</title>
+    <url>/posts/4a17b156.html</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>教程</tag>
+        <tag>Hexo</tag>
+        <tag>博客搭建</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>ifconfig指令配置网卡信息</title>
     <url>/posts/e0d0b007.html</url>
     <content><![CDATA[<h1 id="ifconfig指令配置网卡信息"><a href="#ifconfig指令配置网卡信息" class="headerlink" title="ifconfig指令配置网卡信息"></a>ifconfig指令配置网卡信息</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>linux&#x2F;unix系统下，输入ifconfig指令，发现只有lo本地回环，没有网卡信息，为了能够正常上网，需要配置一下网卡信息</p>
@@ -1203,48 +1240,6 @@
         <tag>linux</tag>
         <tag>交叉编译</tag>
         <tag>libcurl</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux下查看编译的静态库和动态库是32位还是64位</title>
-    <url>/posts/4a576f58.html</url>
-    <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候可能会需要交叉编译，所以需要知道平台上编译出来的版本到底是64位还是32位</p>
-<h2 id="file指令查看动态库是32位还是64位"><a href="#file指令查看动态库是32位还是64位" class="headerlink" title="file指令查看动态库是32位还是64位"></a>file指令查看动态库是32位还是64位</h2><p>如图：file libcurl.so 查看当前编译的libcurl.so是32位还是64位的<br><img src="/images/file_so.jpg" alt="file_so.jpg"></p>
-<h2 id="objdump-a指令查看静态库是32位还是64位的"><a href="#objdump-a指令查看静态库是32位还是64位的" class="headerlink" title="objdump -a指令查看静态库是32位还是64位的"></a>objdump -a指令查看静态库是32位还是64位的</h2><p>如图：objdump -a libtest.a 查看当前编译的静态库libtest.a是32位还是64位的<br><img src="/images/objdump_a.jpg" alt="objdupm_a.jpg"></p>
-<h2 id="readelf-h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息"><a href="#readelf-h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息" class="headerlink" title="readelf -h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息"></a>readelf -h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息</h2><p>如图：readelf -h libssl.so 查看编译的动态库lib<br>Class字段显示当前库是32位or64位<br>Machine字段显示当前库运行的目标机器系统</p>
-<p><img src="/images/readelf_h.jpg" alt="readelf_h.jpg"></p>
-]]></content>
-      <categories>
-        <category>常用命令</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>交叉编译</tag>
-        <tag>常用命令</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux插件系统加载器-使用dl库</title>
-    <url>/posts/3ba077d3.html</url>
-    <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在 C&#x2F;C++ 开发中，项目里需要在程序运行期间加载一个外部的代码库（而不是在编译时链接），而且根据不同的配置，需要加载不同的代码库，进行热更新，那直接考虑的就是插件架构。</p>
-<p>操作系统提供的原生 API 是完全不同的，如果是在linux下，使用libdl库。一般使用这个库就是为了做插件系统加载器（可以说是它最主要的用途了）。</p>
-<h2 id="主要代码"><a href="#主要代码" class="headerlink" title="主要代码"></a>主要代码</h2><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">short</span> <span class="title">loadLibDemo::realLoadLib</span><span class="params">(<span class="type">const</span> string&amp; libPath)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(libPath.<span class="built_in">length</span>() &lt;= <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">	libHandle = <span class="built_in">dlopen</span>(libPath.<span class="built_in">c_str</span>(), RTLD_GLOBAL | RTLD_NOW);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span>==libHandle)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;dlopen fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pOne = (PFUN_APIOne)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;one_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pOne)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIOne] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pTwo = (PFUN_APITwo)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;two_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pTwo)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APITwo] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pThree = (PFUN_APIThree)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;three_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pThree)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIThree] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pFour = (PFUN_APIFour)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;four_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pFour)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIFour] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pFive = (PFUN_APIFive)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;five_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pFive)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIFive] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pSix = (PFUN_APISix)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;six_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pSix)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APISix] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>完整代码已经放在了<a href="https://github.com/TreeAndFlower/loadlibdemo-linux">https://github.com/TreeAndFlower/loadlibdemo-linux</a></p>
-<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><p>主要是，要对导出的动态库里的API，记得“extern c”</p>
-<p>当没有extern c的时候，编译出来的动态库里API如下：</p>
-<p><img src="/images/wu_extern_c.jpg" alt="默认是g++编译，所以有前缀后缀"></p>
-<p>当extern c添加了以后，编译出来的动态库API如下：</p>
-<p><img src="/images/you_extern_c.jpg" alt="相当于选择了gcc编译，没有多余的Z11前缀v后缀等内容"></p>
-<p>PS:</p>
-<p>这个示例代码，仅在linux平台下生效，因为链接的<code>dl</code>库，头文件是<code>#include &lt;dlfcn.h&gt;</code>，这些是linux平台的；<br>windows下用<code>Kernel32.lib</code>库，头文件是<code>Windows.h</code>；</p>
-]]></content>
-      <categories>
-        <category>C++</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-        <tag>linux</tag>
       </tags>
   </entry>
   <entry>
@@ -1342,6 +1337,24 @@
       </tags>
   </entry>
   <entry>
+    <title>linux下查看编译的静态库和动态库是32位还是64位</title>
+    <url>/posts/4a576f58.html</url>
+    <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候可能会需要交叉编译，所以需要知道平台上编译出来的版本到底是64位还是32位</p>
+<h2 id="file指令查看动态库是32位还是64位"><a href="#file指令查看动态库是32位还是64位" class="headerlink" title="file指令查看动态库是32位还是64位"></a>file指令查看动态库是32位还是64位</h2><p>如图：file libcurl.so 查看当前编译的libcurl.so是32位还是64位的<br><img src="/images/file_so.jpg" alt="file_so.jpg"></p>
+<h2 id="objdump-a指令查看静态库是32位还是64位的"><a href="#objdump-a指令查看静态库是32位还是64位的" class="headerlink" title="objdump -a指令查看静态库是32位还是64位的"></a>objdump -a指令查看静态库是32位还是64位的</h2><p>如图：objdump -a libtest.a 查看当前编译的静态库libtest.a是32位还是64位的<br><img src="/images/objdump_a.jpg" alt="objdupm_a.jpg"></p>
+<h2 id="readelf-h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息"><a href="#readelf-h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息" class="headerlink" title="readelf -h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息"></a>readelf -h指令查看静态库or动态库是32位or64位，及编译平台运行平台等信息</h2><p>如图：readelf -h libssl.so 查看编译的动态库lib<br>Class字段显示当前库是32位or64位<br>Machine字段显示当前库运行的目标机器系统</p>
+<p><img src="/images/readelf_h.jpg" alt="readelf_h.jpg"></p>
+]]></content>
+      <categories>
+        <category>常用命令</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>交叉编译</tag>
+        <tag>常用命令</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>linux下安装tcpdump并用其抓包</title>
     <url>/posts/12907b44.html</url>
     <content><![CDATA[<h1 id="linux下安装tcpdump并用其抓包"><a href="#linux下安装tcpdump并用其抓包" class="headerlink" title="linux下安装tcpdump并用其抓包"></a>linux下安装tcpdump并用其抓包</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要分析网络协议，这时候抓包看看直接的数据，能够有助于对协议有一个直观的感受，在windows下，可以直接安装Wireshark就能轻松抓包分析了，但是在linux下，没有Wireshark，所以可以安装tcpdump，用tcpdump抓包分析</p>
@@ -1358,6 +1371,30 @@
         <tag>linux</tag>
         <tag>tcpdump</tag>
         <tag>抓包</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>linux插件系统加载器-使用dl库</title>
+    <url>/posts/3ba077d3.html</url>
+    <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在 C&#x2F;C++ 开发中，项目里需要在程序运行期间加载一个外部的代码库（而不是在编译时链接），而且根据不同的配置，需要加载不同的代码库，进行热更新，那直接考虑的就是插件架构。</p>
+<p>操作系统提供的原生 API 是完全不同的，如果是在linux下，使用libdl库。一般使用这个库就是为了做插件系统加载器（可以说是它最主要的用途了）。</p>
+<h2 id="主要代码"><a href="#主要代码" class="headerlink" title="主要代码"></a>主要代码</h2><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">short</span> <span class="title">loadLibDemo::realLoadLib</span><span class="params">(<span class="type">const</span> string&amp; libPath)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(libPath.<span class="built_in">length</span>() &lt;= <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">	libHandle = <span class="built_in">dlopen</span>(libPath.<span class="built_in">c_str</span>(), RTLD_GLOBAL | RTLD_NOW);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span>==libHandle)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;dlopen fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pOne = (PFUN_APIOne)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;one_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pOne)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIOne] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pTwo = (PFUN_APITwo)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;two_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pTwo)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APITwo] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pThree = (PFUN_APIThree)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;three_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pThree)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIThree] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pFour = (PFUN_APIFour)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;four_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pFour)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIFour] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pFive = (PFUN_APIFive)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;five_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pFive)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APIFive] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pSix = (PFUN_APISix)<span class="built_in">dlsym</span>(libHandle, <span class="string">&quot;six_fun_api&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="literal">NULL</span> == pSix)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[PFUN_APISix] dlsym fail %s\n&quot;</span>,<span class="built_in">dlerror</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>完整代码已经放在了<a href="https://github.com/TreeAndFlower/loadlibdemo-linux">https://github.com/TreeAndFlower/loadlibdemo-linux</a></p>
+<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><p>主要是，要对导出的动态库里的API，记得“extern c”</p>
+<p>当没有extern c的时候，编译出来的动态库里API如下：</p>
+<p><img src="/images/wu_extern_c.jpg" alt="默认是g++编译，所以有前缀后缀"></p>
+<p>当extern c添加了以后，编译出来的动态库API如下：</p>
+<p><img src="/images/you_extern_c.jpg" alt="相当于选择了gcc编译，没有多余的Z11前缀v后缀等内容"></p>
+<p>PS:</p>
+<p>这个示例代码，仅在linux平台下生效，因为链接的<code>dl</code>库，头文件是<code>#include &lt;dlfcn.h&gt;</code>，这些是linux平台的；<br>windows下用<code>Kernel32.lib</code>库，头文件是<code>Windows.h</code>；</p>
+]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+        <tag>linux</tag>
       </tags>
   </entry>
   <entry>
@@ -1382,27 +1419,6 @@
       </tags>
   </entry>
   <entry>
-    <title>redis交叉编译arm版本</title>
-    <url>/posts/2d53d0a1.html</url>
-    <content><![CDATA[<h1 id="redis交叉编译arm版本"><a href="#redis交叉编译arm版本" class="headerlink" title="redis交叉编译arm版本"></a>redis交叉编译arm版本</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>遇到以下报错时，记得更新redis版本，用最新的redis代码编译<br><img src="/images/redis_error.jpg" alt="redis_error"></p>
-<h2 id="编译环境"><a href="#编译环境" class="headerlink" title="编译环境"></a>编译环境</h2><p>在预先已经配置好交叉编译环境的虚拟机里，编译<code>arm</code>版本的<code>redis</code></p>
-<h2 id="编译步骤"><a href="#编译步骤" class="headerlink" title="编译步骤"></a>编译步骤</h2><p>1.修改<code>redis/deps</code>的<code>Makefile</code>，在<code>jemalloc</code>编译的时候，在<code>./configure</code>增加 <code>--host=arm-linux</code>选项</p>
-<p><img src="/images/redis_makefile.jpg" alt="redis_makefile"></p>
-<p><img src="/images/redis_configure.jpg" alt="redis_configure"></p>
-<p>2.在<code>redis</code>下直接执行<code>makefile</code>，如果之前编译过，先执行<code>make distclean</code>在彻底清除之前编译的残留，出现以下内容，就是编译完成了</p>
-<p><img src="/images/redis_make.jpg" alt="redis_make"></p>
-<p>3.查看编译出来的执行文件，比如<code>redis-cli</code> ，可以发现编译出来的<code>redis-cli</code>目标机器是<code>arm</code>的，交叉编译结束</p>
-<p><img src="/images/redis_check.jpg" alt="redis_check"></p>
-]]></content>
-      <categories>
-        <category>交叉编译</category>
-      </categories>
-      <tags>
-        <tag>交叉编译</tag>
-        <tag>第三方库</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>openvpn交叉编译</title>
     <url>/posts/612c40fd.html</url>
     <content><![CDATA[<h1 id="openvpn交叉编译"><a href="#openvpn交叉编译" class="headerlink" title="openvpn交叉编译"></a>openvpn交叉编译</h1><h1 id="需要源码交叉编译openvpn的操作步骤"><a href="#需要源码交叉编译openvpn的操作步骤" class="headerlink" title="需要源码交叉编译openvpn的操作步骤"></a>需要源码交叉编译openvpn的操作步骤</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>因为某些原因，只能选择交叉编译，当前平台是64位的，但是目标平台是32位的，目标平台又禁止了apt-get等相关操作，所以必须要源码交叉编译openvpn及其相关依赖库。因为之前交叉编译的时候，大多第三方库都是有现成的CMaKeLists.txt或者是Makefile，所以编译起来倒是也方便，但是，openvpn它只有configure文件，它是需要执行.&#x2F;configure成功设置好各种环境变量配置以后，才能生成Makefile的。于是，一开始踩了很多坑，在此做一个记录……</p>
@@ -1419,6 +1435,27 @@
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当编译第三方库的时候，如果没有CMakeLists.txt，也没有Makefile，只有config或者configure，那么需要先了解编译选项</p>
 <p>执行.&#x2F;config –help 或者 .&#x2F;configure –help 来查看当前支持的编译选项<br>然后根据提示配置一下我们需要指定的选项，比如自己指定的openssl的版本的库和头文件路径名，比如CC的版本，比如安装路径等等<br>(当然，如果不需要额外配置这些东西的话，直接走默认配置的话，那么直接执行.&#x2F;config 或者 .&#x2F;configure 就行)</p>
 <p>然后在生成Makefile之后，再make &amp;&amp; make install 即可</p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>交叉编译</tag>
+        <tag>第三方库</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>redis交叉编译arm版本</title>
+    <url>/posts/2d53d0a1.html</url>
+    <content><![CDATA[<h1 id="redis交叉编译arm版本"><a href="#redis交叉编译arm版本" class="headerlink" title="redis交叉编译arm版本"></a>redis交叉编译arm版本</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>遇到以下报错时，记得更新redis版本，用最新的redis代码编译<br><img src="/images/redis_error.jpg" alt="redis_error"></p>
+<h2 id="编译环境"><a href="#编译环境" class="headerlink" title="编译环境"></a>编译环境</h2><p>在预先已经配置好交叉编译环境的虚拟机里，编译<code>arm</code>版本的<code>redis</code></p>
+<h2 id="编译步骤"><a href="#编译步骤" class="headerlink" title="编译步骤"></a>编译步骤</h2><p>1.修改<code>redis/deps</code>的<code>Makefile</code>，在<code>jemalloc</code>编译的时候，在<code>./configure</code>增加 <code>--host=arm-linux</code>选项</p>
+<p><img src="/images/redis_makefile.jpg" alt="redis_makefile"></p>
+<p><img src="/images/redis_configure.jpg" alt="redis_configure"></p>
+<p>2.在<code>redis</code>下直接执行<code>makefile</code>，如果之前编译过，先执行<code>make distclean</code>在彻底清除之前编译的残留，出现以下内容，就是编译完成了</p>
+<p><img src="/images/redis_make.jpg" alt="redis_make"></p>
+<p>3.查看编译出来的执行文件，比如<code>redis-cli</code> ，可以发现编译出来的<code>redis-cli</code>目标机器是<code>arm</code>的，交叉编译结束</p>
+<p><img src="/images/redis_check.jpg" alt="redis_check"></p>
 ]]></content>
       <categories>
         <category>交叉编译</category>
@@ -1455,19 +1492,6 @@
       </tags>
   </entry>
   <entry>
-    <title>树莓派交叉编译的三种常见方式</title>
-    <url>/posts/8b97d069.html</url>
-    <content><![CDATA[<h1 id="树莓派交叉编译的三种常见方式"><a href="#树莓派交叉编译的三种常见方式" class="headerlink" title="树莓派交叉编译的三种常见方式"></a>树莓派交叉编译的三种常见方式</h1><p><img src="/images/4b_complie_1.jpg" alt="4b_complie_1.jpg"><br><img src="/images/4b_complie_2.jpg" alt="4b_complie_2.jpg"><br><img src="/images/4b_complie_3.jpg" alt="4b_complie_3.jpg"><br><img src="/images/4b_complie_5.jpg" alt="4b_complie_5.jpg"></p>
-]]></content>
-      <categories>
-        <category>交叉编译</category>
-      </categories>
-      <tags>
-        <tag>交叉编译</tag>
-        <tag>raspberrypi</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>树莓派64位系统配置32位运行环境</title>
     <url>/posts/9b05f215.html</url>
     <content><![CDATA[<h1 id="树莓派64位系统配置32位运行环境"><a href="#树莓派64位系统配置32位运行环境" class="headerlink" title="树莓派64位系统配置32位运行环境"></a>树莓派64位系统配置32位运行环境</h1><h2 id="配置libc6-armhf"><a href="#配置libc6-armhf" class="headerlink" title="配置libc6:armhf"></a>配置libc6:armhf</h2><p>树莓派本身安装了64位系统的情况下，需要配置32位程序的运行环境，首先安装依赖库，操作步骤如下，以下操作都要在<code>root</code>用户下进行<br><img src="/images/4b_armhf.jpg" alt="4b_armhf"></p>
@@ -1487,28 +1511,9 @@
       </tags>
   </entry>
   <entry>
-    <title>树莓派配置基础环境-ssh-root-静态ip</title>
-    <url>/posts/beb88453.html</url>
-    <content><![CDATA[<h1 id="树莓派配置基础环境-ssh-root-静态ip"><a href="#树莓派配置基础环境-ssh-root-静态ip" class="headerlink" title="树莓派配置基础环境-ssh-root-静态ip"></a>树莓派配置基础环境-ssh-root-静态ip</h1><h2 id="配置root用户"><a href="#配置root用户" class="headerlink" title="配置root用户"></a>配置root用户</h2><p>在终端进行如下操作即可：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> passwd root</span><br></pre></td></tr></table></figure>
-<p>然后根据提示输入root用户的密码<br>再重复输入一次刚刚设置的密码</p>
-<p>切换root用户操作如下即可：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">su -</span><br></pre></td></tr></table></figure>
-<p>输入设置的root用户的密码</p>
-<h2 id="配置开启ssh"><a href="#配置开启ssh" class="headerlink" title="配置开启ssh"></a>配置开启ssh</h2><p>操作如下即可：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/ssh/sshd-config</span><br></pre></td></tr></table></figure>
-<p>修改 <code>PermitRootLogin yes</code><br>然后保存修改<br>然后执行<code>sudo systemctl restart ssh</code><br>再通过<code>ss -tnl</code>查看是否开启成功即可</p>
-<h2 id="配置静态ip如下"><a href="#配置静态ip如下" class="headerlink" title="配置静态ip如下"></a>配置静态ip如下</h2><p>在需要无线网络连接的情况下，配置eth0的静态ip如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/network/interfaces</span><br></pre></td></tr></table></figure>
-
-<p>然后再文件里增加以下内容</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line">auto eth0</span><br><span class="line">iface eth0 inet static</span><br><span class="line">address 192.168.0.1 //IP地址</span><br><span class="line">netmask 255.255.255.0 //掩码</span><br></pre></td></tr></table></figure>
-
-<p>然后保存<br>但是此时，如果不设置一下<code>wlan0</code>，那么会发现虽然静态ip设置成功了，但是树莓派却无法联网了<br>所以还要在<code>interfaces</code>文件里追加以下内容</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">auto wlan0</span><br><span class="line">iface wlan0 inet dhcp</span><br><span class="line">wpa_conf /etc/wpa_supplicant/wpa_supplicant.conf</span><br></pre></td></tr></table></figure>
-<p>然后保存<br>退出文件<br>重启树莓派即可</p>
-<h2 id="如图，配置动态IP"><a href="#如图，配置动态IP" class="headerlink" title="如图，配置动态IP"></a>如图，配置动态IP</h2><p><img src="/images/shu_ip_dhcp.jpg" alt="shu_ip_dhpc"></p>
-<h2 id="如图，配置静态IP"><a href="#如图，配置静态IP" class="headerlink" title="如图，配置静态IP"></a>如图，配置静态IP</h2><p><img src="/images/shu_ip_static.jpg" alt="shu_ip_static"></p>
+    <title>树莓派交叉编译的三种常见方式</title>
+    <url>/posts/8b97d069.html</url>
+    <content><![CDATA[<h1 id="树莓派交叉编译的三种常见方式"><a href="#树莓派交叉编译的三种常见方式" class="headerlink" title="树莓派交叉编译的三种常见方式"></a>树莓派交叉编译的三种常见方式</h1><p><img src="/images/4b_complie_1.jpg" alt="4b_complie_1.jpg"><br><img src="/images/4b_complie_2.jpg" alt="4b_complie_2.jpg"><br><img src="/images/4b_complie_3.jpg" alt="4b_complie_3.jpg"><br><img src="/images/4b_complie_5.jpg" alt="4b_complie_5.jpg"></p>
 ]]></content>
       <categories>
         <category>交叉编译</category>
@@ -1597,6 +1602,38 @@
       <tags>
         <tag>C++</tag>
         <tag>Modern C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>树莓派配置基础环境-ssh-root-静态ip</title>
+    <url>/posts/beb88453.html</url>
+    <content><![CDATA[<h1 id="树莓派配置基础环境-ssh-root-静态ip"><a href="#树莓派配置基础环境-ssh-root-静态ip" class="headerlink" title="树莓派配置基础环境-ssh-root-静态ip"></a>树莓派配置基础环境-ssh-root-静态ip</h1><h2 id="配置root用户"><a href="#配置root用户" class="headerlink" title="配置root用户"></a>配置root用户</h2><p>在终端进行如下操作即可：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> passwd root</span><br></pre></td></tr></table></figure>
+<p>然后根据提示输入root用户的密码<br>再重复输入一次刚刚设置的密码</p>
+<p>切换root用户操作如下即可：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">su -</span><br></pre></td></tr></table></figure>
+<p>输入设置的root用户的密码</p>
+<h2 id="配置开启ssh"><a href="#配置开启ssh" class="headerlink" title="配置开启ssh"></a>配置开启ssh</h2><p>操作如下即可：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/ssh/sshd-config</span><br></pre></td></tr></table></figure>
+<p>修改 <code>PermitRootLogin yes</code><br>然后保存修改<br>然后执行<code>sudo systemctl restart ssh</code><br>再通过<code>ss -tnl</code>查看是否开启成功即可</p>
+<h2 id="配置静态ip如下"><a href="#配置静态ip如下" class="headerlink" title="配置静态ip如下"></a>配置静态ip如下</h2><p>在需要无线网络连接的情况下，配置eth0的静态ip如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/network/interfaces</span><br></pre></td></tr></table></figure>
+
+<p>然后再文件里增加以下内容</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line">auto eth0</span><br><span class="line">iface eth0 inet static</span><br><span class="line">address 192.168.0.1 //IP地址</span><br><span class="line">netmask 255.255.255.0 //掩码</span><br></pre></td></tr></table></figure>
+
+<p>然后保存<br>但是此时，如果不设置一下<code>wlan0</code>，那么会发现虽然静态ip设置成功了，但是树莓派却无法联网了<br>所以还要在<code>interfaces</code>文件里追加以下内容</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">auto wlan0</span><br><span class="line">iface wlan0 inet dhcp</span><br><span class="line">wpa_conf /etc/wpa_supplicant/wpa_supplicant.conf</span><br></pre></td></tr></table></figure>
+<p>然后保存<br>退出文件<br>重启树莓派即可</p>
+<h2 id="如图，配置动态IP"><a href="#如图，配置动态IP" class="headerlink" title="如图，配置动态IP"></a>如图，配置动态IP</h2><p><img src="/images/shu_ip_dhcp.jpg" alt="shu_ip_dhpc"></p>
+<h2 id="如图，配置静态IP"><a href="#如图，配置静态IP" class="headerlink" title="如图，配置静态IP"></a>如图，配置静态IP</h2><p><img src="/images/shu_ip_static.jpg" alt="shu_ip_static"></p>
+]]></content>
+      <categories>
+        <category>交叉编译</category>
+      </categories>
+      <tags>
+        <tag>交叉编译</tag>
+        <tag>raspberrypi</tag>
       </tags>
   </entry>
   <entry>
