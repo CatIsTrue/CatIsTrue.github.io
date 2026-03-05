@@ -75,43 +75,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Git 多账号配置下 Pull 需要输入密码的问题记录</title>
-    <url>/posts/84f9ccc3.html</url>
-    <content><![CDATA[<h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h2><p>在本地配置了多个 Git 账号（使用 SSH Key 管理）的情况下，从 GitLab 拉取三个仓库的代码。</p>
-<ul>
-<li><strong>仓库 A &amp; B：</strong> <code>git pull</code> 正常，直接走 SSH 验证。</li>
-<li><strong>仓库 C：</strong> <code>git pull</code> <strong>失败</strong>，提示需要输入密码 (Enter password)。</li>
-</ul>
-<p><a href="https://www.catistrue.com/posts/aedc60d4.html">关于具体的配置过程可以看这个文档</a></p>
-<h2 id="2-排查过程"><a href="#2-排查过程" class="headerlink" title="2. 排查过程"></a>2. 排查过程</h2><p>通过查看远程仓库地址发现差异：</p>
-<p><strong>正常的仓库 (A&#x2F;B):</strong><br>使用域名连接：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git remote -v</span><br><span class="line">origin  git@gitlab.namexxx.com:pjname/projectA.git (fetch)</span><br></pre></td></tr></table></figure>
-
-<p><strong>异常的仓库 (C):</strong><br>使用 IP 地址连接：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git remote -v</span><br><span class="line">origin  git@10.10.10.xxx:pjname/projectC.git (fetch)</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-原因分析"><a href="#3-原因分析" class="headerlink" title="3. 原因分析"></a>3. 原因分析</h2><p>本地的 SSH 配置文件 (<code>~/.ssh/config</code>) 是基于<strong>域名 (Host)</strong> 来匹配私钥的。配置通常如下所示：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># ~/.ssh/config 示例</span><br><span class="line">Host gitlab.namexxx.com</span><br><span class="line">    HostName gitlab.namexxx.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_rsa_work</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>当 Git 访问 <code>gitlab.namexxx.com</code> 时，SSH 代理能成功匹配到 <code>id_rsa_work</code> 私钥。</li>
-<li>当 Git 访问 <code>10.10.10.xxx</code> 时，SSH 代理<strong>无法</strong>将这个 IP 匹配到上述规则，导致找不到对应的私钥。</li>
-<li>SSH 机制在无法使用密钥登录时，会自动降级为密码验证，因此提示输入密码。</li>
-</ul>
-<h2 id="4-解决方案"><a href="#4-解决方案" class="headerlink" title="4. 解决方案"></a>4. 解决方案</h2><p>将异常仓库的远程地址从 <strong>IP</strong> 修改为 <strong>域名</strong>。</p>
-<p><strong>执行命令：</strong></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 进入项目目录</span></span><br><span class="line"><span class="built_in">cd</span> D:\projectC</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 修改 remote url (将 IP 替换为域名)</span></span><br><span class="line">git remote set-url origin git@gitlab.namexxx.com:pjname/projectC.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证修改结果</span></span><br><span class="line">git remote -v</span><br><span class="line"><span class="comment"># 输出应为: origin git@gitlab.namexxx.com:pjname/projectC.git (fetch)...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 测试拉取</span></span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
-
-<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>在多 Git 账号环境下，<strong>必须严格保证 Remote URL 的 Host 部分与 <code>~/.ssh/config</code> 中的 Host 定义一致</strong>。不要混用 IP 地址和域名，否则 SSH 规则将失效。</p>
-]]></content>
-      <categories>
-        <category>git</category>
-      </categories>
-      <tags>
-        <tag>git</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C++ 单元测试黑魔法：`#define private public`</title>
     <url>/posts/be9c26b5.html</url>
     <content><![CDATA[<p>在 C++ 单元测试的世界里，一直流传着一个“邪道”技巧。</p>
@@ -198,6 +161,43 @@
         <tag>c++</tag>
         <tag>单元测试</tag>
         <tag>google test</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Git 多账号配置下 Pull 需要输入密码的问题记录</title>
+    <url>/posts/84f9ccc3.html</url>
+    <content><![CDATA[<h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h2><p>在本地配置了多个 Git 账号（使用 SSH Key 管理）的情况下，从 GitLab 拉取三个仓库的代码。</p>
+<ul>
+<li><strong>仓库 A &amp; B：</strong> <code>git pull</code> 正常，直接走 SSH 验证。</li>
+<li><strong>仓库 C：</strong> <code>git pull</code> <strong>失败</strong>，提示需要输入密码 (Enter password)。</li>
+</ul>
+<p><a href="https://www.catistrue.com/posts/aedc60d4.html">关于具体的配置过程可以看这个文档</a></p>
+<h2 id="2-排查过程"><a href="#2-排查过程" class="headerlink" title="2. 排查过程"></a>2. 排查过程</h2><p>通过查看远程仓库地址发现差异：</p>
+<p><strong>正常的仓库 (A&#x2F;B):</strong><br>使用域名连接：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git remote -v</span><br><span class="line">origin  git@gitlab.namexxx.com:pjname/projectA.git (fetch)</span><br></pre></td></tr></table></figure>
+
+<p><strong>异常的仓库 (C):</strong><br>使用 IP 地址连接：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git remote -v</span><br><span class="line">origin  git@10.10.10.xxx:pjname/projectC.git (fetch)</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-原因分析"><a href="#3-原因分析" class="headerlink" title="3. 原因分析"></a>3. 原因分析</h2><p>本地的 SSH 配置文件 (<code>~/.ssh/config</code>) 是基于<strong>域名 (Host)</strong> 来匹配私钥的。配置通常如下所示：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line"># ~/.ssh/config 示例</span><br><span class="line">Host gitlab.namexxx.com</span><br><span class="line">    HostName gitlab.namexxx.com</span><br><span class="line">    User git</span><br><span class="line">    IdentityFile ~/.ssh/id_rsa_work</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当 Git 访问 <code>gitlab.namexxx.com</code> 时，SSH 代理能成功匹配到 <code>id_rsa_work</code> 私钥。</li>
+<li>当 Git 访问 <code>10.10.10.xxx</code> 时，SSH 代理<strong>无法</strong>将这个 IP 匹配到上述规则，导致找不到对应的私钥。</li>
+<li>SSH 机制在无法使用密钥登录时，会自动降级为密码验证，因此提示输入密码。</li>
+</ul>
+<h2 id="4-解决方案"><a href="#4-解决方案" class="headerlink" title="4. 解决方案"></a>4. 解决方案</h2><p>将异常仓库的远程地址从 <strong>IP</strong> 修改为 <strong>域名</strong>。</p>
+<p><strong>执行命令：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 进入项目目录</span></span><br><span class="line"><span class="built_in">cd</span> D:\projectC</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 修改 remote url (将 IP 替换为域名)</span></span><br><span class="line">git remote set-url origin git@gitlab.namexxx.com:pjname/projectC.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证修改结果</span></span><br><span class="line">git remote -v</span><br><span class="line"><span class="comment"># 输出应为: origin git@gitlab.namexxx.com:pjname/projectC.git (fetch)...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 测试拉取</span></span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>在多 Git 账号环境下，<strong>必须严格保证 Remote URL 的 Host 部分与 <code>~/.ssh/config</code> 中的 Host 定义一致</strong>。不要混用 IP 地址和域名，否则 SSH 规则将失效。</p>
+]]></content>
+      <categories>
+        <category>git</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
       </tags>
   </entry>
   <entry>
@@ -334,24 +334,6 @@
       </tags>
   </entry>
   <entry>
-    <title>cjson库版本不一致，导致解析失败</title>
-    <url>/posts/ae350693.html</url>
-    <content><![CDATA[<h1 id="cjson库版本不一致，导致解析失败"><a href="#cjson库版本不一致，导致解析失败" class="headerlink" title="cjson库版本不一致，导致解析失败"></a>cjson库版本不一致，导致解析失败</h1><h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><p>在编译一个程序demo的时候，需要继承一个第三方库libexample.so，第三方库用到了cjson，本身这个程序也用到了cjson，由于两者用的cjson的版本不一致，导致json解析失败……</p>
-<h2 id="旧版本cjson"><a href="#旧版本cjson" class="headerlink" title="旧版本cjson"></a>旧版本cjson</h2><p>第三方库libexample.so使用的旧版本的cjson，cjson-types截图如下：<br><img src="/images/cjson_old_version.jpg" alt="cjson_old_version.jpg"></p>
-<h2 id="新版本cjson"><a href="#新版本cjson" class="headerlink" title="新版本cjson"></a>新版本cjson</h2><p>程序demo使用的是新版本的cjson，cjson-types截图如下：<br><img src="/images/cjson_new_version.jpg" alt="cjson_new_version.jpg"></p>
-<h2 id="具体现象"><a href="#具体现象" class="headerlink" title="具体现象"></a>具体现象</h2><p>用旧版本的cJSON源码编译到自己的代码里，编译出libexample.so库；<br>程序demo已经使用过新版本的cJSON源码，但是又连接了上面编译出来的libexample.so的库，再次进行json解析，会发现libexample.so里面解析cJSON_Number类型的节点的值会失败；<br>然后重新用新版本的cJSON源码编译出libexample.so库，再集成到上面的demo里面，即可解析成功。</p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>可以从上面两个不同版本的cjson源码截图的cjosn-types看出来：<br>这两个版本的cJSON Types的值不一样，比如cJSON_Number类型节点的值，旧版本的值是3， 新版本的值是8，<br>所以用旧版本编译的libexample.so库，集成到demo里的时候，解析到cJSON_Number节点的时候，错误的使用值8而不是3，所以导致解析失败</p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>代码里一定要保持一个版本的cjson；<br>版本混乱很容易造成奇怪的问题，而且这种问题往往还不容易排查！</p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>教程</tag>
-        <tag>cjson</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>如何通过CMake修改 Windows 程序的主线程栈大小</title>
     <url>/posts/b2c5f831.html</url>
     <content><![CDATA[<h1 id="CMake选项之CMAKE-EXE-LINKER-FLAGS"><a href="#CMake选项之CMAKE-EXE-LINKER-FLAGS" class="headerlink" title="CMake选项之CMAKE_EXE_LINKER_FLAGS"></a>CMake选项之CMAKE_EXE_LINKER_FLAGS</h1><h1 id="如何通过CMake修改-Windows-程序的主线程栈大小"><a href="#如何通过CMake修改-Windows-程序的主线程栈大小" class="headerlink" title="如何通过CMake修改 Windows 程序的主线程栈大小"></a>如何通过CMake修改 Windows 程序的主线程栈大小</h1><p>只需要在CMakeLists.txt里添加如下一行</p>
@@ -382,6 +364,24 @@
       <tags>
         <tag>Windows</tag>
         <tag>CMake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>cjson库版本不一致，导致解析失败</title>
+    <url>/posts/ae350693.html</url>
+    <content><![CDATA[<h1 id="cjson库版本不一致，导致解析失败"><a href="#cjson库版本不一致，导致解析失败" class="headerlink" title="cjson库版本不一致，导致解析失败"></a>cjson库版本不一致，导致解析失败</h1><h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><p>在编译一个程序demo的时候，需要继承一个第三方库libexample.so，第三方库用到了cjson，本身这个程序也用到了cjson，由于两者用的cjson的版本不一致，导致json解析失败……</p>
+<h2 id="旧版本cjson"><a href="#旧版本cjson" class="headerlink" title="旧版本cjson"></a>旧版本cjson</h2><p>第三方库libexample.so使用的旧版本的cjson，cjson-types截图如下：<br><img src="/images/cjson_old_version.jpg" alt="cjson_old_version.jpg"></p>
+<h2 id="新版本cjson"><a href="#新版本cjson" class="headerlink" title="新版本cjson"></a>新版本cjson</h2><p>程序demo使用的是新版本的cjson，cjson-types截图如下：<br><img src="/images/cjson_new_version.jpg" alt="cjson_new_version.jpg"></p>
+<h2 id="具体现象"><a href="#具体现象" class="headerlink" title="具体现象"></a>具体现象</h2><p>用旧版本的cJSON源码编译到自己的代码里，编译出libexample.so库；<br>程序demo已经使用过新版本的cJSON源码，但是又连接了上面编译出来的libexample.so的库，再次进行json解析，会发现libexample.so里面解析cJSON_Number类型的节点的值会失败；<br>然后重新用新版本的cJSON源码编译出libexample.so库，再集成到上面的demo里面，即可解析成功。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>可以从上面两个不同版本的cjson源码截图的cjosn-types看出来：<br>这两个版本的cJSON Types的值不一样，比如cJSON_Number类型节点的值，旧版本的值是3， 新版本的值是8，<br>所以用旧版本编译的libexample.so库，集成到demo里的时候，解析到cJSON_Number节点的时候，错误的使用值8而不是3，所以导致解析失败</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>代码里一定要保持一个版本的cjson；<br>版本混乱很容易造成奇怪的问题，而且这种问题往往还不容易排查！</p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>教程</tag>
+        <tag>cjson</tag>
       </tags>
   </entry>
   <entry>
@@ -889,6 +889,33 @@
       </tags>
   </entry>
   <entry>
+    <title>Hello World</title>
+    <url>/posts/4a17b156.html</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>教程</tag>
+        <tag>Hexo</tag>
+        <tag>博客搭建</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>从零开始：使用 Docker + Hexo + Vercel + 腾讯云域名搭建个人博客</title>
     <url>/posts/e09a1826.html</url>
     <content><![CDATA[<p>终于拥有了自己的独立域名博客！🎉</p>
@@ -1123,33 +1150,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Hello World</title>
-    <url>/posts/4a17b156.html</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>教程</tag>
-        <tag>Hexo</tag>
-        <tag>博客搭建</tag>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>ifconfig指令配置网卡信息</title>
     <url>/posts/e0d0b007.html</url>
     <content><![CDATA[<h1 id="ifconfig指令配置网卡信息"><a href="#ifconfig指令配置网卡信息" class="headerlink" title="ifconfig指令配置网卡信息"></a>ifconfig指令配置网卡信息</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>linux&#x2F;unix系统下，输入ifconfig指令，发现只有lo本地回环，没有网卡信息，为了能够正常上网，需要配置一下网卡信息</p>
@@ -1355,25 +1355,6 @@
       </tags>
   </entry>
   <entry>
-    <title>linux下安装tcpdump并用其抓包</title>
-    <url>/posts/12907b44.html</url>
-    <content><![CDATA[<h1 id="linux下安装tcpdump并用其抓包"><a href="#linux下安装tcpdump并用其抓包" class="headerlink" title="linux下安装tcpdump并用其抓包"></a>linux下安装tcpdump并用其抓包</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要分析网络协议，这时候抓包看看直接的数据，能够有助于对协议有一个直观的感受，在windows下，可以直接安装Wireshark就能轻松抓包分析了，但是在linux下，没有Wireshark，所以可以安装tcpdump，用tcpdump抓包分析</p>
-<h2 id="安装tcpdump"><a href="#安装tcpdump" class="headerlink" title="安装tcpdump"></a>安装tcpdump</h2><p>安装tcpdump有两种方式，一种是下载tcpdump源码，然后编译安装；另一种是直接用系统安装命令</p>
-<h3 id="下载源码安装tcpdump"><a href="#下载源码安装tcpdump" class="headerlink" title="下载源码安装tcpdump"></a>下载源码安装tcpdump</h3><p>这个可以参考：<a href="https://blog.csdn.net/tic_yx/article/details/17012317">https://blog.csdn.net/tic_yx/article/details/17012317</a><br>这篇文章里记录的很详细<br>文章内容截图如下：<br><img src="/images/complie_tcpdump.jpg" alt="源码编译tcpdump"></p>
-<h3 id="直接用系统安装命令"><a href="#直接用系统安装命令" class="headerlink" title="直接用系统安装命令"></a>直接用系统安装命令</h3><p>在ubuntu下，可以直接使用sudo apt-get install tcpdump<br>如果这一步安装的时候有报错，可以更新一下下载源，国内清华的下载源还是很好用的</p>
-<h2 id="用tcpdump抓包"><a href="#用tcpdump抓包" class="headerlink" title="用tcpdump抓包"></a>用tcpdump抓包</h2><p>sudo tcpdump -i 网卡 -entXX<br><img src="/images/use_tcpdump.jpg" alt="使用tcpdump抓包"></p>
-<p>也可以把tcpdump抓到的数据保存到文件里<br>sudo tcpdump -i 网卡 -entXX -w 文件名.pcap<br><img src="/images/tcpdump_save_file.jpg" alt="tcpdump抓包后保存到文件里"><br>然后将pcap文件从linux里拷贝到windows下，用Wireshark分析数据</p>
-]]></content>
-      <categories>
-        <category>技术折腾</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>tcpdump</tag>
-        <tag>抓包</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>linux插件系统加载器-使用dl库</title>
     <url>/posts/3ba077d3.html</url>
     <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在 C&#x2F;C++ 开发中，项目里需要在程序运行期间加载一个外部的代码库（而不是在编译时链接），而且根据不同的配置，需要加载不同的代码库，进行热更新，那直接考虑的就是插件架构。</p>
@@ -1395,6 +1376,25 @@
       <tags>
         <tag>C++</tag>
         <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>linux下安装tcpdump并用其抓包</title>
+    <url>/posts/12907b44.html</url>
+    <content><![CDATA[<h1 id="linux下安装tcpdump并用其抓包"><a href="#linux下安装tcpdump并用其抓包" class="headerlink" title="linux下安装tcpdump并用其抓包"></a>linux下安装tcpdump并用其抓包</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有时候需要分析网络协议，这时候抓包看看直接的数据，能够有助于对协议有一个直观的感受，在windows下，可以直接安装Wireshark就能轻松抓包分析了，但是在linux下，没有Wireshark，所以可以安装tcpdump，用tcpdump抓包分析</p>
+<h2 id="安装tcpdump"><a href="#安装tcpdump" class="headerlink" title="安装tcpdump"></a>安装tcpdump</h2><p>安装tcpdump有两种方式，一种是下载tcpdump源码，然后编译安装；另一种是直接用系统安装命令</p>
+<h3 id="下载源码安装tcpdump"><a href="#下载源码安装tcpdump" class="headerlink" title="下载源码安装tcpdump"></a>下载源码安装tcpdump</h3><p>这个可以参考：<a href="https://blog.csdn.net/tic_yx/article/details/17012317">https://blog.csdn.net/tic_yx/article/details/17012317</a><br>这篇文章里记录的很详细<br>文章内容截图如下：<br><img src="/images/complie_tcpdump.jpg" alt="源码编译tcpdump"></p>
+<h3 id="直接用系统安装命令"><a href="#直接用系统安装命令" class="headerlink" title="直接用系统安装命令"></a>直接用系统安装命令</h3><p>在ubuntu下，可以直接使用sudo apt-get install tcpdump<br>如果这一步安装的时候有报错，可以更新一下下载源，国内清华的下载源还是很好用的</p>
+<h2 id="用tcpdump抓包"><a href="#用tcpdump抓包" class="headerlink" title="用tcpdump抓包"></a>用tcpdump抓包</h2><p>sudo tcpdump -i 网卡 -entXX<br><img src="/images/use_tcpdump.jpg" alt="使用tcpdump抓包"></p>
+<p>也可以把tcpdump抓到的数据保存到文件里<br>sudo tcpdump -i 网卡 -entXX -w 文件名.pcap<br><img src="/images/tcpdump_save_file.jpg" alt="tcpdump抓包后保存到文件里"><br>然后将pcap文件从linux里拷贝到windows下，用Wireshark分析数据</p>
+]]></content>
+      <categories>
+        <category>技术折腾</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>tcpdump</tag>
+        <tag>抓包</tag>
       </tags>
   </entry>
   <entry>
@@ -1443,6 +1443,19 @@
         <tag>交叉编译</tag>
         <tag>第三方库</tag>
       </tags>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/posts/0.html</url>
+    <content><![CDATA[<h1 id="Qt多语言处理"><a href="#Qt多语言处理" class="headerlink" title="Qt多语言处理"></a>Qt多语言处理</h1><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>利用Qt原生模块</p>
+<h2 id="tr函数引入"><a href="#tr函数引入" class="headerlink" title="tr函数引入"></a>tr函数引入</h2><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">QString text=<span class="built_in">tr</span>(<span class="string">&quot;Measure&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="语言模块"><a href="#语言模块" class="headerlink" title="语言模块"></a>语言模块</h2><p>通过Qt Command Prompt</p>
+<p>（1）命令行执行生成ts文件</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">lupdate yourProject.<span class="property">pro</span> -ts translations/zh_CN.<span class="property">ts</span></span><br></pre></td></tr></table></figure>
+<p>（2）手动修改ts文件的中文翻译</p>
+<p>（3）生成qm文件</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">lrelease translations\zh_CN.<span class="property">ts</span> -qm translations\zh_CN.<span class="property">qm</span></span><br></pre></td></tr></table></figure>]]></content>
   </entry>
   <entry>
     <title>redis交叉编译arm版本</title>
